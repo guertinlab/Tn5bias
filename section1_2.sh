@@ -2,7 +2,7 @@
 bowtie2-build hg38.fa hg38
 bowtie2-build chrM.fa chrM
 
-for fq *PE1.fastq.gz
+for fq in *PE1.fastq.gz
 do
     name=$(echo $fq | awk -F"_PE1.fastq.gz" '{print $1}')
     echo $name
