@@ -90,3 +90,4 @@ do
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE2_minus_no_shift.fasta
 done
 
+
