@@ -1,4 +1,3 @@
-
 #comments are for Rivanna (in progress)
 wget https://raw.githubusercontent.com/guertinlab/Tn5bias/master/bedToOneEntryBed.py
 #module load gcc/7.1.0
@@ -9,9 +8,9 @@ wget https://raw.githubusercontent.com/guertinlab/Tn5bias/master/bedToOneEntryBe
 #module load python/3.7.7
 #ijob -A guertinlab -c 1 -p standard -t 10:00:00
 
-for i in C1_*.bam
+for i in C1_*_PE1_plus.bam
 do
-    name=$(echo $i | awk -F".bam" '{print $1}')
+    name=$(echo $i | awk -F"_PE1_plus.bam" '{print $1}')
     echo $name
 #separate PE1 and PE2 reads
     samtools view -b -f 0x0040 ${name}.bam > ${name}_PE1.bam
@@ -25,7 +24,7 @@ do
     seqOutBias hg38.fa ${name}_PE1_plus.bam --no-scale --out=no_scale.tbl --shift-counts \
                                  --bed=${name}_PE1_plus_shift_counts.bed \
                                  --bw=${name}_PE1_plus_shift_counts.bigWig --read-size=30
-    seqOutBias hg38.fa ${name}_PE1_minus.bam --no-scale --out=no_scale.tbl --shift-counts \ 
+    seqOutBias hg38.fa ${name}_PE1_minus.bam --no-scale --out=no_scale.tbl --shift-counts \
                                  --bed=${name}_PE1_minus_shift_counts.bed \
                                  --bw=${name}_PE1_minus_shift_counts.bigWig --read-size=30
     seqOutBias hg38.fa ${name}_PE2_plus.bam --no-scale --out=no_scale.tbl --shift-counts \
@@ -59,17 +58,17 @@ for i in C1_*_PE1_plus.bam
 do
     name=$(echo $i | awk -F"_PE1_plus.bam" '{print $1}')
     echo $name
-    seqOutBias hg38.fa ${name}_PE1_plus.bam --no-scale --out=no_scale_no_shift.tbl \
-                                 --bed=${name}_PE1_plus_no_shift.bed \ 
+    seqOutBias hg38.fa ${name}_PE1_plus.bam --no-scale --out=no_scale.tbl \
+                                 --bed=${name}_PE1_plus_no_shift.bed \
                                  --bw=${name}_PE1_plus_no_shift.bigWig --read-size=30
-    seqOutBias hg38.fa ${name}_PE1_minus.bam --no-scale  --out=no_scale_no_shift.tbl \
+    seqOutBias hg38.fa ${name}_PE1_minus.bam --no-scale --out=no_scale.tbl \
                                  --bed=${name}_PE1_minus_no_shift.bed \
                                  --bw=${name}_PE1_minus_no_shift.bigWig --read-size=30
-    seqOutBias hg38.fa ${name}_PE2_plus.bam --no-scale  --out=no_scale_no_shift.tbl \
-                                 --bed={name}_PE2_plus_no_shift.bed \
+    seqOutBias hg38.fa ${name}_PE2_plus.bam --no-scale --out=no_scale.tbl \
+                                 --bed=${name}_PE2_plus_no_shift.bed \
                                  --bw=${name}_PE2_plus_no_shift.bigWig --read-size=30
-    seqOutBias hg38.fa ${name}_PE2_minus.bam --no-scale --out=no_scale_no_shift.tbl \
-                                 --bed=${name}_PE2_minus_no_shift.bed
+    seqOutBias hg38.fa ${name}_PE2_minus.bam --no-scale --out=no_scale.tbl \
+                                 --bed=${name}_PE2_minus_no_shift.bed \
                                  --bw=${name}_PE2_minus_no_shift.bigWig --read-size=30
     python bedToOneEntryBed.py ${name}_PE1_plus_no_shift.bed
     python bedToOneEntryBed.py ${name}_PE1_minus_no_shift.bed
