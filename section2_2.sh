@@ -45,7 +45,7 @@ do
 
 	tn5File=${name:0:-4}_PE1_minus_not_scaled.oneentry.bed
 	awk -v m=$minusshift '{$2 = $2 - m; print}' $tn5File | awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
-    		fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name:0:-4}_minus_not_scaled.fasta
+    		fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name:0:-4}_PE1_minus_not_scaled.fasta
 
 
 	tn5File=${name:0:-4}_PE2_plus_not_scaled.oneentry.bed
