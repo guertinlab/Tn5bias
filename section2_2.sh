@@ -1,4 +1,3 @@
-
 #comments are for Rivanna (in progress)
 wget https://raw.githubusercontent.com/guertinlab/Tn5bias/master/bedToOneEntryBed.py
 #module load gcc/7.1.0
@@ -34,10 +33,10 @@ do
     seqOutBias hg38.fa ${name}_PE2_minus.bam --no-scale --out=no_scale.tbl --shift-counts \
                                  --bed=${name}_PE2_minus_shift_counts.bed \
                                  --bw=${name}_PE2_minus_shift_counts.bigWig --read-size=30
-    python bedToOneEntryBed.py ${name}_PE1_plus_shift_counts.bed
-    python bedToOneEntryBed.py ${name}_PE1_minus_shift_counts.bed
-    python bedToOneEntryBed.py ${name}_PE2_plus_shift_counts.bed
-    python bedToOneEntryBed.py ${name}_PE2_minus_shift_counts.bed
+    python bedToOneEntryBed.py -i ${name}_PE1_plus_shift_counts.bed
+    python bedToOneEntryBed.py -i ${name}_PE1_minus_shift_counts.bed
+    python bedToOneEntryBed.py -i ${name}_PE2_plus_shift_counts.bed
+    python bedToOneEntryBed.py -i ${name}_PE2_minus_shift_counts.bed
 #these bed files can be used to get the sequence flanking ALL Tn5 insertion sites, 
 #so we can see the precise nature of the sequence bias for each PE/strand combination
     awk '{$2 = $2 - 9; print}' ${name}_PE1_plus_shift_counts.oneentry.bed | \
@@ -71,10 +70,10 @@ do
     seqOutBias hg38.fa ${name}_PE2_minus.bam --no-scale --out=no_scale.tbl \
                                  --bed=${name}_PE2_minus_no_shift.bed \
                                  --bw=${name}_PE2_minus_no_shift.bigWig --read-size=30
-    python bedToOneEntryBed.py ${name}_PE1_plus_no_shift.bed
-    python bedToOneEntryBed.py ${name}_PE1_minus_no_shift.bed
-    python bedToOneEntryBed.py ${name}_PE2_plus_no_shift.bed
-    python bedToOneEntryBed.py ${name}_PE2_minus_no_shift.bed
+    python bedToOneEntryBed.py -i ${name}_PE1_plus_no_shift.bed
+    python bedToOneEntryBed.py -i ${name}_PE1_minus_no_shift.bed
+    python bedToOneEntryBed.py -i ${name}_PE2_plus_no_shift.bed
+    python bedToOneEntryBed.py -i ${name}_PE2_minus_no_shift.bed
 #these bed files can be used to get the sequence flanking ALL Tn5 insertion sites, 
 #so we can see the precise nature of the sequence bias for each PE/strand combination
     awk '{$2 = $2 - 9; print}' ${name}_PE1_plus_no_shift.oneentry.bed | \
@@ -90,3 +89,4 @@ do
        awk '{OFS="\t";} {$3 = $2 + 20; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE2_minus_no_shift.fasta
 done
+
