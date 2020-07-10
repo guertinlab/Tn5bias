@@ -1,3 +1,4 @@
+
 #comments are for Rivanna (in progress)
 wget https://raw.githubusercontent.com/guertinlab/Tn5bias/master/bedToOneEntryBed.py
 #module load gcc/7.1.0
@@ -24,10 +25,10 @@ do
     seqOutBias hg38.fa ${name}_PE1_plus.bam --no-scale --out=no_scale.tbl --shift-counts \
                                  --bed=${name}_PE1_plus_shift_counts.bed \
                                  --bw=${name}_PE1_plus_shift_counts.bigWig --read-size=30
-    seqOutBias hg38.fa ${name}_PE1_minus.bam --no-scale  --out=no_scale.tbl --shift-counts \ 
+    seqOutBias hg38.fa ${name}_PE1_minus.bam --no-scale --out=no_scale.tbl --shift-counts \ 
                                  --bed=${name}_PE1_minus_shift_counts.bed \
                                  --bw=${name}_PE1_minus_shift_counts.bigWig --read-size=30
-    seqOutBias hg38.fa ${name}_PE2_plus.bam --no-scale  --out=no_scale.tbl --shift-counts \
+    seqOutBias hg38.fa ${name}_PE2_plus.bam --no-scale --out=no_scale.tbl --shift-counts \
                                  --bed=${name}_PE2_plus_shift_counts.bed \
                                  --bw=${name}_PE2_plus_shift_counts.bigWig --read-size=30
     seqOutBias hg38.fa ${name}_PE2_minus.bam --no-scale --out=no_scale.tbl --shift-counts \
@@ -89,4 +90,3 @@ do
        awk '{OFS="\t";} {$3 = $2 + 20; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE2_minus_no_shift.fasta
 done
-
