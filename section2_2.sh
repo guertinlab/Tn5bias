@@ -1,3 +1,4 @@
+
 #comments are for Rivanna (in progress)
 wget https://raw.githubusercontent.com/guertinlab/Tn5bias/master/bedToOneEntryBed.py
 #module load gcc/7.1.0
@@ -39,16 +40,16 @@ do
     python bedToOneEntryBed.py ${name}_PE2_minus_shift_counts.bed
 #these bed files can be used to get the sequence flanking ALL Tn5 insertion sites, 
 #so we can see the precise nature of the sequence bias for each PE/strand combination
-    awk '{$2 = $2 - 9; print}' ${name}_PE1_plus_shift_counts.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE1_plus_shift_counts.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE1_plus_shift_counts.fasta
-    awk '{$2 = $2 - 9; print}' ${name}_PE1_minus_shift_counts.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE1_minus_shift_counts.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE1_minus_not_scaled_shift_counts.fasta
-    awk '{$2 = $2 - 9; print}' ${name}_PE2_plus_shift_counts.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE2_plus_shift_counts.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE2_plus_shift_counts.fasta
-    awk '{$2 = $2 - 9; print}' ${name}_PE2_minus_shift_counts.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE2_minus_shift_counts.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE2_minus_shift_counts.fasta
 done
@@ -76,16 +77,16 @@ do
     python bedToOneEntryBed.py ${name}_PE2_minus_no_shift.bed
 #these bed files can be used to get the sequence flanking ALL Tn5 insertion sites, 
 #so we can see the precise nature of the sequence bias for each PE/strand combination
-    awk '{$2 = $2 - 9; print}' ${name}_PE1_plus_no_shift.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE1_plus_no_shift.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE1_plus_no_shift.fasta
-    awk '{$2 = $2 - 9; print}' ${name}_PE1_minus_no_shift.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE1_minus_no_shift.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE1_minus_no_shift.fasta
-    awk '{$2 = $2 - 9; print}' ${name}_PE2_plus_no_shift.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE2_plus_no_shift.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE2_plus_no_shift.fasta
-    awk '{$2 = $2 - 9; print}' ${name}_PE2_minus_no_shift.bed | \
+    awk '{$2 = $2 - 9; print}' ${name}_PE2_minus_no_shift.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 20; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_PE2_minus_no_shift.fasta
 done
