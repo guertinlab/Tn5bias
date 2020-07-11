@@ -1,11 +1,16 @@
+#Set window size for FASTA	
+winsize=20
+#this works, but in my latest version I decided to use a odd window size
+#why I chose an odd window size may become clear once the seqLogo is generated
+#the modification is simple for odd window size, but how would you allow it to accept any sized window?
+
 for ba in C1*
 do
 	name=$(echo $ba)
-	#Set window size for FASTA	
-	winsize=20
+
 	minusshift=$(expr $winsize / 2 - 1)	
 	echo $name
-	echo ${name:0:-4}
+	echo ${name:0:-4} 
 	echo Window size is $winsize\bp
 	echo Window begins $minusshift\bp before insertion event
 	
@@ -38,22 +43,26 @@ do
 	#these bed files can be used to get the sequence flanking ALL Tn5 insertion sites, 
 	#so we can see the precise nature of the sequence bias for each PE/strand combination
 
-
-	tn5File=${name:0:-4}_PE1_plus_not_scaled.oneentry.bed
-	awk -v m=$minusshift '{$2 = $2 - m; print}' $tn5File | awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
+#this was my fault, no need to update the variable 4 times
+#	tn5File=${name:0:-4}_PE1_plus_not_scaled.oneentry.bed
+	awk -v m=$minusshift '{$2 = $2 - m; print}' ${name:0:-4}_PE1_plus_not_scaled.oneentry.bed | \
+	        awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
     		fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name:0:-4}_PE1_plus_not_scaled.fasta
 
-	tn5File=${name:0:-4}_PE1_minus_not_scaled.oneentry.bed
-	awk -v m=$minusshift '{$2 = $2 - m; print}' $tn5File | awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
+#	tn5File=${name:0:-4}_PE1_minus_not_scaled.oneentry.bed
+	awk -v m=$minusshift '{$2 = $2 - m; print}' ${name:0:-4}_PE1_minus_not_scaled.oneentry.bed | \
+	        awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
     		fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name:0:-4}_PE1_minus_not_scaled.fasta
 
 
-	tn5File=${name:0:-4}_PE2_plus_not_scaled.oneentry.bed
-	awk -v m=$minusshift '{$2 = $2 - m; print}' $tn5File | awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
+#	tn5File=${name:0:-4}_PE2_plus_not_scaled.oneentry.bed
+	awk -v m=$minusshift '{$2 = $2 - m; print}' ${name:0:-4}_PE2_plus_not_scaled.oneentry.bed | \
+	        awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
     		fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name:0:-4}_PE2_plus_not_scaled.fasta
 
-	tn5File=${name:0:-4}_PE2_minus_not_scaled.oneentry.bed
-	awk -v m=$minusshift '{$2 = $2 - m; print}' $tn5File | awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
+#	tn5File=${name:0:-4}_PE2_minus_not_scaled.oneentry.bed
+	awk -v m=$minusshift '{$2 = $2 - m; print}' ${name:0:-4}_PE2_minus_not_scaled.oneentry.bed | \
+	        awk -v w=$winsize '{OFS="\t";} {$3 = $2 + w; print}' | grep -v - | \
     		fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name:0:-4}_PE2_minus_not_scaled.fasta
 
 
