@@ -36,7 +36,7 @@ pswm.func.2 <- function(x.ligation, out = 'outfilename') {
     on.exit(close(outfile))
     writeLines(c("MEME version 4", "ALPHABET= ACGT", "strands: + -", " ", 
                  "Background letter frequencies (from uniform background):", 
-                 "A 0.20000 C 0.30000 G 0.30000 T 0.20000", paste("MOTIF", out), " ",
+                 "A 0.30000 C 0.20000 G 0.20000 T 0.30000", paste("MOTIF", out), " ",
                  "letter-probability matrix: alength= 4 w= 21"), outfile)
     pswm = pswm/rowSums(pswm)
     write.table(pswm, file = paste0(out, '.txt'), append = TRUE, quote=FALSE, row.names =FALSE, col.names = FALSE)
