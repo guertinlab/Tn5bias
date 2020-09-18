@@ -3,7 +3,7 @@ library(ggseqlogo)
 plot.seqlogo.meme <-function(infile, outfile = "memefunc_test.pdf") {
   wd <- getwd()
   memefile <- paste0(wd,"/",infile)
-  minmeme <- read.csv(memefile, skip = 12, header = FALSE, sep = '')
+  minmeme <- read.csv(memefile, skip = 11, header = FALSE, sep = '')
   minmeme <- minmeme[1:nrow(minmeme)-1,]
   meme.trans <- t(minmeme)
   class(meme.trans) <- "numeric"
