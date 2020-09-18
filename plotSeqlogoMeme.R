@@ -1,7 +1,6 @@
 library(ggseqlogo)
 
-plot.seqlogo.meme <-function(infile, outfile = "memefunc_test.pdf")
-{
+plot.seqlogo.meme <-function(infile, outfile = "memefunc_test.pdf") {
   wd <- getwd()
   memefile <- paste0(wd,"/",infile)
   minmeme <- read.csv(memefile, skip = 12, header = FALSE, sep = '')
@@ -14,6 +13,3 @@ plot.seqlogo.meme <-function(infile, outfile = "memefunc_test.pdf")
   print(ggseqlogo(meme.trans,  facet = "wrap", font = 'helvetica_bold'))
   dev.off()
 }
-
-
-plot.seqlogo.meme('XXXXXX_minimal_meme.txt', outfile = "XXXXXX_seqlogo.pdf")
