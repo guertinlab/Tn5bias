@@ -2,47 +2,38 @@
 source('https://raw.githubusercontent.com/guertinlab/seqOutBias/master/docs/R/seqOutBias_functions.R')
 library(ggseqlogo)
 
-pswm.func.2 <- function(x.ligation, out = 'outfilename') {
-    a = lapply(strsplit(as.character(x.ligation), ''), "[", 1)
-    b = lapply(strsplit(as.character(x.ligation), ''), "[", 2)
-    c = lapply(strsplit(as.character(x.ligation), ''), "[", 3)
-    d = lapply(strsplit(as.character(x.ligation), ''), "[", 4)
-    e = lapply(strsplit(as.character(x.ligation), ''), "[", 5)
-    f = lapply(strsplit(as.character(x.ligation), ''), "[", 6)
-    g = lapply(strsplit(as.character(x.ligation), ''), "[", 7)
-    h = lapply(strsplit(as.character(x.ligation), ''), "[", 8)
-    i = lapply(strsplit(as.character(x.ligation), ''), "[", 9)
-    j = lapply(strsplit(as.character(x.ligation), ''), "[", 10)
-    k = lapply(strsplit(as.character(x.ligation), ''), "[", 11)
-    l = lapply(strsplit(as.character(x.ligation), ''), "[", 12)
-    m = lapply(strsplit(as.character(x.ligation), ''), "[", 13)
-    n = lapply(strsplit(as.character(x.ligation), ''), "[", 14)
-    o = lapply(strsplit(as.character(x.ligation), ''), "[", 15)
-    p = lapply(strsplit(as.character(x.ligation), ''), "[", 16)
-    q = lapply(strsplit(as.character(x.ligation), ''), "[", 17)
-    r = lapply(strsplit(as.character(x.ligation), ''), "[", 18)
-    s = lapply(strsplit(as.character(x.ligation), ''), "[", 19)
-    t = lapply(strsplit(as.character(x.ligation), ''), "[", 20)
-    u = lapply(strsplit(as.character(x.ligation), ''), "[", 21)
-    col.matrix = cbind(a,b,c,d,e,f, g,h,i,j,k,l,m,n,o,p,q,r,s,t,u)
-    a.nuc = sapply(1:21, function(x) sum(col.matrix[,x] == "A"))
-    t.nuc = sapply(1:21, function(x) sum(col.matrix[,x] == "T"))
-    c.nuc = sapply(1:21, function(x) sum(col.matrix[,x] == "C"))
-    g.nuc = sapply(1:21, function(x) sum(col.matrix[,x] == "G"))
-    #pswm = cbind(a.nuc*(0.25/.2), c.nuc*(0.25/.3), g.nuc*(0.25/.3), t.nuc*(0.25/.2))
-    pswm = cbind(a.nuc, c.nuc, g.nuc, t.nuc)
-    print(pswm)
-    outfile = file(paste0(out, '.txt'))
-    on.exit(close(outfile))
-    writeLines(c("MEME version 4", "ALPHABET= ACGT", "strands: + -", " ", 
-                 "Background letter frequencies (from uniform background):", 
-                 "A 0.30000 C 0.20000 G 0.20000 T 0.30000", paste("MOTIF", out), " ",
-                 "letter-probability matrix: alength= 4 w= 21"), outfile)
-    pswm = pswm/rowSums(pswm)
-    write.table(pswm, file = paste0(out, '.txt'), append = TRUE, quote=FALSE, row.names =FALSE, col.names = FALSE)
-#the followign line can be uncommented if ceqlogo is installed and in your $PATH    
-#    system(paste('ceqlogo -i ', out, '.txt -m 1 > ', out, '.eps', sep=''))
-    return(pswm)
+pswm.func.2 <- function(x.ligation, out = 'outfilename', posnum, rc = FALSE) {
+   col.matrix = matrix()
+   for (g in 1:posnum){
+    itnum = lapply(strsplit(as.character(x.ligation), ''), "[", g)
+    if (g == 1) {
+    col.matrix = itnum
+    } else {
+    col.matrix = cbind(col.matrix, itnum)
+    }
+    }  
+  
+  a.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "A"))
+  t.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "T"))
+  c.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "C"))
+  g.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "G"))
+  
+  pswm = cbind(a.nuc, c.nuc, g.nuc, t.nuc)
+  print(pswm)
+  outfile = file(paste0(out, '.txt'))
+  on.exit(close(outfile))
+  writeLines(c("MEME version 4", "ALPHABET= ACGT", "strands: + -", " ", 
+               "Background letter frequencies (from uniform background):", 
+               "A 0.30000 C 0.20000 G 0.20000 T 0.30000", paste("MOTIF", out), " ",
+               paste("letter-probability matrix: alength= 4 w= ", posnum)), outfile)
+  pswm = pswm/rowSums(pswm)
+  if (rc == "TRUE"){
+    pswm<- pswm[nrow(pswm):1,ncol(pswm):1]
+  } else {}
+      
+  
+  write.table(pswm, file = paste0(out, '.txt'), append = TRUE, quote=FALSE, row.names =FALSE, col.names = FALSE)
+  return(pswm)
 }
 
 plot.seqlogo.func <- function(x, outfile = "ATAC-kmer_optimization_all_test.pdf") {
@@ -97,10 +88,10 @@ else return(v)
 }))
 
 
-pswm.pe1.minus = pswm.func.2(pe1.minusATAC[,1], 'ATAC_bias_pe1_minus')
-pswm.pe1.plus = pswm.func.2(pe1.plusATAC[,1], 'ATAC_bias_pe1_plus')
-pswm.pe2.minus = pswm.func.2(pe2.minusATAC[,1], 'ATAC_bias_pe2_minus')
-pswm.pe2.plus = pswm.func.2(pe2.plusATAC[,1], 'ATAC_bias_pe2_plus')
+pswm.pe1.minus = pswm.func.2(pe1.minusATAC[,1], 'ATAC_bias_pe1_minus', 21)
+pswm.pe1.plus = pswm.func.2(pe1.plusATAC[,1], 'ATAC_bias_pe1_plus', 21)
+pswm.pe2.minus = pswm.func.2(pe2.minusATAC[,1], 'ATAC_bias_pe2_minus', 21)
+pswm.pe2.plus = pswm.func.2(pe2.plusATAC[,1], 'ATAC_bias_pe2_plus', 21)
 
 save(pswm.pe1.minus, pswm.pe1.plus, pswm.pe2.minus, pswm.pe2.plus, file =paste0('pswm_', shift.status, 'RC.Rdata'))
 
