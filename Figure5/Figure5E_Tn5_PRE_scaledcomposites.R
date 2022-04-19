@@ -77,14 +77,14 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
 
 
 x = data.composite
-x[,3] = gsub("NNNCNN", "seqOutBias", x[,3])
-x[,3] = gsub("PRE", "Rule Ensemble", x[,3])
+x[,4] = gsub("NNNCNN", "seqOutBias", x[,4])
+x[,4] = gsub("PRE", "Rule Ensemble", x[,4])
 
-x[,3] <- as.factor(x[,3])
+x[,4] <- as.factor(x[,4])
 
 
 for (i in c('Rule Ensemble', 'seqOutBias', 'Unscaled' )) {
-  x[,3] = relevel(x[,3],ref=i)
+  x[,4] = relevel(x[,4],ref=i)
 }
 
 
