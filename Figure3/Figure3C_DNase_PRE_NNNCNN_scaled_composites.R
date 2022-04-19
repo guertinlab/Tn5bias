@@ -1,4 +1,3 @@
-
 library(ggplot2)
 source('composite_functions.R')
 ################################################################################
@@ -17,19 +16,18 @@ for (i in 1:length(combined_compositelist)) {
   combined_compositelist[[i]] = combined_compositelist[[i]][which(combined_compositelist[[i]]$x >= -20.5 & combined_compositelist[[i]]$x <= 20.5),]
 }
 
+#Separate out the TFs to be plotted and their motif lengths
+figure3C_plot = do.call(rbind, combined_compositelist[c(13, 35, 44)])
+mlen <- Motiflen[c(13, 35, 44)]
+mlen <- as.data.frame(mlen)
+rownames(mlen) <- levels(as.factor(figure3C_plot$factor))
 
-for (i in c(13, 35, 44)) {
-  plot.composites(combined_compositelist[[i]], legend = TRUE, 
-                  pdf_name = paste('Figure3C_DNasePN_PRE_NNNCNN_comparison_', paste(names(combined_compositelist[i])), '_composite', sep = ''),
+
+
+plot.composites(figure3C_plot, legend = TRUE, 
+                  pdf_name = 'Figure3C_DNasePN_PRE_NNNCNN_comparison',
+                  figwidth = 8, figheight = 4,
                   ylabel = 'Cut Frequency',
                   xlabel = 'Distance from Motif Center',
-                  motifline = TRUE, Motiflen = Motiflen[i]
-  )}
-
-
-
-
-
-
-
+                  motifline = TRUE, Motiflen = mlen, layoutgrid = c(3,1))
 
