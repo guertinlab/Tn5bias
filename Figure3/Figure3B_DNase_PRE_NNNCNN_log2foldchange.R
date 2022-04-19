@@ -8,7 +8,7 @@ load('Figure3B_DNase_PRE_NNNCNN_log_fold_change.Rdata')
 
 Maskvarplot <- function(){
   ggplot(DNase_PRE_NNNCNN_log_fold_change, aes(x=factor(Factor), y=Difference, fill = Treatment, color = Treatment)) +
-    xlab('') + ylab(expression(log[2]*('Fold Change'))) +
+    xlab('') + ylab(expression(log[2]*('Distance From Genomic Background'))) +
     geom_violin() +
     scale_fill_manual(values=c('#808080', '#FF0000', '#0000FF')) +
     scale_color_manual(values=c('#808080', '#FF0000', '#0000FF')) +
