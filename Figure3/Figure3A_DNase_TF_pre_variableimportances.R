@@ -13,7 +13,6 @@ impbarplot +
         axis.text.y = element_text(size=26, face="bold", colour = "black"),
         axis.line = element_line(colour = 'black', size = 1),
         plot.title = element_text(hjust = 0.5)) +
-  scale_x_continuous(breaks = c(seq(-9.5, 9.5, 5)), labels = c(seq(-9.5, 9.5, 5))) + 
-  theme(axis.text.x=element_text(vjust=1), plot.margin = margin(1,1,1.5,1.2, "cm"))  
+  scale_x_continuous(breaks = c(-9.5, -4.5, 0.5, 4.5, 9.5), labels = c(-9.5, -4.5, 0.5, 4.5, 9.5)) + 
+  theme(axis.text.x=element_text(vjust=1), plot.margin = margin(1,1,1.5,1.2, "cm"), axis.ticks.length=unit(.25, "cm"))  
 dev.off()
-
