@@ -114,13 +114,13 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
                             motifline = FALSE, Motiflen = 10,
                             figwidth = 2.5, figheight=3,
                             indexlist = NULL, layoutgrid = NULL,
-                    col.lines = c("#0000FF", "#FF0000", "#00000090", 
-                                  rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
-                                  rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
-                                  rgb(1/2,1/2,0,1/2)), 
-                                  fill.poly = c(rgb(0,0,1,1/4), 
-                                  rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
-                                  rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
+                            col.lines = c("#0000FF", "#FF0000",  
+                                          rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
+                                          rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
+                                          rgb(1/2,1/2,0,1/2)), 
+                            fill.poly = c(rgb(0,0,1,1/4), 
+                                          rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
+                                          rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
     require(lattice)
     pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
     print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
@@ -129,7 +129,7 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
                              y =list(cex=0.8, relation="free", tick.number=4)),
                  col = col.lines,
                  auto.key = if (legend == TRUE) 
-                     {list(points=F, lines=T, cex=0.8)} else{},
+                 {list(points=F, lines=T, cex=0.8)} else{},
                  par.settings = list(strip.background=list(col="#00000000"),
                                      strip.border = list(col = 'transparent'),
                                      superpose.symbol = list(pch = c(16),
@@ -139,7 +139,7 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
                                                            lwd=c(2), 
                                                            lty = c(1))),
                  cex.axis=1.0,
-                 par.strip.text=list(cex=0.9, font=1, col='black'),
+                 par.strip.text=list(cex=1.2, font=1, col='black'),
                  aspect=1.0,
                  between=list(y=0.5, x=0.5),
                  lwd=2,
@@ -150,10 +150,11 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
                  panel = function(x, y, ...) {
                      panel.xyplot(x, y, ...)
                      #panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')
+                     level = dimnames(trellis.last.object())[["factor"]][packet.number()]
                      if (motifline == TRUE) 
-                        {panel.abline(v = Motiflen/2, lty = 2, col = "red")} else{}
+                     {panel.abline(v = Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
                      if (motifline == TRUE) 
-                        {panel.abline(v = -Motiflen/2, lty = 2, col = "red")} else{}
+                     {panel.abline(v = -Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
                  }
     ))
     dev.off()
