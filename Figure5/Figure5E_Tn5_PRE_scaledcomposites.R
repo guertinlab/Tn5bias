@@ -30,30 +30,33 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
                             motifline = FALSE, Motiflen = 10,
                             figwidth = 2.5, figheight=3,
                             indexlist = NULL, layoutgrid = NULL, xlim = c(-21, 21),
-                    col.lines = c("#0000FF", "#FF0000", "#00000090", 
-                                  rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
-                                  rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
+                    col.lines = c(rgb(1,0.0,0.00,1/2), rgb(0,0,1,1/2),  
+                                  rgb(0,0,0,1), rgb(0,1/2,1/2,1/2), 
                                   rgb(1/2,1/2,0,1/2)), 
                                   fill.poly = c(rgb(0,0,1,1/4), 
                                   rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
                                   rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
     require(lattice)
     pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
-    print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
+    print(xyplot(est ~ x|factor, group = group, data = dat, 
                  type = 'l', as.table = TRUE, xlim = xlim,
                  scales=list(x=list(cex=0.8,relation = "free", axs ="i"), 
                              y =list(cex=0.8, relation="free", tick.number=4)),
                  col = col.lines,
                  auto.key = if (legend == TRUE) 
                      {list(points=F, lines=T, cex=0.8)} else{},
-                 par.settings = list(strip.background=list(col="#00000000"),
-                                     strip.border = list(col = 'transparent'),
+                 par.settings = list(
                                      superpose.symbol = list(pch = c(16),
                                                              col=col.lines, 
                                                              cex =0.5), 
                                      superpose.line = list(col = col.lines, 
                                                            lwd=c(2), 
                                                            lty = c(1))),
+                 strip = function(..., which.panel, bg) {
+               bg.col = c("grey90")
+               strip.default(..., which.panel = which.panel,
+                             bg = rep(bg.col, length = which.panel)[which.panel])
+             },
                  cex.axis=1.0,
                  par.strip.text=list(cex=0.9, font=1, col='black'),
                  aspect=1.0,
@@ -77,22 +80,22 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
 
 
 x = data.composite
-x[,4] = gsub("NNNCNN", "seqOutBias", x[,4])
-x[,4] = gsub("PRE", "Rule Ensemble", x[,4])
+x$group <- gsub('NNNCNN', 'seqOutBias', x$group)
+x$group <- gsub('PRE', 'Rule Ensemble', x$group)
 
-x[,4] <- as.factor(x[,4])
+x$group <- as.factor(x$group)
 
 
 for (i in c('Rule Ensemble', 'seqOutBias', 'Unscaled' )) {
-  x[,4] = relevel(x[,4],ref=i)
+  x$group = relevel(x$group,ref=i)
 }
+
+
 
 
 plot.composites(x,
                   pdf_name = 'composite',
-                  ylabel = 'Relative Cleavage', indexlist = list(c(10,13,35,44)), 
-                  xlim = c(-21, 21),  figwidth = 11, figheight=8,
+                  ylabel = 'Relative Cleavage', indexlist = list(c(10,13,21,38,31)), 
+                  xlim = c(-21, 21),  figwidth = 11.5, figheight=4,
                   xlabel = 'Distance from Motif Center',
   )
-
-
