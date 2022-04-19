@@ -113,7 +113,7 @@ default.units = "native",
 
 
 
-factor="DNase"
+factor="RE_"
 
 x = log_fold
 x[,3] = gsub("Tn5 NNNCNN", "seqOutBias", x[,3])
@@ -126,7 +126,7 @@ for (i in c('Rule Ensemble', 'seqOutBias', 'Unscaled' )) {
   x[,3] = relevel(x[,3],ref=i)
 }
 
-pdf(paste0(factor,'_bias_width.pdf'), useDingbats = FALSE, width=10.83, height=6)
+pdf(paste0(factor,'_correction.pdf'), useDingbats = FALSE, width=10.83, height=6)
 
 trellis.par.set(box.umbrella = list(lty = 1, col="#93939380", lwd=2),
                 box.rectangle = list(col = '#93939380', lwd=1.6),
@@ -154,7 +154,7 @@ print(bwplot(Difference ~ Treatment | Factor , data = x,
              },
              panel = function(..., box.ratio, col) {
                  panel.abline(h = 0, col = 'grey45', lty = 2)
-                 panel.violin.hack(..., col = c("#fff4c7", "#ff5fd2", "#50ffe6"),
+                 panel.violin.hack(..., col = c("#ff7e78", "#ff5fd2", "#50ffe6"),
                               varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
                  panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE, amount = 0.2, pch = 16)
                  panel.bwplot(..., pch = '|', do.out = FALSE)
