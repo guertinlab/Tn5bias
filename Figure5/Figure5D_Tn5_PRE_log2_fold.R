@@ -30,8 +30,6 @@ dev.off()
 
 
 
-bwplot(log_fold[,1] ~ log_fold[,3] | log_fold[,2], aspect = 2.5)
-
 panel.violin.hack <-
 function (x, y, box.ratio = 1, box.width = box.ratio/(1 + box.ratio),
      horizontal = TRUE, alpha = plot.polygon$alpha, border =  
