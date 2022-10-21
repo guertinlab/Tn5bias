@@ -127,11 +127,3 @@ print(bwplot(baseline_log ~ group , data = avg_baselines,
                
              }))
 dev.off()
-
-t.test(avg_baselines$baseline_log[which(avg_baselines$group == 'Rule Ensemble')],
-       avg_baselines$baseline_log[which(avg_baselines$group == 'seqOutBias')], paired = FALSE)
-
-
-
-
-
