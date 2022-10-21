@@ -105,6 +105,26 @@ x[,3] = factor(x[,3], levels = c('Unscaled', 'seqOutBias', 'Rule Ensemble'))
 length(which(x$Difference < 0.8 & x$Difference > -0.80 & x$Treatment == 'seqOutBias')) / length(which(x$Treatment == 'seqOutBias'))
 length(which(x$Difference < 2.1 & x$Difference > -2.1)) / length(x$Treatment)
 
+
+
+#Figure out which TFs are most improved by rule ensemble based on variance:
+RE_var = NULL
+sOB_var = NULL
+for (i in 1:length(unique(x$Factor))) {
+  RE_var[i] = var(x$Difference[which(x$Factor == unique(x$Factor)[i] & x$Treatment == 'Rule Ensemble')])
+  sOB_var[i] = var(x$Difference[which(x$Factor == unique(x$Factor)[i] & x$Treatment == 'seqOutBias')])
+}
+
+var_compare = cbind(unique(x$Factor), RE_var, sOB_var)
+var_compare = as.data.frame(var_compare)
+var_compare[,2:3] = sapply(var_compare[,2:3],as.numeric)
+var_compare[,4] = var_compare[,3] - var_compare[,2]
+#These are the top 9 improved TFs
+var_compare$V1[sort(var_compare$V4, decreasing = TRUE, index.return = TRUE)[[2]]][1:9]
+
+#Subset x to only include top 9
+x = x[which(x$Factor %in% var_compare$V1[sort(var_compare$V4, decreasing = TRUE, index.return = TRUE)[[2]]][1:9]),]
+#Plot
 pdf('Figure5B_DNase_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
 
 trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
