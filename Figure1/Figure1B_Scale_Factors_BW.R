@@ -2,10 +2,15 @@ library(ggplot2)
 library(reshape2)
 library(data.table)
 
-setwd('../output')
 #Load in  scale factor files
-load('../data/Figure1B_nuclease_scalefactors_list.Rdata')
+load('Figure1B_nuclease_scalefactors_list.Rdata')
 
+#Make lattice plot data.tables:
+Benzonase_plot = Figure1C_list[[1]]
+Cyanase_plot = Figure1C_list[[2]]
+MNase_plot = Figure1C_list[[3]]
+DNase_plot = Figure1C_list[[4]]
+Tn5_plot = Figure1C_list[[5]]
 
 
 for (i in 1:(length(Figure1C_list)-1)) {
