@@ -4,9 +4,9 @@ options(scipen=10000)
 
 setwd('../output')
 
-load('../data/Figure2B_UPstream_OE_kmers.Rdata')
+load('Figure2A_UPstream_OE_kmers.Rdata')
 
-load('../data/220801_Tn5_kmer_count_correction.Rdata')
+load('220801_Tn5_kmer_count_correction.Rdata')
 
 mertable$upOE = mertable$upOE*Tn5_kmer_count_correction
 mertable$downOE = mertable$downOE*Tn5_kmer_count_correction
