@@ -122,9 +122,38 @@ var_compare[,4] = var_compare[,3] - var_compare[,2]
 #These are the top 9 improved TFs
 var_compare$V1[sort(var_compare$V4, decreasing = TRUE, index.return = TRUE)[[2]]][1:9]
 
-#Subset x to only include top 9
+#Subset x to only include top 9 and make supplemental for other 9
+supp_x = x[-c(which(x$Factor %in% var_compare$V1[sort(var_compare$V4, decreasing = TRUE, index.return = TRUE)[[2]]][1:9])),]
 x = x[which(x$Factor %in% var_compare$V1[sort(var_compare$V4, decreasing = TRUE, index.return = TRUE)[[2]]][1:9]),]
-#Plot
+
+
+log2plot = bwplot(Difference ~ Treatment | Factor , data = x,
+                  between=list(y=0.5, x = 0.5),
+                  scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
+                  #xlab = '',
+                  ylim = c(-2.10, 2.10),
+                  ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
+                  horizontal =FALSE,  col= 'black',
+                  aspect = 2,
+                  par.settings=list(par.xlab.text=list(cex=1.2,font=1),
+                                    par.ylab.text=list(cex=1.2,font=1),
+                                    par.main.text=list(cex=1.2, font=1),
+                                    plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.4)),
+                  par.strip.text = list(cex = 1.2),
+                  strip = function(..., which.panel, bg) {
+                    bg.col = c("white")
+                    strip.default(..., which.panel = which.panel,
+                                  bg = rep(bg.col, length = which.panel)[which.panel])
+                  },
+                  panel = function(..., box.ratio, col) {
+                    panel.abline(h = 0, col = 'grey45', lty = 2)
+                    panel.violin.hack(..., col = c("#00ffaf", "#FF0000", "#0000FF"),
+                                      varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
+                    panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE, amount = 0.2, pch = 16)
+                    panel.bwplot(..., pch = '|', do.out = FALSE)
+                    
+                  })
+
 pdf('Figure5B_DNase_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
 
 trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
@@ -132,30 +161,44 @@ trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
                 plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
 
 ################################################################################
-print(bwplot(Difference ~ Treatment | Factor , data = x,
-             between=list(y=0.5, x = 0.5),
-             scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
-             #xlab = '',
-             ylim = c(-2.10, 2.10),
-             ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
-             horizontal =FALSE,  col= 'black',
-             aspect = 2,
-             par.settings=list(par.xlab.text=list(cex=1.2,font=1),
-                               par.ylab.text=list(cex=1.2,font=1),
-                               par.main.text=list(cex=1.2, font=1),
-                               plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.4)),
-             par.strip.text = list(cex = 1.2),
-             strip = function(..., which.panel, bg) {
-               bg.col = c("white")
-               strip.default(..., which.panel = which.panel,
-                             bg = rep(bg.col, length = which.panel)[which.panel])
-             },
-             panel = function(..., box.ratio, col) {
-               panel.abline(h = 0, col = 'grey45', lty = 2)
-               panel.violin.hack(..., col = c("#00ffaf", "#FF0000", "#0000FF"),
-                                 varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
-               panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE, amount = 0.2, pch = 16)
-               panel.bwplot(..., pch = '|', do.out = FALSE)
-               
-             }))
+print(update(log2plot, layout=c(9,1)))
+dev.off()
+
+
+
+log2plot = bwplot(Difference ~ Treatment | Factor , data = supp_x,
+                  between=list(y=0.5, x = 0.5),
+                  scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
+                  #xlab = '',
+                  ylim = c(-2.10, 2.10),
+                  ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
+                  horizontal =FALSE,  col= 'black',
+                  aspect = 2,
+                  par.settings=list(par.xlab.text=list(cex=1.2,font=1),
+                                    par.ylab.text=list(cex=1.2,font=1),
+                                    par.main.text=list(cex=1.2, font=1),
+                                    plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.4)),
+                  par.strip.text = list(cex = 1.2),
+                  strip = function(..., which.panel, bg) {
+                    bg.col = c("white")
+                    strip.default(..., which.panel = which.panel,
+                                  bg = rep(bg.col, length = which.panel)[which.panel])
+                  },
+                  panel = function(..., box.ratio, col) {
+                    panel.abline(h = 0, col = 'grey45', lty = 2)
+                    panel.violin.hack(..., col = c("#00ffaf", "#FF0000", "#0000FF"),
+                                      varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
+                    panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE, amount = 0.2, pch = 16)
+                    panel.bwplot(..., pch = '|', do.out = FALSE)
+                    
+                  })
+
+pdf('Supplemental_Figure5B_DNase_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
+
+trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
+                box.rectangle = list(col = '#93939300', lwd=1.6),
+                plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
+
+################################################################################
+print(update(log2plot, layout=c(9,1)))
 dev.off()
