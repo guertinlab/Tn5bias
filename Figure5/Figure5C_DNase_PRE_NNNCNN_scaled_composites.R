@@ -53,6 +53,7 @@ plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
                  {panel.abline(v = ceiling(Motiflen[rownames(Motiflen)==level,]/2), lty = 2, col = "red")} else{}
                  if (motifline == TRUE) 
                  {panel.abline(v = ceiling(-Motiflen[rownames(Motiflen)==level,]/2), lty = 2, col = "red")} else{}
+                 panel.abline(h = 0.006831447, lty = 2, col = "red", lwd = 2)
                }
   ))
   dev.off()
@@ -79,8 +80,6 @@ mlen <- Motiflen[c(2, 7, 18)]
 mlen <- as.data.frame(mlen)
 rownames(mlen) <- levels(as.factor(Figure5C_plot$factor))
 
-
-
 plot.composites(Figure5C_plot, legend = TRUE, 
                   pdf_name = 'Figure5C_DNasePN_PRE_NNNCNN_comparison_mk1',
                   figwidth = 8, figheight = 4,
@@ -88,3 +87,17 @@ plot.composites(Figure5C_plot, legend = TRUE,
                   xlabel = 'Distance from Motif Center',
                   motifline = TRUE, Motiflen = mlen, layoutgrid = c(3,1))
 
+supp_Figure5C_plot = do.call(rbind, combined_compositelist[-c(2, 7, 18)])
+supp_Figure5C_plot[which(supp_Figure5C_plot$group == 'Rules Ensemble'),4] = 'Rule Ensemble'
+supp_Figure5C_plot[which(supp_Figure5C_plot$group == 'NNNCNN'),4] = 'seqOutBias'
+supp_Figure5C_plot[which(supp_Figure5C_plot$group == 'unscaled'),4] = 'Unscaled'
+supp_mlen <- Motiflen[-c(2, 7, 18)]
+supp_mlen <- as.data.frame(supp_mlen)
+rownames(supp_mlen) <- levels(as.factor(supp_Figure5C_plot$factor))
+
+plot.composites(supp_Figure5C_plot, legend = TRUE, 
+                pdf_name = 'Supplemental_Figure5C_DNasePN_PRE_NNNCNN_comparison',
+                figwidth = 12, figheight = 10,
+                ylabel = 'Cut Frequency',
+                xlabel = 'Distance from Motif Center',
+                motifline = TRUE, Motiflen = supp_mlen, layoutgrid = c(5,3))
