@@ -85,3 +85,21 @@ plot.composites(figure6E_plot, legend = TRUE,
                   xlabel = 'Distance from Motif Center',
                   motifline = TRUE, Motiflen = mlen, layoutgrid = c(3,1))
 
+
+#Separate out the supplemental TFs to be plotted and their motif lengths
+supp_figure6E_plot = do.call(rbind, combined_compositelist[-c(13, 20, 38)])
+supp_figure6E_plot = supp_figure6E_plot[which(supp_figure6E_plot$factor %in% test),]
+supp_figure6E_plot[which(supp_figure6E_plot$group == 'NNNCNNNN'),4] = 'seqOutBias'
+supp_figure6E_plot[which(supp_figure6E_plot$group == 'unscaled'),4] = 'Unscaled'
+supp_mlen <- Motiflen[-c(13, 20, 38)]
+supp_mlen = supp_mlen[which(names(supp_mlen) %in% test)]
+supp_mlen <- as.data.frame(supp_mlen)
+rownames(supp_mlen) <- levels(as.factor(supp_figure6E_plot$factor))
+
+
+plot.composites(supp_figure6E_plot, legend = TRUE, 
+                pdf_name = 'Supplemental_Figure6C_Tn5_PRE_NNNCNN_comparison',
+                figwidth = 12, figheight = 10,
+                ylabel = 'Cut Frequency',
+                xlabel = 'Distance from Motif Center',
+                motifline = TRUE, Motiflen = supp_mlen, layoutgrid = c(5,3))
