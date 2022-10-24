@@ -10,8 +10,8 @@ impbarplot +
   labs(x= 'Position Relative to Central Base', y= 'Importance') +
   geom_bar(stat="identity", fill="black") +
   theme_classic() +
-  theme(axis.title.x = element_text(size=40, colour = "black", face = 'bold'),
-        axis.title.y = element_text(size=40, colour = "black", face = 'bold'),
+  theme(axis.title.x = element_text(size=52, colour = "black", face = 'bold'),
+        axis.title.y = element_text(size=52, colour = "black", face = 'bold'),
         axis.text.x = element_text(size=38, colour = "black"),
         axis.text.y = element_text(size=38, colour = "black"),
         axis.line = element_line(colour = 'black', size = 1),
