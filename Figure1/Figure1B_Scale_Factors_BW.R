@@ -4,7 +4,7 @@ setwd('../output')
 load('../data/Figure1B_nuclease_scalefactors_list.Rdata')
 
 for (i in 1:length(Figure1C_list)) {
-  Figure1C_list[[i]][,14] = as.factor(Figure1C_list[[i]][,14])
+  Figure1B_list[[i]][,14] = as.factor(Figure1B_list[[i]][,14])
 }
 ############################################################################################################
 
