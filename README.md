@@ -85,13 +85,14 @@ seqOutATACBias masks -i=random_scaling_test.bam -g=random.fa -p=5 -r=50 -c=NO
 <br /> 
 <br /> 
 A brief description of each option:    
-  Processors: This option controls the number of processes when running seqOutBias and converting bigWigs to bedGraphs. Please ensure
-     that your machine has the requisite RAM and processors for your selection.
-
-  Cleanup: Whether or not the .tbl, .bigWig, and .bedGraph files are deleted after their use in the next processing step.
-     Anything other than 'TRUE' will cause these files to not be deleted.
-
-  Read Length: The length of reads in input data. Necessary for computing mappability.
+<br /> 
+Processors: This option controls the number of processes when running seqOutBias and converting bigWigs to bedGraphs. Please ensure
+that your machine has the requisite RAM and processors for your selection.    
+<br /> 
+Cleanup: Whether or not the .tbl, .bigWig, and .bedGraph files are deleted after their use in the next processing step.
+Anything other than 'TRUE' will cause these files to not be deleted.
+<br /> 
+Read Length: The length of reads in input data. Necessary for computing mappability.
 <br />    
 <br />    
 <br />    
