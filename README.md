@@ -74,7 +74,7 @@ will run some processes in parallel (according to the -p option), which will als
 
 To generate the input for seqOutATACBias, one must invoke the "mask" command and specify the BAM file and reference genome:
 ```sh
-seqOutATACBias masks -i=big_random_scaling_test.bam -g=big_random.fa
+seqOutATACBias masks -i=random_scaling_test.bam -g=random.fa
 ```
 
 The "Processors", "Cleanup", and "Read Length" options may also be invoked to customize the data generation process:
