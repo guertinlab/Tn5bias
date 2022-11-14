@@ -86,7 +86,7 @@ A brief description of each option:
 <br /> 
 Processors: This option controls the number of processes when running seqOutBias and converting bigWigs to bedGraphs. Please ensure
 that your machine has the requisite RAM and processors for your selection.    
-<br />    
+<br /> 
 Cleanup: Whether or not the .tbl, .bigWig, and .bedGraph files are deleted after their use in the next processing step.
 Anything other than 'TRUE' will cause these files to not be deleted.
 <br />    
