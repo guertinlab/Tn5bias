@@ -82,7 +82,7 @@ The "Processors", "Cleanup", and "Read Length" options may also be invoked to cu
 seqOutATACBias masks -i=random_scaling_test.bam -g=random.fa -p=5 -r=50 -c=NO
 ```
 
-A brief description of each option:
+A brief description of each option:    
   Processors: This option controls the number of processes when running seqOutBias and converting bigWigs to bedGraphs. Please ensure
      that your machine has the requisite RAM and processors for your selection.
 
