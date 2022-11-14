@@ -90,9 +90,9 @@ A brief description of each option:
      Anything other than 'TRUE' will cause these files to not be deleted.
 
   Read Length: The length of reads in input data. Necessary for computing mappability.
-    
-    
-    
+<br />    
+<br />    
+<br />    
 Once the "masks" command has finished running, an output "union" bedGraph file will be in the directory.
 
 To apply the seqOutATACBias rule ensemble correction, the "scale" command is used with the union bedGraph file as input:
