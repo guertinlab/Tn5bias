@@ -1,8 +1,8 @@
 # seqOutATACBias: Rule Ensemble Modeling of seqOutBias Scaling
 
-seqOutATACBias is a CLI which corrects the sequence bias of Tn5 transposase in ATAC-seq data.
+seqOutATACBias is a CLI which corrects the sequence bias of Tn5 transposase in ATAC-seq data.   
 
-seqOutATACBias uses the same input as seqOutBias: a reference genome and aligned read files in BAM format.
+seqOutATACBias uses the same input as seqOutBias: a reference genome and aligned read files in BAM format.   
 Output from seqOutATACBias is scaled read values in bigWig and bedGraph format.
 
 ## Current Software Verion
