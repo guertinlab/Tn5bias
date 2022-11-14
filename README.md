@@ -98,7 +98,7 @@ Once the "masks" command has finished running, an output "union" bedGraph file w
 
 To apply the seqOutATACBias rule ensemble correction, the "scale" command is used with the union bedGraph file as input:
 ```sh
-seqOutATACBias_mk1 scale -i=random_scaling_test_union.bedGraph -g=random.fa
+seqOutATACBias scale -i=random_scaling_test_union.bedGraph -g=random.fa
 ```
 
 This process is much quicker and should only take about an hour.
