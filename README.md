@@ -88,9 +88,9 @@ Processors: This option controls the number of processes when running seqOutBias
 that your machine has the requisite RAM and processors for your selection.    
 <br /> 
 Cleanup: Whether or not the .tbl, .bigWig, and .bedGraph files are deleted after their use in the next processing step.
-Anything other than 'TRUE' will cause these files to not be deleted.
+Anything other than 'TRUE' will cause these files to not be deleted. The default is set to TRUE.
 <br />    
-Read Length: The length of reads in input data. Necessary for computing mappability.
+Read Length: The length of reads in input data. Necessary for computing mappability. Default is set to 60.
 <br />    
 <br />    
 <br />    
