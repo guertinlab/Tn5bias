@@ -28,7 +28,7 @@ bedGraphToBigWig >= version 2.9
 
 Once the required dependencies are installed and in PATH, the seqOutATACBias software can be downloaded from GitHub by entering:
 ```sh
-$ wget
+$ wget https://github.com/guertinlab/Tn5bias/archive/refs/heads/master.zip
 ```
 
 Upon downloading the software, you may install using either setuptools or PIP.
