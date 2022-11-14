@@ -14,17 +14,17 @@ Output from seqOutATACBias is scaled read values in bigWig and bedGraph format.
 seqOutATACBias uses several dependencies when installing and when processing data. Please ensure that the following
 software is installed on your machine and in the PATH variable:
 
-seqOutBias >= version 1.3 \newline
-anaconda Command line client >= version 1.9.0
-python >= version 3.9.12
-setuptools python package >= version: 65.5.1
-R >= version 4.2.1
-R data.table package >= version 1.14.2
-faidx >= version 0.7.1
-GNU parallel >= 20220722
-bedtools >= version 2.30.0
-bigWigToBedGraph >= version 438
-bedGraphToBigWig >= version 2.9
+seqOutBias >= version 1.3   
+anaconda Command line client >= version 1.9.0    
+python >= version 3.9.12   
+setuptools python package >= version: 65.5.1   
+R >= version 4.2.1   
+R data.table package >= version 1.14.2   
+faidx >= version 0.7.1   
+GNU parallel >= 20220722   
+bedtools >= version 2.30.0   
+bigWigToBedGraph >= version 438   
+bedGraphToBigWig >= version 2.9   
 
 Once the required dependencies are installed and in PATH, the seqOutATACBias software can be downloaded from GitHub by entering:
 ```sh
