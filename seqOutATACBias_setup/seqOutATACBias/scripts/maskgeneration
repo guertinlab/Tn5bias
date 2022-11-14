@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+GENNAME=$(echo $GENOME | awk -F"." '{print $1}')
+echo 'Starting Mask Generation'
+#Create chrom.sizes file
+faidx ${GENOME} -i chromsizes > ${GENOME}.chrom.sizes
+#Run seqOutBias individually to generate suffix and tal files.
+seqOutBias ${GENOME} ${INPUT} --read-size=${READLENGTH} --no-scale --strand-specific --custom-shift=4,-4 \
+            --bed=${OUTFILE}.bed --bw=${OUTFILE}_unscaled.bigWig
+#Clean up extra files
+if [[ $CLEANUP == 'TRUE' ]]; then
+echo "Clean up" ${OUTFILE}_unscaled
+rm ${GENNAME}_${READLENGTH}.4.2.2.tbl
+fi
+#Masks necessary for rule ensemble implementation
+masks=("XXXXXXXXXXXXXXXXXNNNNNNCNXXXXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXNNNNNCNNXXXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXNNNNCNNNXXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXNNNCNNNNXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXNNCNNNNNXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCNNNNNNNXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXNNNNNNNXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXNNNNNNNXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXNNNNNNNXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXNNNNNNNXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXXNNNNNNNXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXXXXNNNNNNNXXXX")
+#Run seqOutBias on the rest of the masks, in parallel
+parallel -j$PROCESSORS 'seqOutBias ${GENOME} ${INPUT} --read-size=${READLENGTH} --strand-specific --custom-shift=4,-4 \
+      --kmer-mask={} --bed=${OUTFILE}_{}.bed \
+      --out=${OUTFILE}_{}.tbl --bw=${OUTFILE}_{}.bigWig' ::: ${masks[@]}
+#Clean up extra files
+for pos in ${masks[@]}; do
+if [[ $CLEANUP == 'TRUE' ]]; then
+echo "Clean up" ${OUTFILE}_${pos}
+rm ${OUTFILE}_${pos}.tbl
+rm ${OUTFILE}_${pos}_scaled.bed
+fi
+done
+#Convert bigwigs to bedGraph format
+parallel -j$PROCESSORS 'bigWigToBedGraph ${OUTFILE}_{}.bigWig ${OUTFILE}_{}.bedGraph' ::: ${masks[@]}
+#Remove bigwigs
+for pos in ${masks[@]}; do
+if [[ $CLEANUP == 'TRUE' ]]; then
+echo "Clean up" ${OUTFILE}_${pos}.bigWig
+rm ${OUTFILE}_${pos}.bigWig
+fi
+done
+beds=( "${masks[@]/%/.bedGraph}" )
+beds=( "${beds[@]/#/${OUTFILE}_}" )
+#Combine all bedGraph files into a single file
+bedtools unionbedg -i ${beds[@]} > ${OUTFILE}_union.bedGraph
+#Clean up all individual bedGraph files
+for pos in ${beds[@]}; do
+if [[ $CLEANUP == 'TRUE' ]]; then
+echo "Clean up" ${pos}
+rm ${pos}
+fi
+done

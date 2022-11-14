@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+POSITIONAL_ARGS=()
+set -a
+for i in "$@"; do
+  case $i in
+    -i=*|--input=*)
+      INPUT="${i#*=}"
+      shift # past argument=value
+      ;;
+    -g=*|--genome=*)
+      GENOME="${i#*=}"
+      shift # past argument=value
+      ;;
+    -p=*|--processors=*)
+      PROCESSORS="${i#*=}"
+      shift # past argument=value
+      ;;
+    -r=*|--readlength=*)
+      READLENGTH="${i#*=}"
+      shift # past argument=value
+      ;;
+    -c=*|--cleanup=*)
+      CLEANUP="${i#*=}"
+      shift # past argument=value
+      ;;
+    -*|--*)
+      echo "Unknown option $i"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+if [ -z "$CLEANUP" ]; then
+  CLEANUP="TRUE"
+fi
+if [ -z "$READLENGTH" ]; then
+  READLENGTH=60
+fi
+echo "Cleanup (-c or --cleanup)= $CLEANUP"
+echo "Read Length (-r or --readlength)= ${READLENGTH}"
+echo "Input (-i or --input)= ${INPUT}"
+echo "Genome (-g or --genome)= ${GENOME}"
+echo "Processors (-p or --processors)= ${PROCESSORS}"
+echo "Command = $1"
+OUTFILE=$(echo $INPUT | awk -F"." '{print $1}')
+echo "Outfile = $OUTFILE"
+if [[ $@ == '' ]]; then
+    echo Please enter a command
+    exit 1
+elif [ $1 == 'masks' ] || [ $1 == 'Masks' ]; then
+  if [ -z "$INPUT" ]; then
+    echo Please enter input data
+    exit 1
+  elif [ -z "$GENOME" ]; then
+    echo Please enter reference genome
+    exit 1
+  elif [ -z "$PROCESSORS" ]; then
+    echo Please enter number of processors
+    exit 1
+  else
+    echo Starting mask generation...
+    bash maskgeneration
+  fi
+elif [ $1 == 'scale' ] || [ $1 == 'Scale' ]; then
+  if [ -z "$INPUT" ]; then
+    echo Please enter input data
+    exit 1
+  elif [ -z "$GENOME" ]; then
+    echo Please enter reference genome
+    exit 1
+  else
+    echo Starting rule ensemble scaling...
+    RE_implementation.R
+  fi
+else
+    echo Please enter a valid command
+fi
