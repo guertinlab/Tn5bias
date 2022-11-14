@@ -32,12 +32,12 @@ $ wget https://github.com/guertinlab/Tn5bias/archive/refs/heads/master.zip
 ```
 
 Upon downloading the software, you may install using either setuptools or PIP.
-To install via setuptools, navigate to the seqOutATACBias_software folder and enter:
+To install via setuptools, navigate to the seqOutATACBias_setup folder and enter:
 ```sh
 $ python setup.py install
 ```
 
-To install with PIP, first navigate to the seqOutATACBias_software folder, then enter:
+To install with PIP, first navigate to the seqOutATACBias_setup folder, then enter:
 ```sh
 $ python setup.py sdist
 $ cd dist
