@@ -16,7 +16,8 @@ software is installed on your machine and in the PATH variable:
 
 seqOutBias       
 Rust >= 1.32.0    
-genometools >= 1.6.1
+genometools >= 1.6.1     
+wget >= 1.21.3
 anaconda Command line client >= version 1.9.0    
 python >= version 3.9.12   
 setuptools python package >= version: 65.5.1   
