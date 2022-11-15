@@ -76,6 +76,31 @@ elif [ $1 == 'scale' ] || [ $1 == 'Scale' ]; then
     echo Starting rule ensemble scaling...
     RE_implementation.R
   fi
+elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
+  if ! command -v faidx &> /dev/null
+  then
+      echo "faidx could not be found, installing faidx"
+      pip install pyfaidx
+      echo "faidx installed"
+  elif ! command -v parallel &> /dev/null
+  then
+      echo "GNU parallel could not be found, installing GNU parallel"
+      wget https://ftpmirror.gnu.org/parallel/parallel-latest.tar.bz2
+      tar -xvf parallel-latest.tar.bz2
+      cd parallel*/
+      sudo ./configure && make
+      sudo make install
+      echo "GNU parallel installed"
+  elif ! command -v anaconda &> /dev/null
+  then
+      echo "Anaconda could not be found, installing Anaconda"
+      wget https://repo.anaconda.com/archive/Anaconda3-2022.10-MacOSX-x86_64.pkg
+      installer -pkg Anaconda3-2022.10-MacOSX-x86_64.pkg -target CurrentUserHomeDirectory
+      echo "Anaconda installed"
+  else
+      echo Checked dependencies installed
+      exit 1
+  fi
 else
     echo Please enter a valid command
 fi
