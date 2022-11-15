@@ -28,7 +28,7 @@ bedtools >= 2.30.0
 bigWigToBedGraph >= 438   
 bedGraphToBigWig >= 2.9   
 
-If you would like to have many of the dependencies installed and added to path, you may use the "depend" command, which will add the following
+If you would like to have many of the dependencies installed and added to PATH, you may use the "depend" command, which will add the following
 dependencies:    
 brew >= 3.6.10     
 curl >= 7.82.0    
