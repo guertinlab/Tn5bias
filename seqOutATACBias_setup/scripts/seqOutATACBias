@@ -77,7 +77,22 @@ elif [ $1 == 'scale' ] || [ $1 == 'Scale' ]; then
     RE_implementation.R
   fi
 elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
-  if ! command -v faidx &> /dev/null
+  if ! command -v brew &> /dev/null
+  then
+      echo "brew could not be found, installing brew"
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      echo "brew installed"
+  elif ! command -v curl &> /dev/null
+  then
+      echo "curl could not be found, installing curl"
+      brew install curl
+      echo "curl installed"
+  elif ! command -v wget &> /dev/null
+  then
+      echo "wget could not be found, installing wget"
+      brew install wget
+      echo "wget installed"
+  elif ! command -v faidx &> /dev/null
   then
       echo "faidx could not be found, installing faidx"
       pip install pyfaidx
@@ -107,16 +122,17 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
       echo "Rust could not be found, installing Rust"
       curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh
       echo "Rust installed"
-  elif ! command -v seqOutBias &> /dev/null
+  elif TRUE == TRUE
   then
-      echo "seqOutBias could not be found, installing seqOutBias"
+      echo "Installing seqOutBias"
       wget -O seqOutBias.zip https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip
       unzip seqOutBias.zip
       cd seqOutBias-master
       cargo build --release
       cd target/release
       sudo cp seqOutBias /usr/local/bin
-      echo "seqOutBias installed"    
+      export PATH=/usr/local/bin:$PATH
+      echo "seqOutBias installed"
   else
       echo Checked dependencies installed
       exit 1
