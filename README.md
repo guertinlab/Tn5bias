@@ -62,8 +62,11 @@ Outfile =
 Please enter a command
 ```
 
-If you are using a Mac OS, you may use the "depend" command to check the faidx, GNU parallel, and Anaconda dependencies. If these applications are
-not found in PATH, seqOutATACBias will attempt to install them.
+If you are using a Mac OS, you may use the "depend" command with no options to check the faidx, GNU parallel, and Anaconda dependencies.
+If these applications are not found in PATH, seqOutATACBias will attempt to install them:
+```sh
+seqOutATACBias depend
+```
 
 ## Scaling ATAC-seq data
 
