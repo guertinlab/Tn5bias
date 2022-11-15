@@ -15,6 +15,8 @@ seqOutATACBias uses several dependencies when installing and when processing dat
 software is installed on your machine and in the PATH variable:
 
 seqOutBias       
+Rust >= 1.32.0    
+genometools >= 1.6.1
 anaconda Command line client >= version 1.9.0    
 python >= version 3.9.12   
 setuptools python package >= version: 65.5.1   
