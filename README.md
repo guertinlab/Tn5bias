@@ -62,6 +62,9 @@ Outfile =
 Please enter a command
 ```
 
+If you are using a Mac OS, you may use the "depend" command to check the faidx, GNU parallel, and Anaconda dependencies. If these applications are
+not found in PATH, seqOutATACBias will attempt to install them.
+
 ## Scaling ATAC-seq data
 
 seqOutATACBias scales ATAC-seq data by generating 12 direct k-mer scaling files and one unscaled file using seqOutBias
