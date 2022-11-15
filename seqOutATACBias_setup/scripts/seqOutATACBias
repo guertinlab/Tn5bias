@@ -97,6 +97,26 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
       wget https://repo.anaconda.com/archive/Anaconda3-2022.10-MacOSX-x86_64.pkg
       installer -pkg Anaconda3-2022.10-MacOSX-x86_64.pkg -target CurrentUserHomeDirectory
       echo "Anaconda installed"
+  elif ! command -v gt &> /dev/null
+  then
+      echo "Genome tools could not be found, installing genome tools"
+      brew install genometools
+      echo "Genome tools installed"
+  elif ! command -v rustc &> /dev/null
+  then
+      echo "Rust could not be found, installing Rust"
+      curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh
+      echo "Rust installed"
+  elif ! command -v seqOutBias &> /dev/null
+  then
+      echo "seqOutBias could not be found, installing seqOutBias"
+      wget -O seqOutBias.zip https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip
+      unzip seqOutBias.zip
+      cd seqOutBias-master
+      cargo build --release
+      cd target/release
+      sudo cp seqOutBias /usr/local/bin
+      echo "seqOutBias installed"    
   else
       echo Checked dependencies installed
       exit 1
