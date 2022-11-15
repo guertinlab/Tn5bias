@@ -17,17 +17,22 @@ software is installed on your machine and in the PATH variable:
 seqOutBias       
 Rust >= 1.32.0    
 genometools >= 1.6.1     
-wget >= 1.21.3
-anaconda Command line client >= version 1.9.0    
-python >= version 3.9.12   
-setuptools python package >= version: 65.5.1   
+anaconda Command line client >= 1.9.0    
+python >= 3.9.12   
+setuptools python package >= 65.5.1   
 R >= version 4.2.1   
-R data.table package >= version 1.14.2   
-faidx >= version 0.7.1   
+R data.table package >= 1.14.2   
+faidx >= 0.7.1   
 GNU parallel >= 20220722   
-bedtools >= version 2.30.0   
-bigWigToBedGraph >= version 438   
-bedGraphToBigWig >= version 2.9   
+bedtools >= 2.30.0   
+bigWigToBedGraph >= 438   
+bedGraphToBigWig >= 2.9   
+
+If you would like to have many of the dependencies installed and added to path, you may use the "depend" command, which will add the following
+dependencies:
+brew >= 3.6.10     
+curl >= 7.82.0
+GNU wget >= 1.21.3
 
 Once the required dependencies are installed and in PATH, the seqOutATACBias software can be downloaded from GitHub by entering:
 ```sh
