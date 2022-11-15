@@ -14,7 +14,7 @@ Output from seqOutATACBias is scaled read values in bigWig and bedGraph format.
 seqOutATACBias uses several dependencies when installing and when processing data. Please ensure that the following
 software is installed on your machine and in the PATH variable:
 
-seqOutBias >= version 1.3.1   
+seqOutBias       
 anaconda Command line client >= version 1.9.0    
 python >= version 3.9.12   
 setuptools python package >= version: 65.5.1   
@@ -62,8 +62,10 @@ Outfile =
 Please enter a command
 ```
 
-If you are using a Mac OS, you may use the "depend" command with no options to check the faidx, GNU parallel, and Anaconda dependencies.
-If these applications are not found in PATH, seqOutATACBias will attempt to install them:
+If you are using a Mac OS, you may use the "depend" command with no options to check the faidx, GNU parallel, Anaconda, genometools,
+rust and seqOutBias dependencies.
+If any of these applications are not found in PATH, seqOutATACBias will attempt to install and add them to PATH. These installations require curl,
+brew and pip CLIs:
 ```sh
 seqOutATACBias depend
 ```
