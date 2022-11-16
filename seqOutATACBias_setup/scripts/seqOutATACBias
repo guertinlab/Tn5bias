@@ -23,6 +23,10 @@ for i in "$@"; do
       CLEANUP="${i#*=}"
       shift # past argument=value
       ;;
+    --DEVMODE=*)
+      DEVMODE="${i#*=}"
+      shift # past argument=value
+      ;;
     -*|--*)
       echo "Unknown option $i"
       exit 1
@@ -89,9 +93,11 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
       echo "curl installed"
   elif ! command -v wget &> /dev/null
   then
-      echo "wget could not be found, installing wget"
-      brew install wget
-      echo "wget installed"
+      if [[ $OSTYPE == "darwin"* ]]; then
+        echo "wget could not be found, installing wget"
+        brew install wget
+        echo "wget installed"
+      fi
   elif ! command -v faidx &> /dev/null
   then
       echo "faidx could not be found, installing faidx"
@@ -103,15 +109,10 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
       wget https://ftpmirror.gnu.org/parallel/parallel-latest.tar.bz2
       tar -xvf parallel-latest.tar.bz2
       cd parallel*/
-      sudo ./configure && make
-      sudo make install
+      ./configure && make
+      make install
       echo "GNU parallel installed"
-  elif ! command -v anaconda &> /dev/null
-  then
-      echo "Anaconda could not be found, installing Anaconda"
-      wget https://repo.anaconda.com/archive/Anaconda3-2022.10-MacOSX-x86_64.pkg
-      installer -pkg Anaconda3-2022.10-MacOSX-x86_64.pkg -target CurrentUserHomeDirectory
-      echo "Anaconda installed"
+      cd ../
   elif ! command -v gt &> /dev/null
   then
       echo "Genome tools could not be found, installing genome tools"
@@ -122,7 +123,7 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
       echo "Rust could not be found, installing Rust"
       curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh
       echo "Rust installed"
-  elif TRUE == TRUE
+  elif [ -z "$DEVMODE" ]
   then
       echo "Installing seqOutBias"
       wget -O seqOutBias.zip https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip
@@ -130,7 +131,7 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
       cd seqOutBias-master
       cargo build --release
       cd target/release
-      sudo cp seqOutBias /usr/local/bin
+      cp seqOutBias /usr/local/bin
       export PATH=/usr/local/bin:$PATH
       echo "seqOutBias installed"
   else
