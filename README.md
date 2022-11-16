@@ -24,6 +24,7 @@ R data.table package >= 1.14.2
 pyfaidx >= 0.7.1   
 GNU parallel >= 20220722   
 bedtools >= 2.30.0   
+Anaconda command line client >= version 1.9.0     
 bigWigToBedGraph >= 438   
 bedGraphToBigWig >= 2.9   
 
