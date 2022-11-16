@@ -71,8 +71,7 @@ Please enter a command
 
 If you are using a Mac OS or Linux box, you may use the "depend" command with no options to check the brew, curl, wget, faidx, GNU parallel, Anaconda, 
 genometools, bigWigToBedGraph, bedGraphToBigWig, genome tools (gt), rust and seqOutBias dependencies.
-If any of these applications are not found in PATH, seqOutATACBias will attempt to install and add them to PATH. These installations require curl,
-brew and pip CLIs:
+If any of these applications are not found in PATH, seqOutATACBias will attempt to install and add them to PATH:
 ```sh
 seqOutATACBias depend
 ```
