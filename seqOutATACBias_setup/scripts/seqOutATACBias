@@ -78,7 +78,11 @@ elif [ $1 == 'scale' ] || [ $1 == 'Scale' ]; then
     exit 1
   else
     echo Starting rule ensemble scaling...
-    RE_implementation.R
+    if [[ $OSTYPE == "darwin"* ]]; then
+      RE_implementation.R
+    elif [[ $OSTYPE == "linux-gnu" ]]; then
+      Rscript RE_implementation.R
+    fi
   fi
 elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
   if ! command -v brew &> /dev/null
@@ -112,7 +116,19 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
       ./configure && make
       make install
       echo "GNU parallel installed"
-      cd ../
+  elif ! command -v anaconda &> /dev/null
+  then
+      if [[ $OSTYPE == "darwin"* ]]; then
+        echo "Anaconda could not be found, installing Anaconda for Mac"
+        wget https://repo.anaconda.com/archive/Anaconda3-2022.10-MacOSX-x86_64.pkg
+        installer -pkg Anaconda3-2022.10-MacOSX-x86_64.pkg -target CurrentUserHomeDirectory
+        echo "Anaconda installed"
+      elif [[ $OSTYPE == "linux-gnu" ]]; then
+        echo "Anaconda could not be found, installing Anaconda for Linux"
+        wget https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh
+        bash Anaconda3-2022.10-Linux-x86_64.sh
+        echo "Anaconda installed"
+      fi
   elif ! command -v gt &> /dev/null
   then
       echo "Genome tools could not be found, installing genome tools"
