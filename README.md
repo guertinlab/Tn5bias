@@ -17,12 +17,11 @@ software is installed on your machine and in the PATH variable:
 seqOutBias       
 Rust >= 1.32.0    
 genometools >= 1.6.1     
-anaconda Command line client >= 1.9.0    
 python >= 3.9.12   
 setuptools python package >= 65.5.1   
 R >= version 4.2.1   
 R data.table package >= 1.14.2   
-faidx >= 0.7.1   
+pyfaidx >= 0.7.1   
 GNU parallel >= 20220722   
 bedtools >= 2.30.0   
 bigWigToBedGraph >= 438   
