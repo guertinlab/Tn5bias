@@ -129,6 +129,16 @@ elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
         bash Anaconda3-2022.10-Linux-x86_64.sh
         echo "Anaconda installed"
       fi
+  elif ! command -v bigWigToBedGraph &> /dev/null
+  then
+      echo "bigWigToBedGraph could not be found, installing bigWigToBedGraph"
+      conda install -c bioconda ucsc-bigwigtobedgraph
+      echo "bigWigToBedGraph installed"
+  elif ! command -v bedGraphToBigWig &> /dev/null
+  then
+      echo "bedGraphToBigWig could not be found, installing bigWigToBedGraph"
+      conda install -c bioconda ucsc-bedgraphtobigwig
+      echo "bedGraphToBigWig installed"
   elif ! command -v gt &> /dev/null
   then
       echo "Genome tools could not be found, installing genome tools"
