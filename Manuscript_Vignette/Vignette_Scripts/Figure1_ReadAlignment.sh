@@ -131,7 +131,7 @@ do
     echo $name
 
 
-		samtools view -bh -F 20 ${name}.bam > ${name}_plus.bam
+    samtools view -bh -F 20 ${name}.bam > ${name}_plus.bam
     samtools view -bh -f 0x10 ${name}.bam > ${name}_minus.bam
     seqOutBias hg38.fa ${name}.bam --no-scale --custom-shift=4,-4 \
                                 --strand-specific --bed=${name}.bed \
@@ -143,23 +143,23 @@ do
                                 --strand-specific --bed=${name}_minus.bed \
                                  --bw=${name}_minus.bigWig --read-size=76
     python bedToOneEntryBed.py -i ${name}.bed
-		python bedToOneEntryBed.py -i ${name}_plus.bed
+    python bedToOneEntryBed.py -i ${name}_plus.bed
     python bedToOneEntryBed.py -i ${name}_minus.bed
 #we shift the window coordinatess for each bed file to accomodate the 31bp for the figure
     awk '{$2 = $2 - 15; print}' ${name}_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}.fasta
-		awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_plus.fasta
     awk '{$2 = $2 - 15; print}' ${name}_minus_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_minus.fasta
 
-		awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' ${name}_minus.fasta | \
-	     fastx_reverse_complement -o ${name}_minus_RC.fasta
+    awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' ${name}_minus.fasta | \
+       fastx_reverse_complement -o ${name}_minus_RC.fasta
 #Concatenate the plus and minus strand fasta files together
-	  cat ${name}_minus_RC.fasta ${name}_plus.fasta > ${name}_sepcat.fasta
+    cat ${name}_minus_RC.fasta ${name}_plus.fasta > ${name}_sepcat.fasta
 
 done
 
