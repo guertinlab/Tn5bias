@@ -1,4 +1,4 @@
-#! /sw/bin/python
+#! /usr/bin/env
 import re
 import string
 import sys
@@ -6,6 +6,8 @@ import getopt
 import os
 import itertools
 import glob
+
+
 
 def function(fqFileName):
     infile=open(fqFileName, 'r')
@@ -17,7 +19,8 @@ def function(fqFileName):
             outfile.write('%s'%(line))
     infile.close()
     outfile.close()
-    
+
+   
     
 def main(argv):
     try:
@@ -35,5 +38,6 @@ def main(argv):
     if infile:
         print(infile)
         function(infile)
+
 if __name__ == "__main__":
     main(sys.argv[1:])
