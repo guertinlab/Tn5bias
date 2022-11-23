@@ -149,7 +149,7 @@ do
     awk '{$2 = $2 - 15; print}' ${name}_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}.fasta
-    awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
+		awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_plus.fasta
     awk '{$2 = $2 - 15; print}' ${name}_minus_not_scaled.oneentry.bed | \
@@ -159,7 +159,7 @@ do
 		awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' ${name}_minus.fasta | \
 	     fastx_reverse_complement -o ${name}_minus_RC.fasta
 #Concatenate the plus and minus strand fasta files together
-	  cat ${name}_RC.fasta ${name}_plus.fasta > ${name}_sepcat.fasta
+	  cat ${name}_minus_RC.fasta ${name}_plus.fasta > ${name}_sepcat.fasta
 
 done
 
@@ -205,19 +205,19 @@ do
                                  --bw=${name}_minus_unscaled.bigWig --read-size=76
 #Make each read its own entry in a bed file
 #e.g. 2 of the same read becomes 2 entries of the same read
-    python bedToOneEntryBed.py -i ${name}_not_scaled.bed
-    python bedToOneEntryBed.py -i ${name}_plus_not_scaled.bed
-    python bedToOneEntryBed.py -i ${name}_minus_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_unscaled_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_plus_unscaled_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_minus_unscaled_not_scaled.bed
 #these bed files can be used to get the sequence flanking ALL DNase insertion sites,
 #so we can see the precise nature of the sequence bias for each PE/strand combination
 #we shift the window coordinatess for each bed file to accomodate the 31bp for the figure
-    awk '{$2 = $2 - 15; print}' ${name}_not_scaled.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_unscaled_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}.fasta
-    awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_plus_unscaled_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_plus.fasta
-    awk '{$2 = $2 - 16; print}' ${name}_minus_not_scaled.oneentry.bed | \
+    awk '{$2 = $2 - 16; print}' ${name}_minus_unscaled_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_minus.fasta
 #First convert all sequences in the minus fasta into uppercase letters,
