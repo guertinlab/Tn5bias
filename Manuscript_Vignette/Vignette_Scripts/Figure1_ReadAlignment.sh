@@ -71,14 +71,14 @@ do
 #These bed files can be used to get the sequence flanking ALL Tn5 insertion sites,
 #so we can see the precise nature of the sequence bias for each PE/strand combination
 #we shift the window coordinatess for each bed file to accomodate the 31bp for the figure
-    awk '{$2 = $2 - 10; print}' ${name}_not_scaled.oneentry.bed | \
-       awk '{OFS="\t";} {$3 = $2 + 21; print}' | grep -v - | \
+    awk '{$2 = $2 - 15; print}' ${name}_not_scaled.oneentry.bed | \
+       awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi mm39.fa -s -bed stdin -fo ${name}.fasta
-    awk '{$2 = $2 - 10; print}' ${name}_plus_not_scaled.oneentry.bed | \
-       awk '{OFS="\t";} {$3 = $2 + 21; print}' | grep -v - | \
+    awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
+       awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi mm39.fa -s -bed stdin -fo ${name}_plus.fasta
-    awk '{$2 = $2 - 11; print}' ${name}_minus_not_scaled.oneentry.bed | \
-       awk '{OFS="\t";} {$3 = $2 + 21; print}' |  grep -v - | \
+    awk '{$2 = $2 - 16; print}' ${name}_minus_not_scaled.oneentry.bed | \
+       awk '{OFS="\t";} {$3 = $2 + 31; print}' |  grep -v - | \
        fastaFromBed -fi mm39.fa -s -bed stdin -fo ${name}_minus.fasta
 #First convert all sequences in the minus fasta into uppercase letters,
 #then reverse complement all minus strand sequences.
