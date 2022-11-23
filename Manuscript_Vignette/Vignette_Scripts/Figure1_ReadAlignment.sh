@@ -149,7 +149,7 @@ do
     awk '{$2 = $2 - 15; print}' ${name}_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}.fasta
-		awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_plus.fasta
     awk '{$2 = $2 - 15; print}' ${name}_minus_not_scaled.oneentry.bed | \
