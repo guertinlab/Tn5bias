@@ -1,48 +1,6 @@
-#Count all instances of each nucleotide at each position, data frame to be counted is
-#x.ligation, and posnum is the size of the window counted
-transfac.func.2 <- function(x.ligation, posnum) {
-  col.matrix = matrix()
-  for (g in 1:posnum){
-    itnum = lapply(strsplit(as.character(x.ligation), ''), "[", g)
-    if (g == 1) {
-      col.matrix = itnum
-    } else {
-      col.matrix = cbind(col.matrix, itnum)
-    }
-  }  
-  
-  a.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "A"))
-  t.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "T"))
-  c.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "C"))
-  g.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "G"))
-  
-  transfac = cbind(a.nuc, c.nuc, g.nuc, t.nuc)
-  print(transfac)
-  return(transfac)
-}
-
-#Split up data sets into groups of desired size to reduce RAM load
-seqlast <- function (from, to, by) 
-{
-  vec <- do.call(what = seq, args = list(from, to, by))
-  if ( tail(vec, 1) != to ) {
-    return(c(vec, to))
-  } else {
-    return(vec)
-  }
-}
-
-#Make all instaces in a table uppercase
-uppercase <- function(tableinput){ 
-  upperdf <- read.table(tableinput, comment.char = '>')
-  upperdf[,1] = as.character(upperdf[,1])
-  upperdf = data.frame(lapply(upperdf, function(v) {
-    if (is.character(v)) return(toupper(v))
-    else return(v)}))
-}
-
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 ###################################################################################
-#Benzonase plus, minus, unseparated, sepcat FASTA files:
+#Benzonase sepcat FASTA files:
 uppercasenames <- list('mm39_liver_Benzonase_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
@@ -78,7 +36,7 @@ write.table(transfac.Benzonase_sepcat, file = "Benzonase_sepcat_bias.transfac",
 rm(Benzonase_sepcat, Benzonase_sepcat.transfac)
 ###################################################################################
 ###################################################################################
-#Cyanase plus, minus, unseparated, sepcat FASTA files:
+#Cyanase sepcat FASTA file:
 uppercasenames <- list('mm39_liver_Cyanase_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
@@ -112,8 +70,8 @@ write.table(transfac.Cyanase_sepcat, file = "Cyanase_sepcat_bias.transfac",
 rm(Cyanase_sepcat.transfac, Cyanase_sepcat)
 ###################################################################################
 ###################################################################################
-#MNase plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('/mm39_liver_MNase_sepcat.fasta')
+#MNase sepcat FASTA file:
+uppercasenames <- list('mm39_liver_MNase_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
@@ -147,8 +105,8 @@ write.table(transfac.MNase_sepcat, file = "MNase_sepcat_bias.transfac",
 rm(MNase_sepcat.transfac, MNase_sepcat)
 ###################################################################################
 ###################################################################################
-#DNase plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('../hg38_data/DNase_Naked_unscaled_sepcat.fasta')
+#DNase sepcat FASTA file:
+uppercasenames <- list('DNase_Naked_unscaled_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
@@ -181,8 +139,8 @@ write.table(transfac.DNase_sepcat, file = "DNase_sepcat_bias.transfac",
 rm(DNase_sepcat.transfac,DNase_sepcat)
 ###################################################################################
 ###################################################################################
-#Tn5 plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('../hg38_data/C1_gDNA_rep1_sepcat.fasta')
+#Tn5 sepcat FASTA file:
+uppercasenames <- list('C1_gDNA_rep1_sepcat.fasta')
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
 Tn5_sepcat = as.data.frame(uplist[1])
