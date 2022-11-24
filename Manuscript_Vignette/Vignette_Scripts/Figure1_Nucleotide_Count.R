@@ -13,8 +13,8 @@ rm(uplist, uppercasenames)
 #
 #Count each nucleotide at each position:
 ##Benzonase_sepcat
-Benzonase_sepcat.transfac = vector("list", length = ceiling(nrow(Benzonase_sepcat)/1000000))
-Benzonase_sepcat.split = seqlast(from=1,to=(nrow(Benzonase_sepcat)+1),by=1000000)
+Benzonase_sepcat.transfac = vector("list", length = ceiling(nrow(Benzonase_sepcat)/100000))
+Benzonase_sepcat.split = seqlast(from=1,to=(nrow(Benzonase_sepcat)+1),by=100000)
 
 for (i in 1:length(Benzonase_sepcat.transfac)) {
   Benzonase_sepcat.transfac[[i]] =
@@ -47,8 +47,8 @@ Cyanase_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
 ##Cyanase_sepcat
-Cyanase_sepcat.transfac = vector("list", length = ceiling(nrow(Cyanase_sepcat)/1000000))
-Cyanase_sepcat.split = seqlast(from=1,to=(nrow(Cyanase_sepcat)+1),by=1000000)
+Cyanase_sepcat.transfac = vector("list", length = ceiling(nrow(Cyanase_sepcat)/100000))
+Cyanase_sepcat.split = seqlast(from=1,to=(nrow(Cyanase_sepcat)+1),by=100000)
 
 for (i in 1:length(Cyanase_sepcat.transfac)) {
   Cyanase_sepcat.transfac[[i]] =
@@ -81,13 +81,12 @@ MNase_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
 ##MNase_sepcat
-MNase_sepcat.transfac = vector("list", length = ceiling(nrow(MNase_sepcat)/1000000))
-MNase_sepcat.split = seqlast(from=1,to=(nrow(MNase_sepcat)+1),by=1000000)
+MNase_sepcat.transfac = vector("list", length = ceiling(nrow(MNase_sepcat)/100000))
+MNase_sepcat.split = seqlast(from=1,to=(nrow(MNase_sepcat)+1),by=100000)
 
 for (i in 1:length(MNase_sepcat.transfac)) {
   MNase_sepcat.transfac[[i]] =
-    transfac.func.2(MNase_sepcat[MNase_sepcat.split[i]:(MNase_sepcat.split[i+1]-1),1],
-                    'MNase_sepcat_bias', 31, FALSE)
+    transfac.func.2(MNase_sepcat[MNase_sepcat.split[i]:(MNase_sepcat.split[i+1]-1),1], 31)
 }
 #Combine all splits of data
 transfac.MNase_sepcat <- matrix(0,nrow = 31, ncol = 4)
@@ -106,7 +105,7 @@ rm(MNase_sepcat.transfac, MNase_sepcat)
 ###################################################################################
 ###################################################################################
 #DNase sepcat FASTA file:
-uppercasenames <- list('DNase_Naked_unscaled_sepcat.fasta')
+uppercasenames <- list('DNase_Naked_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
@@ -115,13 +114,12 @@ DNase_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
 ##DNase_sepcat
-DNase_sepcat.transfac = vector("list", length = ceiling(nrow(DNase_sepcat)/1000000))
-DNase_sepcat.split = seqlast(from=1,to=(nrow(DNase_sepcat)+1),by=1000000)
+DNase_sepcat.transfac = vector("list", length = ceiling(nrow(DNase_sepcat)/100000))
+DNase_sepcat.split = seqlast(from=1,to=(nrow(DNase_sepcat)+1),by=100000)
 
 for (i in 1:length(DNase_sepcat.transfac)) {
   DNase_sepcat.transfac[[i]] =
-    transfac.func.2(DNase_sepcat[DNase_sepcat.split[i]:(DNase_sepcat.split[i+1]-1),1],
-                    'DNase_sepcat_bias', 31, FALSE)
+    transfac.func.2(DNase_sepcat[DNase_sepcat.split[i]:(DNase_sepcat.split[i+1]-1),1], 31)
 }
 #Combine all splits of data
 transfac.DNase_sepcat <- matrix(0,nrow = 31, ncol = 4)
@@ -147,13 +145,12 @@ Tn5_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
 ##Tn5_sepcat
-Tn5_sepcat.transfac = vector("list", length = ceiling(nrow(Tn5_sepcat)/1000000))
-Tn5_sepcat.split = seqlast(from=1,to=(nrow(Tn5_sepcat)+1),by=1000000)
+Tn5_sepcat.transfac = vector("list", length = ceiling(nrow(Tn5_sepcat)/100000))
+Tn5_sepcat.split = seqlast(from=1,to=(nrow(Tn5_sepcat)+1),by=100000)
 
 for (i in 1:length(Tn5_sepcat.transfac)) {
   Tn5_sepcat.transfac[[i]] =
-    transfac.func.2(Tn5_sepcat[Tn5_sepcat.split[i]:(Tn5_sepcat.split[i+1]-1),1],
-                    'Tn5_sepcat_bias', 31, FALSE)
+    transfac.func.2(Tn5_sepcat[Tn5_sepcat.split[i]:(Tn5_sepcat.split[i+1]-1),1], 31)
 }
 #Combine all splits of data
 transfac.Tn5_sepcat <- matrix(0,nrow = 31, ncol = 4)
