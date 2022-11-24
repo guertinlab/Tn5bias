@@ -388,4 +388,46 @@ plot.seqlogo.func <- function(x, outfile = "PLEASE_SET_FILE_NAME.pdf") {
 }
 
 
+#Count all instances of each nucleotide at each position, data frame to be counted is
+#x.ligation, and posnum is the size of the window counted
+transfac.func.2 <- function(x.ligation, posnum) {
+  col.matrix = matrix()
+  for (g in 1:posnum){
+    itnum = lapply(strsplit(as.character(x.ligation), ''), "[", g)
+    if (g == 1) {
+      col.matrix = itnum
+    } else {
+      col.matrix = cbind(col.matrix, itnum)
+    }
+  }  
+  
+  a.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "A"))
+  t.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "T"))
+  c.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "C"))
+  g.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "G"))
+  
+  transfac = cbind(a.nuc, c.nuc, g.nuc, t.nuc)
+  print(transfac)
+  return(transfac)
+}
+
+#Split up data sets into groups of desired size to reduce RAM load
+seqlast <- function (from, to, by) 
+{
+  vec <- do.call(what = seq, args = list(from, to, by))
+  if ( tail(vec, 1) != to ) {
+    return(c(vec, to))
+  } else {
+    return(vec)
+  }
+}
+
+#Make all instaces in a table uppercase
+uppercase <- function(tableinput){ 
+  upperdf <- read.table(tableinput, comment.char = '>')
+  upperdf[,1] = as.character(upperdf[,1])
+  upperdf = data.frame(lapply(upperdf, function(v) {
+    if (is.character(v)) return(toupper(v))
+    else return(v)}))
+}
 
