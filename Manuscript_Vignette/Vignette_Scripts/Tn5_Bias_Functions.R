@@ -331,8 +331,8 @@ BED.query.bigWig <- function(beddf, bwPlus, bwMinus, upstream = 10,
 plot.composites <- function(dat, x_axis_range = 1:length(dat$x), ylabel = '',
                             pdf_name = 'PLEASE_SET_FILE_NAME', y_axis_range = NULL,
                             xlabel = '', striplabel = TRUE, legend = TRUE,
-                            motifline = FALSE, Motiflen = 10,
-                            figwidth = 2.5, figheight=3,
+                            motifline = FALSE, Motiflen = 10, nXticks = 6, nYticks = 3,
+                            figwidth = 2.5, figheight=3, hline = FALSE,
                             indexlist = NULL, layoutgrid = NULL, y_axis = FALSE,
                     col.lines = c("#0000FF", "#FF0000", "#00000090", 
                                   rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
@@ -347,8 +347,12 @@ plot.composites <- function(dat, x_axis_range = 1:length(dat$x), ylabel = '',
     pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
     print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
                  type = 'l', as.table = TRUE,
-                 scales=list(x=list(cex=0.8,relation = "free", axs ="i"), 
-                             y =list(cex=0.8, relation="free", tick.number=4)),
+                 scales=list(x=list(at=seq(min(x_axis_range),max(x_axis_range),
+                                           floor(length(x_axis_range)/nXticks)),
+                                    cex=1.1, relation = "free", axs ="i", rot = 45), 
+                             y =list(at=seq(min(y_axis_range),max(y_axis_range),
+                                            ((max(y_axis_range)-min(y_axis_range))/(nYticks-1))),
+                               cex=1.1, relation = "free", rot = 0)),
                  col = col.lines,
                  auto.key = if (legend == TRUE) 
                      {list(points=F, lines=T, cex=0.8)} else{},
@@ -361,23 +365,25 @@ plot.composites <- function(dat, x_axis_range = 1:length(dat$x), ylabel = '',
                                                            lwd=c(2), 
                                                            lty = c(1))),
                  cex.axis=1.0,
-                 par.strip.text=list(cex=0.9, font=1, col='black'),
+                 par.strip.text=list(cex=1.2, font=1, col='black'),
                  aspect=1.0,
                  between=list(y=0.5, x=0.5),
                  lwd=2,
                  ylim = if (y_axis == TRUE){c(min(y_axis_range), max(y_axis_range))} else{},
                  xlim = c(min(x_axis_range), max(x_axis_range)),
-                 ylab = list(label = paste(ylabel), cex =0.8),
-                 xlab = list(label = paste(xlabel), cex =0.8),
+                 ylab = list(label = paste(ylabel), cex =1.3),
+                 xlab = list(label = paste(xlabel), cex =1.3),
                  index.cond = indexlist,
                  layout = layoutgrid,
                  panel = function(x, y, ...) {
-                     panel.xyplot(x, y, ...)
-                     #panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')
-                     if (motifline == TRUE) 
-                        {panel.abline(v = Motiflen/2, lty = 2, col = "red")} else{}
-                     if (motifline == TRUE) 
-                        {panel.abline(v = -Motiflen/2, lty = 2, col = "red")} else{}
+                   panel.xyplot(x, y, ...)
+                   if (hline == TRUE)
+                   {panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')}else{}
+                   level = dimnames(trellis.last.object())[["factor"]][packet.number()]
+                   if (motifline == TRUE) 
+                   {panel.abline(v = Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
+                   if (motifline == TRUE) 
+                   {panel.abline(v = -Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
                  }
     ))
     dev.off()
