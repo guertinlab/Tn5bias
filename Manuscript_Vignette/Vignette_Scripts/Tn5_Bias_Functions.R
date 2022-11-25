@@ -342,7 +342,7 @@ plot.composites <- function(dat, x_axis_range = 1:length(dat$x), ylabel = '',
                                   rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
                                   rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
     require(lattice)
-    dat = dat[which(dat$x %in% x_axis_range)]
+    dat = dat[which(dat$x <= max(x_axis_range)+0.5 & dat$x >= min(x_axis_range) -0.5)]
     
     pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
     print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
@@ -365,6 +365,7 @@ plot.composites <- function(dat, x_axis_range = 1:length(dat$x), ylabel = '',
                  aspect=1.0,
                  between=list(y=0.5, x=0.5),
                  lwd=2,
+                 xlim = c(min(x_axis_range), max(x_axis_range)),
                  ylab = list(label = paste(ylabel), cex =0.8),
                  xlab = list(label = paste(xlabel), cex =0.8),
                  index.cond = indexlist,
