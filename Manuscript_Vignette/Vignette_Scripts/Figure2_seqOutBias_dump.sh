@@ -10,14 +10,23 @@ cat hg38.3.3.3plus.19.bed hg38.3.3.3minus.31.bed > CAG_locations.bed
 shuf -n 400000 CAG_locations.bed > CAG_locations_rand400k.bed
 
 #Run seqOutBias with masks designed to correct each peak (mask is shifted 4 base pairs):
-seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1.bam --custom-shift=4,-4 --strand-specific --kmer-mask=NNCN \
-                                         --bed=C1_gDNA_rep1_NNNXXXC.bed \
-                                         --bw=C1_gDNA_rep1_NNNXXXC.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_plus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=NNCN \
+                                         --bed=C1_gDNA_rep1_plus_NNNXXXC.bed \
+                                         --bw=C1_gDNA_rep1_plus_NNNXXXC.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_minus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=NNCN \
+                                          --bed=C1_gDNA_rep1_minus_NNNXXXC.bed \
+                                          --bw=C1_gDNA_rep1_minus_NNNXXXC.bigWig --read-size=76
 
-seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXNNN \
-                                          --bed=C1_gDNA_rep1_NCNN.bed \
-                                          --bw=C1_gDNA_rep1_NCNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_plus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXNNN \
+                                         --bed=C1_gDNA_rep1_plus_NCNN.bed \
+                                         --bw=C1_gDNA_rep1_plus_NCNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_minus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXNNN \
+                                          --bed=C1_gDNA_rep1_minus_NCNN.bed \
+                                          --bw=C1_gDNA_rep1_minus_NCNN.bigWig --read-size=76
 
-seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXXXXXXNNN \
-                                         --bed=C1_gDNA_rep1_CXXXXNNN.bed \
-                                         --bw=C1_gDNA_rep1_CXXXXNNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_plus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXXXXXXNNN \
+                                         --bed=C1_gDNA_rep1_plus_CXXXXNNN.bed \
+                                         --bw=C1_gDNA_rep1_plus_CXXXXNNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_minus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXXXXXXNNN \
+                                          --bed=C1_gDNA_rep1_minus_CXXXXNNN.bed \
+                                          --bw=C1_gDNA_rep1_minus_CXXXXNNN.bigWig --read-size=76
