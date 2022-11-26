@@ -7,7 +7,7 @@ header-includes:
 author:
 - Jacob B. Wolpe^[University of Virginia]
 - Michael J. Guertin^[University of Connecticut]
-geometry: margin=1.5cm 
+geometry: margin=1.25cm 
 output:
   pdf_document:
       fig_caption: yes
@@ -25,19 +25,19 @@ vignette: >
 ---
 \pagebreak
 # Foreword
-  Organization of this vignette assumes that each section contains all files in a folder specific to that section and that scripts are initiated within the original section folder.
-ie. Figure1, Figure2 are individual folders. Therefore, calls to data made in a previous section will usually involve accessing that folder.
+  Organization of this vignette assumes that each section contains all files in a folder specific to that section and that scripts are initiated within the original section folder. ie. Figure1, Figure2 are individual folders. Therefore, calls to data made in a previous section will usually involve accessing that folder. Additionally, because each figure has many dependencies, each new dependency is listed before each section in which it is used. Subsequent sections which use previously listed dependencies do not list them. 
 
-# Figure 1. Tn5 sequence bias is uniquely wide amongst nucleases.
+# Figure 1. Tn5 sequence bias is more complex than nuclease sequence bias.
 
-```{r Figure1, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=" Tn5 sequence bias is uniquely wide amongst nucleases. A) Background corrected sequence bias motifs for Tn5 and other commonly used enzymes for assaying chromatin accessibility. Nucleotide frequencies listed in the inset to the right correspond to the highest information content position. Nuclease cleavage sites are indicated by dashed red line. Information content (IC) from positions -10 to 10 is listed in the inset to the upper left. B) Box and whisker plots for the log2 inverse of all possible 5-mer scaling factors as a function of mask position relative to the cutsite for chromatin accessibility assay enzymes. Scaling factors are the percent of each k-mer in the genome divided by that k-mer’s observed  percent in the data, for a given position relative to the central base. The inverse of this value is the enzyme’s bias for this k-mer. C) Composite profiles of sites which best adhere to a given enzyme’s bias motif, as seen in A, from data sets for each respective enzyme, separated by strand and using only reads aligned to that strand (strand specific).", out.width = "80%"}
-knitr::include_graphics("figs/fig1_OL.pdf")
+```{r Figure1, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=" Tn5 sequence bias is more complex than nuclease sequence bias. A) The seqLogo sequence bias motifs are corrected for background nucleotide content and they illustrate that Tn5 bias is wider and more complex than other commonly used chromatin accessibility enzymes. Nucleotide frequencies listed in the inset to the right correspond to the highest information content position; for instance, G is found at position -4 45\\% of the instances that Tn5 inserts into DNA. Nuclease cleavage sites are indicated by dashed red line. Total information content (IC) from positions -10 to 10 is listed in the inset to the upper left. B) We plotted the log$_2$(observed/expected 5-mer frequency) for all positions surrounding DNA cleavage sites or Tn5 recognition sites as box and whisker plots. C) We plotted read depth normalized composite signal from various molecular genomics assays for the top 400,000 sites that conform most stringently to the respective enzyme’s bias motif. ", out.width = "100%"}
+knitr::include_graphics("figs/fig1_OL_JBW.pdf")
 ```
 
 ## Downloading genomic FASTA files
 
-This step will download all of the necessary genomic reference files for figure 1.
-\small
+This step will download all of the necessary genomic reference files for figure 1. The script can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ReferenceGenome_download.sh
+
 ```{bash eval=FALSE}
 #You will need to download the human and mouse genomes:
 wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
@@ -51,8 +51,8 @@ gunzip mm39.fa.gz
 
 ## Python script: bedToOneEntryBed.py
 
-The file is at https://raw.githubusercontent.com/guertinlab/Tn5bias/master/bedToOneEntryBed.py and it converts a bed to a bed with one entry per instance, so that a FASTA entry is present for each ATAC insertion event.
-\small
+The file is at https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/bedToOneEntryBed.py and it converts a bed to a bed with one entry per instance, so that a FASTA entry is present for each ATAC insertion event.
+
 ```{bash eval=FALSE}
 #! /usr/bin/env
 import re
@@ -104,7 +104,9 @@ if __name__ == "__main__":
 
 This step will download all of the data used in figure 1. These data sets will then be aligned to their respective genomes, plus and minus
 data will be separated, seqOutBias will be run on both separated and unseparated data, bed entries will be converted into an entry
-for each read, minus strand sequences are reverse complemented, and finally concatenated with the plus strand. This will be done for DNase and Tn5 using human (hg38 reference genome) data while Cyanase, Benzonase and MNase use mouse (mm39 reference genome) data.
+for each read, minus strand sequences are reverse complemented, and finally concatenated with the plus strand. This will be done for DNase and Tn5 using human
+(hg38 reference genome) data while Cyanase, Benzonase and MNase use mouse (mm39 reference genome) data. This script can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ReadAlignment.sh
 
 __Software installations:__
 
@@ -118,12 +120,8 @@ samtools: http://www.htslib.org
 
 seqOutBias: https://github.com/guertinlab/seqOutBias
 
-\small
-``` {bash eval=FALSE}
-#Make a directory for mm39 data
-mkdir mm39_data
-cd mm39_data
 
+``` {bash eval=FALSE}
 #Download Benzonase, Cyanase, MNase mm39 (mouse) data
 fasterq-dump SRR535737
 fasterq-dump SRR535738
@@ -191,20 +189,20 @@ do
                                  --bw=${name}_minus.bigWig --read-size=76
 #Make each read its own entry in a bed file
 #e.g. 2 of the same read becomes 2 entries of the same read
-    python bedToOneEntryBed.py -i ${name}.bed
-    python bedToOneEntryBed.py -i ${name}_plus.bed
-    python bedToOneEntryBed.py -i ${name}_minus.bed
+    python bedToOneEntryBed.py -i ${name}_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_plus_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_minus_not_scaled.bed
 #These bed files can be used to get the sequence flanking ALL Tn5 insertion sites,
 #so we can see the precise nature of the sequence bias for each PE/strand combination
 #we shift the window coordinatess for each bed file to accomodate the 31bp for the figure
-    awk '{$2 = $2 - 10; print}' ${name}.oneentry.bed | \
-       awk '{OFS="\t";} {$3 = $2 + 21; print}' | grep -v - | \
+    awk '{$2 = $2 - 15; print}' ${name}_not_scaled.oneentry.bed | \
+       awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi mm39.fa -s -bed stdin -fo ${name}.fasta
-    awk '{$2 = $2 - 10; print}' ${name}_plus.oneentry.bed | \
-       awk '{OFS="\t";} {$3 = $2 + 21; print}' | grep -v - | \
+    awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
+       awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi mm39.fa -s -bed stdin -fo ${name}_plus.fasta
-    awk '{$2 = $2 - 11; print}' ${name}_minus.oneentry.bed | \
-       awk '{OFS="\t";} {$3 = $2 + 21; print}' |  grep -v - | \
+    awk '{$2 = $2 - 16; print}' ${name}_minus_not_scaled.oneentry.bed | \
+       awk '{OFS="\t";} {$3 = $2 + 31; print}' |  grep -v - | \
        fastaFromBed -fi mm39.fa -s -bed stdin -fo ${name}_minus.fasta
 #First convert all sequences in the minus fasta into uppercase letters,
 #then reverse complement all minus strand sequences.
@@ -213,12 +211,6 @@ do
 #Concatenate the plus and minus strand fasta files together
     cat ${name}_minus_RC.fasta ${name}_plus.fasta > ${name}_sepcat.fasta
 done
-
-
-
-#Make a directory for hg38 data
-mkdir hg38_data
-cd hg38_data
 
 #Download Tn5 dataset
 fasterq-dump SRR5123141
@@ -254,7 +246,6 @@ do
 
 done
 
-
 #First, split data into plus and minus aligned reads
 #Run seqOutBias with no scale and shift of 4,-4 to get each read centered
 #on cut site. Then process same as other enzymes above.
@@ -275,39 +266,35 @@ do
     seqOutBias hg38.fa ${name}_minus.bam --no-scale --custom-shift=4,-4 \
                                 --strand-specific --bed=${name}_minus.bed \
                                  --bw=${name}_minus.bigWig --read-size=76
-    python bedToOneEntryBed.py -i ${name}.bed
-		python bedToOneEntryBed.py -i ${name}_plus.bed
-    python bedToOneEntryBed.py -i ${name}_minus.bed
+    python bedToOneEntryBed.py -i ${name}_not_scaled.bed
+		python bedToOneEntryBed.py -i ${name}_plus_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_minus_not_scaled.bed
 #we shift the window coordinatess for each bed file to accomodate the 31bp for the figure
-    awk '{$2 = $2 - 15; print}' ${name}.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}.fasta
-		awk '{$2 = $2 - 15; print}' ${name}_plus.oneentry.bed | \
+		awk '{$2 = $2 - 15; print}' ${name}_plus_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_plus.fasta
-    awk '{$2 = $2 - 15; print}' ${name}_minus.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_minus_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_minus.fasta
 
 		awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' ${name}_minus.fasta | \
 	     fastx_reverse_complement -o ${name}_minus_RC.fasta
 #Concatenate the plus and minus strand fasta files together
-	  cat ${name}_RC.fasta ${name}_plus.fasta > ${name}_sepcat.fasta
+	  cat ${name}_minus_RC.fasta ${name}_plus.fasta > ${name}_sepcat.fasta
 
 done
 
-
-
 #Download naked DNase data
 fasterq-dump SRR769954
-
 
 #Rename DNase data from SRR number
 mv SRR769954.fastq DNase_Naked.fastq
 
 #Zip
 gzip DNase_Naked.fastq
-
 
 #Align each dataset to hg38 genome
 for fq in DNase_*.fastq.gz
@@ -342,19 +329,19 @@ do
                                  --bw=${name}_minus_unscaled.bigWig --read-size=76
 #Make each read its own entry in a bed file
 #e.g. 2 of the same read becomes 2 entries of the same read
-    python bedToOneEntryBed.py -i ${name}.bed
-    python bedToOneEntryBed.py -i ${name}_plus.bed
-    python bedToOneEntryBed.py -i ${name}_minus.bed
+    python bedToOneEntryBed.py -i ${name}_unscaled_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_plus_unscaled_not_scaled.bed
+    python bedToOneEntryBed.py -i ${name}_minus_unscaled_not_scaled.bed
 #these bed files can be used to get the sequence flanking ALL DNase insertion sites,
 #so we can see the precise nature of the sequence bias for each PE/strand combination
 #we shift the window coordinatess for each bed file to accomodate the 31bp for the figure
-    awk '{$2 = $2 - 15; print}' ${name}.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_unscaled_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}.fasta
-    awk '{$2 = $2 - 15; print}' ${name}_plus.oneentry.bed | \
+    awk '{$2 = $2 - 15; print}' ${name}_plus_unscaled_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' | grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_plus.fasta
-    awk '{$2 = $2 - 16; print}' ${name}_minus.oneentry.bed | \
+    awk '{$2 = $2 - 16; print}' ${name}_minus_unscaled_not_scaled.oneentry.bed | \
        awk '{OFS="\t";} {$3 = $2 + 31; print}' |  grep -v - | \
        fastaFromBed -fi hg38.fa -s -bed stdin -fo ${name}_minus.fasta
 #First convert all sequences in the minus fasta into uppercase letters,
@@ -369,153 +356,31 @@ done
 
 ## Counting nucleotides for sequence logos of each enzyme
 
-Here, each enzyme's data set (FASTA file) is used to count the occurrence of each nucleotide at each position within 15bp around the cutsite.
+Each enzyme's data set (FASTA file) is used to count the occurrence of each nucleotide at each position within 15bp around the cutsite. This script can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_Nucleotide_Count.R
 
-\small
 ``` {R eval=FALSE}
-library(ggseqlogo)
-
-#Count all instances of each nucleotide at each position, data frame to be counted is
-#x.ligation, and posnum is the size of the window counted
-transfac.func.2 <- function(x.ligation, posnum) {
-   col.matrix = matrix()
-   for (g in 1:posnum){
-    itnum = lapply(strsplit(as.character(x.ligation), ''), "[", g)
-    if (g == 1) {
-    col.matrix = itnum
-    } else {
-    col.matrix = cbind(col.matrix, itnum)
-    }
-    }  
-  
-  a.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "A"))
-  t.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "T"))
-  c.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "C"))
-  g.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "G"))
-  
-  transfac = cbind(a.nuc, c.nuc, g.nuc, t.nuc)
-  print(transfac)
-  return(transfac)
-}
-
-#Split up data sets into groups of desired size to reduce RAM load
-seqlast <- function (from, to, by) 
-{
-  vec <- do.call(what = seq, args = list(from, to, by))
-  if ( tail(vec, 1) != to ) {
-    return(c(vec, to))
-  } else {
-    return(vec)
-  }
-}
-
-#Make all instaces in a table uppercase
-uppercase <- function(tableinput){ 
-                      upperdf <- read.table(tableinput, comment.char = '>')
-                      upperdf[,1] = as.character(upperdf[,1])
-                      upperdf = data.frame(lapply(upperdf, function(v) {
-                        if (is.character(v)) return(toupper(v))
-                        else return(v)}))
-                        }
-
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 ###################################################################################
-system('mkdir output')
-setwd('output')
-###################################################################################
-#Benzonase plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('../mm39_data/mm39_liver_Benzonase_plus.fasta',
-                       '../mm39_data/mm39_liver_Benzonase_RC.fasta',
-                       '../mm39_data/mm39_liver_Benzonase.fasta',
-                       '../mm39_data/mm39_liver_Benzonase_sepcat.fasta')
+#Benzonase sepcat FASTA files:
+uppercasenames <- list('mm39_liver_Benzonase_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
 
 #Each list object of uplist is the corresponding file:
-Benzonase_plus = as.data.frame(uplist[1])
-Benzonase_minus = as.data.frame(uplist[2])
-Benzonase = as.data.frame(uplist[3])
-Benzonase_sepcat = as.data.frame(uplist[4])
+Benzonase_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
 #
-#Take each data frame and count each nucleotide at each position:
-##Benzonase_plus
-Benzonase_plus.transfac = vector("list", length = ceiling(nrow(Benzonase_plus)/10000000))
-Benzonase_plus.split = seqlast(from=1,to=(nrow(Benzonase_plus)+1),by=10000000)
-
-for (i in 1:length(Benzonase_plus.transfac)) {
-Benzonase_plus.transfac[[i]] = 
-  transfac.func.2(Benzonase_plus[Benzonase_plus.split[i]:(Benzonase_plus.split[i+1]-1),1],31)
-}
-#Combine all splits of data
-transfac.Benzonase_plus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Benzonase_plus.transfac)) {
-  transfac.Benzonase_plus = transfac.Benzonase_plus + Benzonase_plus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.Benzonase_plus = cbind(1:nrow(transfac.Benzonase_plus), transfac.Benzonase_plus)
-colnames(transfac.Benzonase_plus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID Benzonase_plus_bias",
-             "BF Benzonase_plus_bias"), 'Benzonase_plus_bias.transfac')
-write.table(transfac.Benzonase_plus, file = "Benzonase_plus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##Benzonase_minus
-Benzonase_minus.transfac = vector("list", length = ceiling(nrow(Benzonase_minus)/10000000))
-Benzonase_minus.split = seqlast(from=1,to=(nrow(Benzonase_minus)+1),by=10000000)
-
-for (i in 1:length(Benzonase_minus.transfac)) {
-Benzonase_minus.transfac[[i]]=
-  transfac.func.2(Benzonase_minus[Benzonase_minus.split[i]:(Benzonase_minus.split[i+1]-1),1], 31)
-}
-#Combine all splits of data
-transfac.Benzonase_minus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Benzonase_minus.transfac)) {
-  transfac.Benzonase_minus = transfac.Benzonase_minus + Benzonase_minus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.Benzonase_minus = cbind(1:nrow(transfac.Benzonase_minus), transfac.Benzonase_minus)
-colnames(transfac.Benzonase_minus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID Benzonase_minus_bias",
-             "BF Benzonase_minus_bias"), 'Benzonase_minus_bias.transfac')
-write.table(transfac.Benzonase_minus, file = "Benzonase_minus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##Benzonase_nosep
-Benzonase.transfac = vector("list", length = ceiling(nrow(Benzonase)/10000000))
-Benzonase.split = seqlast(from=1,to=(nrow(Benzonase)+1),by=10000000)
-
-for (i in 1:length(Benzonase.transfac)) {
-Benzonase.transfac[[i]]=transfac.func.2(Benzonase[Benzonase.split[i]:(Benzonase.split[i+1]-1),1],
-                                'Benzonase_bias_plus',31,FALSE)
-}
-#Combine all splits of data
-transfac.Benzonase <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Benzonase.transfac)) {
-  transfac.Benzonase = transfac.Benzonase + Benzonase.transfac[[i]]
-}
-
-#Convert matrix back into DF
-transfac.Benzonase = cbind(1:nrow(transfac.Benzonase), transfac.Benzonase)
-colnames(transfac.Benzonase) = c('P0', 'A', 'C', 'G', 'T')
-
-#Write transfac file for input into weblogo
-writeLines(c("ID Benzonase_bias",
-             "BF Benzonase_bias"), 'Benzonase_bias.transfac')
-write.table(transfac.Benzonase, file = "Benzonase_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
+#Count each nucleotide at each position:
 ##Benzonase_sepcat
-Benzonase_sepcat.transfac = vector("list", length = ceiling(nrow(Benzonase_sepcat)/10000000))
-Benzonase_sepcat.split = seqlast(from=1,to=(nrow(Benzonase_sepcat)+1),by=10000000)
+Benzonase_sepcat.transfac = vector("list", length = ceiling(nrow(Benzonase_sepcat)/100000))
+Benzonase_sepcat.split = seqlast(from=1,to=(nrow(Benzonase_sepcat)+1),by=100000)
 
 for (i in 1:length(Benzonase_sepcat.transfac)) {
-Benzonase_sepcat.transfac[[i]] =
-  transfac.func.2(Benzonase_sepcat[Benzonase_sepcat.split[i]:(Benzonase_sepcat.split[i+1]-1),1],
-                                            'Benzonase_sepcat_bias', 31, FALSE)
+  Benzonase_sepcat.transfac[[i]] =
+    transfac.func.2(Benzonase_sepcat[Benzonase_sepcat.split[i]:(Benzonase_sepcat.split[i+1]-1),1],31)
 }
 #Combine all splits of data
 transfac.Benzonase_sepcat <- matrix(0,nrow = 31, ncol = 4)
@@ -530,102 +395,26 @@ writeLines(c("ID Benzonase_sepcat_bias",
              "BF Benzonase_sepcat_bias"), 'Benzonase_sepcat_bias.transfac')
 write.table(transfac.Benzonase_sepcat, file = "Benzonase_sepcat_bias.transfac",
             append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
+rm(Benzonase_sepcat, Benzonase_sepcat.transfac)
 ###################################################################################
 ###################################################################################
-#Cyanase plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('../mm39_data/mm39_liver_Cyanase_plus.fasta',
-                       '../mm39_data/mm39_liver_Cyanase_RC.fasta',
-                       '../mm39_data/mm39_liver_Cyanase.fasta',
-                       '../mm39_data/mm39_liver_Cyanase_sepcat.fasta')
+#Cyanase sepcat FASTA file:
+uppercasenames <- list('mm39_liver_Cyanase_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
 
 #Each list object of uplist is the corresponding file:
-Cyanase_plus = as.data.frame(uplist[1])
-Cyanase_minus = as.data.frame(uplist[2])
-Cyanase = as.data.frame(uplist[3])
-Cyanase_sepcat = as.data.frame(uplist[4])
+Cyanase_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
-#
-#Take each data frame and count each nucleotide at each position:
-##Cyanase_plus
-Cyanase_plus.transfac = vector("list", length = ceiling(nrow(Cyanase_plus)/10000000))
-Cyanase_plus.split = seqlast(from=1,to=(nrow(Cyanase_plus)+1),by=10000000)
-
-for (i in 1:length(Cyanase_plus.transfac)) {
-Cyanase_plus.transfac[[i]] = 
-  transfac.func.2(Cyanase_plus[Cyanase_plus.split[i]:(Cyanase_plus.split[i+1]-1),1],31)
-}
-#Combine all splits of data
-transfac.Cyanase_plus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Cyanase_plus.transfac)) {
-  transfac.Cyanase_plus = transfac.Cyanase_plus + Cyanase_plus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.Cyanase_plus = cbind(1:nrow(transfac.Cyanase_plus), transfac.Cyanase_plus)
-colnames(transfac.Cyanase_plus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID Cyanase_plus_bias",
-             "BF Cyanase_plus_bias"), 'Cyanase_plus_bias.transfac')
-write.table(transfac.Cyanase_plus, file = "Cyanase_plus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##Cyanase_minus
-Cyanase_minus.transfac = vector("list", length = ceiling(nrow(Cyanase_minus)/10000000))
-Cyanase_minus.split = seqlast(from=1,to=(nrow(Cyanase_minus)+1),by=10000000)
-
-for (i in 1:length(Cyanase_minus.transfac)) {
-Cyanase_minus.transfac[[i]]=
-  transfac.func.2(Cyanase_minus[Cyanase_minus.split[i]:(Cyanase_minus.split[i+1]-1),1], 31)
-}
-#Combine all splits of data
-transfac.Cyanase_minus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Cyanase_minus.transfac)) {
-  transfac.Cyanase_minus = transfac.Cyanase_minus + Cyanase_minus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.Cyanase_minus = cbind(1:nrow(transfac.Cyanase_minus), transfac.Cyanase_minus)
-colnames(transfac.Cyanase_minus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID Cyanase_minus_bias",
-             "BF Cyanase_minus_bias"), 'Cyanase_minus_bias.transfac')
-write.table(transfac.Cyanase_minus, file = "Cyanase_minus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##Cyanase_nosep
-Cyanase.transfac = vector("list", length = ceiling(nrow(Cyanase)/10000000))
-Cyanase.split = seqlast(from=1,to=(nrow(Cyanase)+1),by=10000000)
-
-for (i in 1:length(Cyanase.transfac)) {
-Cyanase.transfac[[i]]=transfac.func.2(Cyanase[Cyanase.split[i]:(Cyanase.split[i+1]-1),1],
-                                'Cyanase_bias_plus',31,FALSE)
-}
-#Combine all splits of data
-transfac.Cyanase <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Cyanase.transfac)) {
-  transfac.Cyanase = transfac.Cyanase + Cyanase.transfac[[i]]
-}
-
-#Convert matrix back into DF
-transfac.Cyanase = cbind(1:nrow(transfac.Cyanase), transfac.Cyanase)
-colnames(transfac.Cyanase) = c('P0', 'A', 'C', 'G', 'T')
-
-#Write transfac file for input into weblogo
-writeLines(c("ID Cyanase_bias",
-             "BF Cyanase_bias"), 'Cyanase_bias.transfac')
-write.table(transfac.Cyanase, file = "Cyanase_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
 ##Cyanase_sepcat
-Cyanase_sepcat.transfac = vector("list", length = ceiling(nrow(Cyanase_sepcat)/10000000))
-Cyanase_sepcat.split = seqlast(from=1,to=(nrow(Cyanase_sepcat)+1),by=10000000)
+Cyanase_sepcat.transfac = vector("list", length = ceiling(nrow(Cyanase_sepcat)/100000))
+Cyanase_sepcat.split = seqlast(from=1,to=(nrow(Cyanase_sepcat)+1),by=100000)
 
 for (i in 1:length(Cyanase_sepcat.transfac)) {
-Cyanase_sepcat.transfac[[i]] =
-  transfac.func.2(Cyanase_sepcat[Cyanase_sepcat.split[i]:(Cyanase_sepcat.split[i+1]-1),1],
-                                            'Cyanase_sepcat_bias', 31, FALSE)
+  Cyanase_sepcat.transfac[[i]] =
+    transfac.func.2(Cyanase_sepcat[Cyanase_sepcat.split[i]:(Cyanase_sepcat.split[i+1]-1),1], 31)
 }
 #Combine all splits of data
 transfac.Cyanase_sepcat <- matrix(0,nrow = 31, ncol = 4)
@@ -640,102 +429,26 @@ writeLines(c("ID Cyanase_sepcat_bias",
              "BF Cyanase_sepcat_bias"), 'Cyanase_sepcat_bias.transfac')
 write.table(transfac.Cyanase_sepcat, file = "Cyanase_sepcat_bias.transfac",
             append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
+rm(Cyanase_sepcat.transfac, Cyanase_sepcat)
 ###################################################################################
 ###################################################################################
-#MNase plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('../mm39_data/mm39_liver_MNase_plus.fasta',
-                       '../mm39_data/mm39_liver_MNase_RC.fasta',
-                       '../mm39_data/mm39_liver_MNase.fasta',
-                       '../mm39_data/mm39_liver_MNase_sepcat.fasta')
+#MNase sepcat FASTA file:
+uppercasenames <- list('mm39_liver_MNase_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
 
 #Each list object of uplist is the corresponding file:
-MNase_plus = as.data.frame(uplist[1])
-MNase_minus = as.data.frame(uplist[2])
-MNase = as.data.frame(uplist[3])
-MNase_sepcat = as.data.frame(uplist[4])
+MNase_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
-#
-#Take each data frame and count each nucleotide at each position:
-##MNase_plus
-MNase_plus.transfac = vector("list", length = ceiling(nrow(MNase_plus)/10000000))
-MNase_plus.split = seqlast(from=1,to=(nrow(MNase_plus)+1),by=10000000)
-
-for (i in 1:length(MNase_plus.transfac)) {
-MNase_plus.transfac[[i]] = 
-  transfac.func.2(MNase_plus[MNase_plus.split[i]:(MNase_plus.split[i+1]-1),1],31)
-}
-#Combine all splits of data
-transfac.MNase_plus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(MNase_plus.transfac)) {
-  transfac.MNase_plus = transfac.MNase_plus + MNase_plus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.MNase_plus = cbind(1:nrow(transfac.MNase_plus), transfac.MNase_plus)
-colnames(transfac.MNase_plus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID MNase_plus_bias",
-             "BF MNase_plus_bias"), 'MNase_plus_bias.transfac')
-write.table(transfac.MNase_plus, file = "MNase_plus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##MNase_minus
-MNase_minus.transfac = vector("list", length = ceiling(nrow(MNase_minus)/10000000))
-MNase_minus.split = seqlast(from=1,to=(nrow(MNase_minus)+1),by=10000000)
-
-for (i in 1:length(MNase_minus.transfac)) {
-MNase_minus.transfac[[i]]=
-  transfac.func.2(MNase_minus[MNase_minus.split[i]:(MNase_minus.split[i+1]-1),1], 31)
-}
-#Combine all splits of data
-transfac.MNase_minus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(MNase_minus.transfac)) {
-  transfac.MNase_minus = transfac.MNase_minus + MNase_minus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.MNase_minus = cbind(1:nrow(transfac.MNase_minus), transfac.MNase_minus)
-colnames(transfac.MNase_minus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID MNase_minus_bias",
-             "BF MNase_minus_bias"), 'MNase_minus_bias.transfac')
-write.table(transfac.MNase_minus, file = "MNase_minus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##MNase_nosep
-MNase.transfac = vector("list", length = ceiling(nrow(MNase)/10000000))
-MNase.split = seqlast(from=1,to=(nrow(MNase)+1),by=10000000)
-
-for (i in 1:length(MNase.transfac)) {
-MNase.transfac[[i]]=transfac.func.2(MNase[MNase.split[i]:(MNase.split[i+1]-1),1],
-                                'MNase_bias_plus',31,FALSE)
-}
-#Combine all splits of data
-transfac.MNase <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(MNase.transfac)) {
-  transfac.MNase = transfac.MNase + MNase.transfac[[i]]
-}
-
-#Convert matrix back into DF
-transfac.MNase = cbind(1:nrow(transfac.MNase), transfac.MNase)
-colnames(transfac.MNase) = c('P0', 'A', 'C', 'G', 'T')
-
-#Write transfac file for input into weblogo
-writeLines(c("ID MNase_bias",
-             "BF MNase_bias"), 'MNase_bias.transfac')
-write.table(transfac.MNase, file = "MNase_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
 ##MNase_sepcat
-MNase_sepcat.transfac = vector("list", length = ceiling(nrow(MNase_sepcat)/10000000))
-MNase_sepcat.split = seqlast(from=1,to=(nrow(MNase_sepcat)+1),by=10000000)
+MNase_sepcat.transfac = vector("list", length = ceiling(nrow(MNase_sepcat)/100000))
+MNase_sepcat.split = seqlast(from=1,to=(nrow(MNase_sepcat)+1),by=100000)
 
 for (i in 1:length(MNase_sepcat.transfac)) {
-MNase_sepcat.transfac[[i]] =
-  transfac.func.2(MNase_sepcat[MNase_sepcat.split[i]:(MNase_sepcat.split[i+1]-1),1],
-                                            'MNase_sepcat_bias', 31, FALSE)
+  MNase_sepcat.transfac[[i]] =
+    transfac.func.2(MNase_sepcat[MNase_sepcat.split[i]:(MNase_sepcat.split[i+1]-1),1], 31)
 }
 #Combine all splits of data
 transfac.MNase_sepcat <- matrix(0,nrow = 31, ncol = 4)
@@ -750,102 +463,25 @@ writeLines(c("ID MNase_sepcat_bias",
              "BF MNase_sepcat_bias"), 'MNase_sepcat_bias.transfac')
 write.table(transfac.MNase_sepcat, file = "MNase_sepcat_bias.transfac",
             append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
+rm(MNase_sepcat.transfac, MNase_sepcat)
 ###################################################################################
 ###################################################################################
-#DNase plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('../hg38_data/DNase_Naked_unscaled_plus.fasta',
-                       '../hg38_data/DNase_Naked_unscaled_RC.fasta',
-                       '../hg38_data/DNase_Naked_unscaled.fasta',
-                       '../hg38_data/DNase_Naked_unscaled_sepcat.fasta')
+#DNase sepcat FASTA file:
+uppercasenames <- list('DNase_Naked_sepcat.fasta')
 
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
 
-#Each list object of uplist is the corresponding file:
-DNase_plus = as.data.frame(uplist[1])
-DNase_minus = as.data.frame(uplist[2])
-DNase = as.data.frame(uplist[3])
-DNase_sepcat = as.data.frame(uplist[4])
+DNase_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
-#
-#Take each data frame and count each nucleotide at each position:
-##DNase_plus
-DNase_plus.transfac = vector("list", length = ceiling(nrow(DNase_plus)/10000000))
-DNase_plus.split = seqlast(from=1,to=(nrow(DNase_plus)+1),by=10000000)
-
-for (i in 1:length(DNase_plus.transfac)) {
-DNase_plus.transfac[[i]] = 
-  transfac.func.2(DNase_plus[DNase_plus.split[i]:(DNase_plus.split[i+1]-1),1],31)
-}
-#Combine all splits of data
-transfac.DNase_plus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(DNase_plus.transfac)) {
-  transfac.DNase_plus = transfac.DNase_plus + DNase_plus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.DNase_plus = cbind(1:nrow(transfac.DNase_plus), transfac.DNase_plus)
-colnames(transfac.DNase_plus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID DNase_plus_bias",
-             "BF DNase_plus_bias"), 'DNase_plus_bias.transfac')
-write.table(transfac.DNase_plus, file = "DNase_plus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##DNase_minus
-DNase_minus.transfac = vector("list", length = ceiling(nrow(DNase_minus)/10000000))
-DNase_minus.split = seqlast(from=1,to=(nrow(DNase_minus)+1),by=10000000)
-
-for (i in 1:length(DNase_minus.transfac)) {
-DNase_minus.transfac[[i]]=
-  transfac.func.2(DNase_minus[DNase_minus.split[i]:(DNase_minus.split[i+1]-1),1], 31)
-}
-#Combine all splits of data
-transfac.DNase_minus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(DNase_minus.transfac)) {
-  transfac.DNase_minus = transfac.DNase_minus + DNase_minus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.DNase_minus = cbind(1:nrow(transfac.DNase_minus), transfac.DNase_minus)
-colnames(transfac.DNase_minus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID DNase_minus_bias",
-             "BF DNase_minus_bias"), 'DNase_minus_bias.transfac')
-write.table(transfac.DNase_minus, file = "DNase_minus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##DNase_nosep
-DNase.transfac = vector("list", length = ceiling(nrow(DNase)/10000000))
-DNase.split = seqlast(from=1,to=(nrow(DNase)+1),by=10000000)
-
-for (i in 1:length(DNase.transfac)) {
-DNase.transfac[[i]]=transfac.func.2(DNase[DNase.split[i]:(DNase.split[i+1]-1),1],
-                                'DNase_bias_plus',31,FALSE)
-}
-#Combine all splits of data
-transfac.DNase <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(DNase.transfac)) {
-  transfac.DNase = transfac.DNase + DNase.transfac[[i]]
-}
-
-#Convert matrix back into DF
-transfac.DNase = cbind(1:nrow(transfac.DNase), transfac.DNase)
-colnames(transfac.DNase) = c('P0', 'A', 'C', 'G', 'T')
-
-#Write transfac file for input into weblogo
-writeLines(c("ID DNase_bias",
-             "BF DNase_bias"), 'DNase_bias.transfac')
-write.table(transfac.DNase, file = "DNase_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
 ##DNase_sepcat
-DNase_sepcat.transfac = vector("list", length = ceiling(nrow(DNase_sepcat)/10000000))
-DNase_sepcat.split = seqlast(from=1,to=(nrow(DNase_sepcat)+1),by=10000000)
+DNase_sepcat.transfac = vector("list", length = ceiling(nrow(DNase_sepcat)/100000))
+DNase_sepcat.split = seqlast(from=1,to=(nrow(DNase_sepcat)+1),by=100000)
 
 for (i in 1:length(DNase_sepcat.transfac)) {
-DNase_sepcat.transfac[[i]] =
-  transfac.func.2(DNase_sepcat[DNase_sepcat.split[i]:(DNase_sepcat.split[i+1]-1),1],
-                                            'DNase_sepcat_bias', 31, FALSE)
+  DNase_sepcat.transfac[[i]] =
+    transfac.func.2(DNase_sepcat[DNase_sepcat.split[i]:(DNase_sepcat.split[i+1]-1),1], 31)
 }
 #Combine all splits of data
 transfac.DNase_sepcat <- matrix(0,nrow = 31, ncol = 4)
@@ -860,100 +496,23 @@ writeLines(c("ID DNase_sepcat_bias",
              "BF DNase_sepcat_bias"), 'DNase_sepcat_bias.transfac')
 write.table(transfac.DNase_sepcat, file = "DNase_sepcat_bias.transfac",
             append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
+rm(DNase_sepcat.transfac,DNase_sepcat)
 ###################################################################################
 ###################################################################################
-#Tn5 plus, minus, unseparated, sepcat FASTA files:
-uppercasenames <- list('../hg38_data/C1_gDNA_rep1_plus.fasta',
-                       '../hg38_data/C1_gDNA_rep1_RC.fasta',
-                       '../hg38_data/C1_gDNA_rep1.fasta',
-                       '../hg38_data/C1_gDNA_rep1_sepcat.fasta')
+#Tn5 sepcat FASTA file:
+uppercasenames <- list('C1_gDNA_rep1_sepcat.fasta')
 #Make sure all FASTA entries are uppercase
 uplist <- lapply(uppercasenames, uppercase)  
-#Each list object of uplist is the corresponding file:
-Tn5_plus = as.data.frame(uplist[1])
-Tn5_minus = as.data.frame(uplist[2])
-Tn5 = as.data.frame(uplist[3])
-Tn5_sepcat = as.data.frame(uplist[4])
+Tn5_sepcat = as.data.frame(uplist[1])
 
 rm(uplist, uppercasenames)
-#
-#Take each data frame and count each nucleotide at each position:
-##Tn5_plus
-Tn5_plus.transfac = vector("list", length = ceiling(nrow(Tn5_plus)/10000000))
-Tn5_plus.split = seqlast(from=1,to=(nrow(Tn5_plus)+1),by=10000000)
-
-for (i in 1:length(Tn5_plus.transfac)) {
-Tn5_plus.transfac[[i]] = 
-  transfac.func.2(Tn5_plus[Tn5_plus.split[i]:(Tn5_plus.split[i+1]-1),1],31)
-}
-#Combine all splits of data
-transfac.Tn5_plus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Tn5_plus.transfac)) {
-  transfac.Tn5_plus = transfac.Tn5_plus + Tn5_plus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.Tn5_plus = cbind(1:nrow(transfac.Tn5_plus), transfac.Tn5_plus)
-colnames(transfac.Tn5_plus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID Tn5_plus_bias",
-             "BF Tn5_plus_bias"), 'Tn5_plus_bias.transfac')
-write.table(transfac.Tn5_plus, file = "Tn5_plus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##Tn5_minus
-Tn5_minus.transfac = vector("list", length = ceiling(nrow(Tn5_minus)/10000000))
-Tn5_minus.split = seqlast(from=1,to=(nrow(Tn5_minus)+1),by=10000000)
-
-for (i in 1:length(Tn5_minus.transfac)) {
-Tn5_minus.transfac[[i]]=
-  transfac.func.2(Tn5_minus[Tn5_minus.split[i]:(Tn5_minus.split[i+1]-1),1], 31)
-}
-#Combine all splits of data
-transfac.Tn5_minus <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Tn5_minus.transfac)) {
-  transfac.Tn5_minus = transfac.Tn5_minus + Tn5_minus.transfac[[i]]
-}
-#Convert matrix back into DF
-transfac.Tn5_minus = cbind(1:nrow(transfac.Tn5_minus), transfac.Tn5_minus)
-colnames(transfac.Tn5_minus) = c('P0', 'A', 'C', 'G', 'T')
-#Write transfac file for input into weblogo
-writeLines(c("ID Tn5_minus_bias",
-             "BF Tn5_minus_bias"), 'Tn5_minus_bias.transfac')
-write.table(transfac.Tn5_minus, file = "Tn5_minus_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
-##Tn5_nosep
-Tn5.transfac = vector("list", length = ceiling(nrow(Tn5)/10000000))
-Tn5.split = seqlast(from=1,to=(nrow(Tn5)+1),by=10000000)
-
-for (i in 1:length(Tn5.transfac)) {
-Tn5.transfac[[i]]=transfac.func.2(Tn5[Tn5.split[i]:(Tn5.split[i+1]-1),1],
-                                'Tn5_bias_plus',31,FALSE)
-}
-#Combine all splits of data
-transfac.Tn5 <- matrix(0,nrow = 31, ncol = 4)
-for (i in 1:length(Tn5.transfac)) {
-  transfac.Tn5 = transfac.Tn5 + Tn5.transfac[[i]]
-}
-
-#Convert matrix back into DF
-transfac.Tn5 = cbind(1:nrow(transfac.Tn5), transfac.Tn5)
-colnames(transfac.Tn5) = c('P0', 'A', 'C', 'G', 'T')
-
-#Write transfac file for input into weblogo
-writeLines(c("ID Tn5_bias",
-             "BF Tn5_bias"), 'Tn5_bias.transfac')
-write.table(transfac.Tn5, file = "Tn5_bias.transfac",
-            append = TRUE, quote=FALSE, row.names =FALSE, col.names = TRUE, sep = '\t')
-###################################################################################
 ##Tn5_sepcat
-Tn5_sepcat.transfac = vector("list", length = ceiling(nrow(Tn5_sepcat)/10000000))
-Tn5_sepcat.split = seqlast(from=1,to=(nrow(Tn5_sepcat)+1),by=10000000)
+Tn5_sepcat.transfac = vector("list", length = ceiling(nrow(Tn5_sepcat)/100000))
+Tn5_sepcat.split = seqlast(from=1,to=(nrow(Tn5_sepcat)+1),by=100000)
 
 for (i in 1:length(Tn5_sepcat.transfac)) {
-Tn5_sepcat.transfac[[i]] =
-  transfac.func.2(Tn5_sepcat[Tn5_sepcat.split[i]:(Tn5_sepcat.split[i+1]-1),1],
-                                            'Tn5_sepcat_bias', 31, FALSE)
+  Tn5_sepcat.transfac[[i]] =
+    transfac.func.2(Tn5_sepcat[Tn5_sepcat.split[i]:(Tn5_sepcat.split[i+1]-1),1], 31)
 }
 #Combine all splits of data
 transfac.Tn5_sepcat <- matrix(0,nrow = 31, ncol = 4)
@@ -1022,8 +581,17 @@ knitr::include_graphics("figs/weblogo_line292.png")
 
 ## Determining background nucleotide frequency in mm39 and hg38 reference genomes
 
-To determine background nucleotide frequency in the hg38 and mm39 reference genomes, a simple grep command may be used. To ensure that chromosome names aren't counted, a grep command using the chrom.sizes files for either genome may be used to correct these counts.
+__Software installations:__
+
+pyfaidx: https://github.com/mdshw5/pyfaidx
+
+To determine background nucleotide frequency in the hg38 and mm39 reference genomes, a simple grep command may be used. To ensure that chromosome names aren't counted, a grep command using the chrom.sizes files for either genome may be used to correct these counts. This script may be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_refBackground_Nuc_Freq.sh
+
 ```{bash eval = FALSE}
+#Make chrom.sizes file using faidx
+faidx hg38.fa -i chromsizes > hg38.fa.chrom.sizes
+
 #Find number of C in hg38:
 grep -o "c\|C" ../data/hg38.fa | wc -l
 #623727797
@@ -1100,97 +668,100 @@ grep -o "t\|T" ../data/mm39.fa.chrom.sizes | wc -l
 
 ## Plotting enzymatic sequence bias sequence logos for genomic background frequency and equiprobable background frequency (figure S1) using weblogo
 
-This will plot sequence logos for each enzyme's enzymatic sequence bias as seen in figure 1 and S1. These plots will also output information content files labeled with "_bitvals.txt" if the modifications to weblogo as previously outlined are implemented.
+This will plot sequence logos for each enzyme's enzymatic sequence bias as seen in figure 1 and S1. These plots will also output information content files labeled with "_bitvals.txt" if the modifications to weblogo as previously outlined are implemented. Nucleases have their positions shifted by -0.5 to model cleavage between bases. This script can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_weblogo_Enzyme_Bias.sh
+
 ``` {bash eval = FALSE}
-weblogo -f ../output/Figure1A_DNase_sepcat_bias.transfac -D transfac -o Figure1A_DNase_sepcat_bias.eps \
+weblogo -f DNase_sepcat_bias.transfac -D transfac -o DNase_sepcat_bias.eps \
         --color-scheme classic -F eps -S 0.35 -Y YES -s large \
         --composition "{'A':29.5, 'C':20.5, 'G':20.5, 'T':29.5}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Tn5_sepcat_bias.transfac -D transfac -o Figure1A_Tn5_sepcat_bias.eps \
+weblogo -f Tn5_sepcat_bias.transfac -D transfac -o Tn5_sepcat_bias.eps \
         --color-scheme classic -F eps -S 0.35 -Y YES -s large \
         --composition "{'A':29.5, 'C':20.5, 'G':20.5, 'T':29.5}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Benzonase_sepcat_bias.transfac -D transfac -o Figure1A_Benzonase_sepcat_bias.eps \
+weblogo -f Benzonase_sepcat_bias.transfac -D transfac -o Benzonase_sepcat_bias.eps \
         --color-scheme classic -F eps -S 0.35 -Y YES -s large \
         --composition "{'A':29.2, 'C':20.8, 'G':20.8, 'T':29.2}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Cyanase_sepcat_bias.transfac -D transfac -o Figure1A_Cyanase_sepcat_bias.eps \
+weblogo -f Cyanase_sepcat_bias.transfac -D transfac -o Cyanase_sepcat_bias.eps \
         --color-scheme classic -F eps -S 0.35 -Y YES -s large \
         --composition "{'A':29.2, 'C':20.8, 'G':20.8, 'T':29.2}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_MNase_sepcat_bias.transfac -D transfac -o Figure1A_MNase_sepcat_bias.eps \
+weblogo -f MNase_sepcat_bias.transfac -D transfac -o MNase_sepcat_bias.eps \
         --color-scheme classic -F eps -S 0.35 -Y YES -s large \
         --composition "{'A':29.2, 'C':20.8, 'G':20.8, 'T':29.2}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 ################################################################################################################
-weblogo -f ../output/Figure1A_Tn5_sepcat_bias.transfac -D transfac -o Figure1A_Tn5_sepcat_bias_greatestval.eps \
+weblogo -f Tn5_sepcat_bias.transfac -D transfac -o Tn5_sepcat_bias_greatestval.eps \
         --color-scheme classic -F eps -S 0.31 -Y YES -s large \
         --composition "{'A':29.5, 'C':20.5, 'G':20.5, 'T':29.5}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Benzonase_sepcat_bias.transfac -D transfac \
-        -o Figure1A_Benzonase_sepcat_bias_greatestval.eps \
+weblogo -f Benzonase_sepcat_bias.transfac -D transfac \
+        -o Benzonase_sepcat_bias_greatestval.eps \
         --color-scheme classic -F eps -S 0.16 -Y YES -s large \
         --composition "{'A':29.2, 'C':20.8, 'G':20.8, 'T':29.2}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Cyanase_sepcat_bias.transfac -D transfac \
-        -o Figure1A_Cyanase_sepcat_bias_greatestval.eps --color-scheme classic \
+weblogo -f Cyanase_sepcat_bias.transfac -D transfac \
+        -o Cyanase_sepcat_bias_greatestval.eps --color-scheme classic \
         -F eps -S 0.13 -Y YES -s large \
         --composition "{'A':29.2, 'C':20.8, 'G':20.8, 'T':29.2}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_MNase_sepcat_bias.transfac -D transfac \
-        -o Figure1A_MNase_sepcat_bias_greatestval.eps --color-scheme classic \
+weblogo -f MNase_sepcat_bias.transfac -D transfac \
+        -o MNase_sepcat_bias_greatestval.eps --color-scheme classic \
         -F eps -S 0.31 -Y YES -s large  \
         --composition "{'A':29.2, 'C':20.8, 'G':20.8, 'T':29.2}" --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
 ################################################################################################################
-weblogo -f ../output/Figure1A_DNase_sepcat_bias.transfac -D transfac \
-        -o Figure1A_DNase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
+weblogo -f DNase_sepcat_bias.transfac -D transfac \
+        -o DNase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
         -F eps -S 0.31 -Y YES -s large --composition equiprobable --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Tn5_sepcat_bias.transfac -D transfac \
-        -o Figure1A_Tn5_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
+weblogo -f Tn5_sepcat_bias.transfac -D transfac \
+        -o Tn5_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
         -F eps -S 0.18 -Y YES -s large --composition equiprobable --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Benzonase_sepcat_bias.transfac -D transfac \
-        -o Figure1A_Benzonase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
+weblogo -f Benzonase_sepcat_bias.transfac -D transfac \
+        -o Benzonase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
         -F eps -S 0.1 -Y YES -s large --composition equiprobable --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_Cyanase_sepcat_bias.transfac -D transfac \
-        -o Figure1A_Cyanase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
+weblogo -f Cyanase_sepcat_bias.transfac -D transfac \
+        -o Cyanase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
         -F eps -S 0.1 -Y YES -s large --composition equiprobable --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
-weblogo -f ../output/Figure1A_MNase_sepcat_bias.transfac -D transfac \
-        -o Figure1A_MNase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
+weblogo -f MNase_sepcat_bias.transfac -D transfac \
+        -o MNase_sepcat_bias_EQUIPROBABLE_BACKGROUND.eps --color-scheme classic \
         -F eps -S 0.42 -Y YES -s large --composition equiprobable --logo-font Arial-BoldMT \
         --annotate '-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15' \
         --number-fontsize 14 --rotate-numbers YES --fineprint '' --ylabel '' --errorbars NO
 
 ```
+
 
 ## Weblogo background correction calculations
 
@@ -1211,6 +782,12 @@ knitr::include_graphics("figs/weblogo_manual_calculation.pdf")
 ```
 
 ## Converting transfac files into MEME file format for FIMO
+__Software installations:__
+
+transfac2meme: https://meme-suite.org/meme/doc/download.html
+
+This script converts transfac format files into MEME format, it can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_transfac2meme.sh
 
 ```{bash eval=FALSE}
 #Add 'XX' to end of each transfac document
@@ -1231,142 +808,251 @@ done
 
 ## Using the FIMO algorithm to find instances of highest conformation to enzyme bias
 
-This allows us to find the composite signal at sites for each enzyme corresponding to highest bias.
+### Using the FIMO algorithm to identify sites of strongest enzymatic sequence bias
 
-\small
+This allows us to find the composite signal at sites for each enzyme corresponding to highest bias. Then we subset these coordinates for the top 400k scoring motifs.
+This script can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_EnzymeBias_FIMO.sh
+
 ``` {bash eval = FALSE}
 
-fimo --thresh 0.00005 --text ../output/Figure1A_Tn5_sepcat_bias.meme \
-                             ../hg38_data/hg38.fa > Tn5_sepcat_bias_transfac_00005_fimo.txt
+fimo --thresh 0.00005 --text Tn5_sepcat_bias.meme \
+                             hg38.fa > Tn5_sepcat_bias_transfac_00005_fimo.txt
 
-fimo --thresh 0.0001 --text ../output/Figure1A_DNase_sepcat_bias.meme \
-                            ../hg38_data/hg38.fa > DNase_sepcat_bias_transfac_0001_fimo.txt
+fimo --thresh 0.0001 --text DNase_sepcat_bias.meme \
+                            hg38.fa > DNase_sepcat_bias_transfac_0001_fimo.txt
 
-fimo --thresh 0.00007 --text ../output/Figure1A_Cyanase_sepcat_bias.meme \
-                             ../mm39_data/mm39.fa > Cyanase_sepcat_bias_transfac_00007_fimo.txt
+fimo --thresh 0.00009 --text Cyanase_sepcat_bias.meme \
+                             mm39.fa > Cyanase_sepcat_bias_transfac_00009_fimo.txt
 
-fimo --thresh 0.00005 --text ../output/Figure1A_Benzonase_sepcat_bias.meme \
-                             ../mm39_data/mm39.fa > Benzonase_sepcat_bias_transfac_00005_fimo.txt
+fimo --thresh 0.00005 --text Benzonase_sepcat_bias.meme \
+                             mm39.fa > Benzonase_sepcat_bias_transfac_00005_fimo.txt
 
-fimo --thresh 0.0001 --text ../output/Figure1A_MNase_sepcat_bias.meme \
-                            ../mm39_data/mm39.fa > MNase_sepcat_bias_transfac_0001_fimo.txt
+fimo --thresh 0.0001 --text MNase_sepcat_bias.meme \
+                            mm39.fa > MNase_sepcat_bias_transfac_0001_fimo.txt
 
 ```
 
 
+### Subset the top 400,000 sites for each enzyme and strand
+
+We now subset these coordinates for the top 400,000 plus and minus positions and also remove any motifs on the mitochondrial or alternate chromosomes. You can find this script at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_FIMO_subset.R
+
+__Software installations:__
+
+data.table R package: https://github.com/Rdatatable/data.table
+
+```{R eval=FALSE}
+library(data.table)
+#Find all of the fimo files
+FIMO_files = list.files('./')
+FIMO_files = FIMO_files[grep('_fimo', FIMO_files)]
+#Subset out the top 400k plus strand FIMO locations
+for (z in 1:length(FIMO_files)) {
+  FIMO = fread(paste(FIMO_files[z], sep = ''),
+               sep = 'auto', skip = 0, header = TRUE, fill = FALSE)
+  FIMO = FIMO[FIMO$strand=='+']
+  FIMO = FIMO[-c(grep('_', FIMO$sequence_name))]
+  if (length(grep('chrM', FIMO$sequence_name)) > 0) {
+  FIMO = FIMO[-c(grep('chrM', FIMO$sequence_name))]
+  }
+  print(unique(FIMO$sequence_name))
+  print(nrow(FIMO))
+  FIMO = FIMO[order(-score)][1:400000]
+  write.table(FIMO, file = paste(substr(FIMO_files[z], 1, nchar(FIMO_files[z])-9),
+                                 '_plus_400k_fimo.txt', sep = ''),
+              quote=FALSE, sep = '\t', row.names=FALSE, na = "")
+}
+#Subset out the top 400k minus strand FIMO locations
+for (z in 1:length(FIMO_files)) {
+  FIMO = fread(paste(FIMO_files[z], sep = ''),
+               sep = 'auto', skip = 0, header = TRUE, fill = FALSE)
+  FIMO = FIMO[FIMO$strand=='-']
+  FIMO = FIMO[-c(grep('_', FIMO$sequence_name))]
+  if (length(grep('chrM', FIMO$sequence_name)) > 0) {
+    FIMO = FIMO[-c(grep('chrM', FIMO$sequence_name))]
+  }
+  print(unique(FIMO$sequence_name))
+  print(nrow(FIMO))
+  FIMO = FIMO[order(-score)][1:400000]
+  write.table(FIMO, file = paste(substr(FIMO_files[z], 1, nchar(FIMO_files[z])-9),
+                                 '_minus_400k_fimo.txt', sep = ''),
+              quote=FALSE, sep = '\t', row.names=FALSE, na = "")
+}
+```
+
 ## Plotting composite profiles of each enzyme's bias
 
-Here, we use the FIMO results to plot the regions with highest conformation to each enzyme's bias.
+Here, we use the FIMO results to plot the regions with highest conformation to each enzyme's bias after correcting for read depth.
+This script can be downloaded from:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_Plot_EnzymeBias.R
 
-\small
 ``` {R eval=FALSE}
-
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+###################################################################################
 library(bigWig)
 library(zoo)
 library(lattice)
-source('Figure1_functions.R')
-setwd('output')
-
 ###########################Benzonase unsep/minus/plus
-Motifs <- c('Benzonase_sepcat_bias_transfac_00005_fimo.txt')
+Motifs <- c('Benzonase_sepcat_bias_transfac_00005_plus_400k_fimo.txt',
+            'Benzonase_sepcat_bias_transfac_00005_minus_400k_fimo.txt')
 Motiflist <- vector('list', length(Motifs))
 
-Motiflist[[1]] = FIMO.to.BED(Motifs)
-names(Motiflist) <- Motifs
+for (i in 1:length(Motifs)) {
+  Motiflist[[i]] = FIMO.to.BED(Motifs[i])
+}
+Motiflist[[1]] = rbind(Motiflist[[1]], Motiflist[[2]])
+
+names(Motiflist) <- 'Benzonase'
 
 BWs <- c('mm39_liver_Benzonase_plus.bigWig', 'mm39_liver_Benzonase_minus.bigWig')
 
 merged_benz <- BED.query.bigWig(Motiflist[[1]], BWs[1], BWs[2], 
-                    upstream = 50, downstream = 50, factor = 'Benzonase strand-specific',
-                    group = 'Unscaled', ATAC = FALSE)
+                                upstream = 50, downstream = 50, factor = 'Benzonase',
+                                group = 'Unscaled', ATAC = FALSE)
 
 unscaled_composite_agg <- rbind(merged_benz)
 
 ###########################Cyanase unsep/minus/plus
-Motifs <- c('Cyanase_sepcat_bias_transfac_00005_fimo.txt')
+Motifs <- c('Cyanase_sepcat_bias_transfac_0001_plus_400k_fimo.txt',
+            'Cyanase_sepcat_bias_transfac_0001_minus_400k_fimo.txt')
 Motiflist <- vector('list', length(Motifs))
 
-Motiflist[[1]] = FIMO.to.BED(Motifs)
-names(Motiflist) <- Motifs
+for (i in 1:length(Motifs)) {
+  Motiflist[[i]] = FIMO.to.BED(Motifs[i])
+}
+Motiflist[[1]] = rbind(Motiflist[[1]], Motiflist[[2]])
+
+names(Motiflist) <- 'Cyanase'
 
 BWs <- c('mm39_liver_Cyanase_plus.bigWig', 'mm39_liver_Cyanase_minus.bigWig')
 
 merged_cyan <- BED.query.bigWig(Motiflist[[1]], BWs[1], BWs[2], 
-                                upstream = 50, downstream = 50, factor = 'Cyanase strand-specific',
+                                upstream = 50, downstream = 50, factor = 'Cyanase',
                                 group = 'Unscaled', ATAC = FALSE)
 
 
 unscaled_composite_agg <- rbind(unscaled_composite_agg, merged_cyan)
 
 ###########################DNase unsep/minus/plus
-Motifs <- c('DNase_sepcat_bias_transfac_00005_fimo.txt')
+Motifs <- c('DNase_sepcat_bias_transfac_0001_plus_400k_fimo.txt',
+            'DNase_sepcat_bias_transfac_0001_minus_400k_fimo.txt')
 Motiflist <- vector('list', length(Motifs))
 
-Motiflist[[1]] = FIMO.to.BED(Motifs)
-names(Motiflist) <- Motifs
+for (i in 1:length(Motifs)) {
+  Motiflist[[i]] = FIMO.to.BED(Motifs[i])
+}
+Motiflist[[1]] = rbind(Motiflist[[1]], Motiflist[[2]])
+names(Motiflist) <- 'DNase'
 
-BWs <- c('mm39_liver_DNase_plus.bigWig', 'mm39_liver_DNase_minus.bigWig')
+BWs <- c('DNase_Naked_plus_unscaled.bigWig', 'DNase_Naked_minus_unscaled.bigWig')
 
 merged_DNase <- BED.query.bigWig(Motiflist[[1]], BWs[1], BWs[2], 
-                                upstream = 50, downstream = 50, factor = 'DNase strand-specific',
-                                group = 'Unscaled', ATAC = FALSE)
+                                 upstream = 50, downstream = 50, factor = 'DNase',
+                                 group = 'Unscaled', ATAC = FALSE)
 
 
 unscaled_composite_agg <- rbind(unscaled_composite_agg, merged_DNase)
 
 ###########################MNase unsep/minus/plus
-Motifs <- c('MNase_sepcat_bias_transfac_00005_fimo.txt')
+Motifs <- c('MNase_sepcat_bias_transfac_0001_plus_400k_fimo.txt',
+            'MNase_sepcat_bias_transfac_0001_minus_400k_fimo.txt')
 Motiflist <- vector('list', length(Motifs))
 
-Motiflist[[1]] = FIMO.to.BED(Motifs)
-names(Motiflist) <- Motifs
+for (i in 1:length(Motifs)) {
+  Motiflist[[i]] = FIMO.to.BED(Motifs[i])
+}
+Motiflist[[1]] = rbind(Motiflist[[1]], Motiflist[[2]])
+names(Motiflist) <- 'MNase'
 
 BWs <- c('mm39_liver_MNase_plus.bigWig', 'mm39_liver_MNase_minus.bigWig')
 
 merged_MNase <- BED.query.bigWig(Motiflist[[1]], BWs[1], BWs[2], 
-                                 upstream = 50, downstream = 50, factor = 'MNase strand-specific',
+                                 upstream = 50, downstream = 50, factor = 'MNase',
                                  group = 'Unscaled', ATAC = FALSE)
 
 
 unscaled_composite_agg <- rbind(unscaled_composite_agg, merged_MNase)
 
 ###########################Tn5 unsep/minus/plus
-Motifs <- c('Tn5_sepcat_bias_transfac_00005_fimo.txt')
+Motifs <- c('Tn5_sepcat_bias_transfac_00005_plus_400k_fimo.txt',
+            'Tn5_sepcat_bias_transfac_00005_minus_400k_fimo.txt')
 Motiflist <- vector('list', length(Motifs))
 
-Motiflist[[1]] = FIMO.to.BED(Motifs)
-names(Motiflist) <- Motifs
+for (i in 1:length(Motifs)) {
+  Motiflist[[i]] = FIMO.to.BED(Motifs[i])
+}
+Motiflist[[1]] = rbind(Motiflist[[1]], Motiflist[[2]])
+names(Motiflist) <- 'Tn5'
 
-BWs <- c('Tn5_C1_gDNA_rep1_plus.bigWig', 'Tn5_C1_gDNA_rep1_minus.bigWig')
+BWs <- c('C1_gDNA_rep1_plus.bigWig', 'C1_gDNA_rep1_minus.bigWig')
 
 merged_Tn5 <- BED.query.bigWig(Motiflist[[1]], BWs[1], BWs[2], 
-                                 upstream = 50, downstream = 50, factor = 'Tn5 strand-specific',
-                                 group = 'Unscaled', ATAC = TRUE)
+                               upstream = 50, downstream = 50, factor = 'Tn5',
+                               group = 'Unscaled', ATAC = TRUE)
 
 unscaled_composite_agg <- rbind(unscaled_composite_agg, merged_Tn5)
 
+#Determine each enzyme's read depth:
+benzonase_read_depth = fread('mm39_liver_Benzonase_not_scaled.bed')
+benzonase_read_depth = sum(benzonase_read_depth$V5)
+cyanase_read_depth = fread('mm39_liver_Cyanase_not_scaled.bed')
+cyanase_read_depth = sum(cyanase_read_depth$V5)
+MNase_read_depth = fread('mm39_liver_MNase_not_scaled.bed')
+MNase_read_depth = sum(MNase_read_depth$V5)
+DNase_read_depth = fread('DNase_Naked_unscaled_not_scaled.bed')
+DNase_read_depth = sum(DNase_read_depth$V5)
+Tn5_read_depth = fread('C1_gDNA_rep1_not_scaled.bed')
+Tn5_read_depth = sum(Tn5_read_depth$V5)
+
+
+#Scale all values by their read depth
+unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'Benzonase')] = 
+  unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'Benzonase')]/benzonase_read_depth
+
+unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'Cyanase')] = 
+  unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'Cyanase')]/cyanase_read_depth
+
+unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'MNase')] = 
+  unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'MNase')]/MNase_read_depth
+
+unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'DNase')] = 
+  unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'DNase')]/DNase_read_depth
+
+unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'Tn5')] = 
+  unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'Tn5')]/Tn5_read_depth
+
+#Normalize all plots to greatest value
+unscaled_composite_agg$est = unscaled_composite_agg$est/max(unscaled_composite_agg$est)
+
+save(unscaled_composite_agg, file = 'Figure1C_Unscaled_enzyme_composites.Rdata')
+load('Figure1C_Unscaled_enzyme_composites.Rdata')
 ###Plot these all together
-ssplot <- plot.composites(unscaled_composite_agg, legend = FALSE, 
+enzymebiasplot = plot.composites(unscaled_composite_agg, x_axis_range=-15:15,
+                          legend = FALSE, 
                           ylabel = 'Cut Frequency',
                           xlabel = 'Distance from Motif Center',
                           figwidth = 4, figheight = 12,
                           motifline = FALSE,
                           Motiflen = mlen,
                           striplabel = TRUE,
-                          pdf_name = 'unscaled_striplabel_ss_composites',
-                          indexlist = list(c(3,2,1,4,5)),
-                          layoutgrid = c(1,5)
+                          pdf_name = 'unscaled_enzymebias_composites',
+                          indexlist = list(c(5,3,2,1,4)),
+                          layoutgrid = c(1,5),
+                          y_axis_range = 0:1, y_axis = TRUE
 )
-
 ```
 
-```{r unscaled_striplabel_ss_composites, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Unscaled enzyme bias composites ', out.width = "80%"}
-knitr::include_graphics("figs/unscaled_striplabel_ss_composites.pdf")
+```{r unscaled_striplabel_ss_composites, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Unscaled enzyme bias composites, corrected for read depth ', out.width = "100%"}
+knitr::include_graphics("figs/unscaled_enzymebias_composites.pdf")
 ```
 
 ## Generating iterative seqtables with seqOutBias
 
 Using a for loop, and parallel computing, we run many instances of seqOutBias in order to generate seqtable files, so we may calculate scale factors for each 5-mer position within a 15bp range of the cutsite.
+To download this file, please visit:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_seqOutBias_Masks.R
 
 ``` {R eval=FALSE}
 library(parallel)
@@ -1401,7 +1087,7 @@ neighbors <- function(vecmask) {
 ###Make Tn5 masks-we need a wider range because we will need to shift these by 4 (this will take hours)
 start_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 nextlst = neighbors(mask.to.vec(start_mask))
-seqOutBias.args = "../hg38_data/hg38.fa ../hg38_data/C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
+seqOutBias.args = "../hg38.fa ../C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
 sqcmd = "seqOutBias"
 prefix = "Tn5_"
 
@@ -1412,7 +1098,7 @@ masks = mclapply(nextlst, function(cutmask) {
 ###Make DNase masks (this will take hours)
 start_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 nextlst = neighbors(mask.to.vec(start_mask))
-seqOutBias.args = "../hg38_data/hg38.fa ../hg38_data/DNase_Naked.bam --read-size=76 --strand-specific"
+seqOutBias.args = "../hg38.fa ../DNase_Naked.bam --read-size=76 --strand-specific"
 sqcmd = "seqOutBias"
 prefix = "DNase_"
 
@@ -1423,7 +1109,7 @@ masks = mclapply(nextlst, function(cutmask) {
 ###Make Benzonase masks (this will take hours)
 start_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 nextlst = neighbors(mask.to.vec(start_mask))
-seqOutBias.args = "../mm39_data/mm39.fa ../mm39_data/mm39_liver_Benzonase.bam --read-size=76 --strand-specific"
+seqOutBias.args = "../mm39.fa ../mm39_liver_Benzonase.bam --read-size=76 --strand-specific"
 sqcmd = "seqOutBias"
 prefix = "Benzonase_"
 
@@ -1434,7 +1120,7 @@ masks = mclapply(nextlst, function(cutmask) {
 ###Make Cyanase masks (this will take hours)
 start_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 nextlst = neighbors(mask.to.vec(start_mask))
-seqOutBias.args = "../mm39_data/mm39.fa ../mm39_data/mm39_liver_Cyanase.bam --read-size=76 --strand-specific"
+seqOutBias.args = "../mm39.fa ../mm39_liver_Cyanase.bam --read-size=76 --strand-specific"
 sqcmd = "seqOutBias"
 prefix = "Cyanase_"
 
@@ -1445,7 +1131,7 @@ masks = mclapply(nextlst, function(cutmask) {
 ###Make MNase masks (this will take hours)
 start_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 nextlst = neighbors(mask.to.vec(start_mask))
-seqOutBias.args = "../mm39_data/mm39.fa ../mm39_data/mm39_liver_MNase.bam --read-size=76 --strand-specific"
+seqOutBias.args = "../mm39.fa ../mm39_liver_MNase.bam --read-size=76 --strand-specific"
 sqcmd = "seqOutBias"
 prefix = "MNase_"
 
@@ -1456,7 +1142,10 @@ masks = mclapply(nextlst, function(cutmask) {
 
 ## Output k-mer counts tables for each 5-mer position {#5merkcount}
 
-We now generate all k-mer counts for each 5-mer position using the .tbl files, data files and 'seqOutBias table' command
+We now generate all k-mer counts for each 5-mer position using the .tbl files, data files and 'seqOutBias table' command, find this script here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_seqOutBias_kmercounts.sh
+
+
 ```{bash eval=FALSE}
 setwd('EnzymeBias_masks')
 #Determine all Tn5 scale factors
@@ -1464,7 +1153,7 @@ for i in Tn5*.tbl
 do
     name=$(echo $i | awk -F".tbl" '{print $1}')
     echo $name
-    seqOutBias table $i ../hg38_data/C1_gDNA_rep1.bam > ${name}_scale_factors.txt
+    seqOutBias table $i ../C1_gDNA_rep1.bam > ${name}_scale_factors.txt
 done
 
 #Determine all DNase scale factors
@@ -1472,7 +1161,7 @@ for i in DNase*.tbl
 do
     name=$(echo $i | awk -F".tbl" '{print $1}')
     echo $name
-    seqOutBias table $i ../hg38_data/DNase_Naked.bam > ${name}_scale_factors.txt
+    seqOutBias table $i ../DNase_Naked.bam > ${name}_scale_factors.txt
 done
 
 #Determine all Benzonase scale factors
@@ -1480,7 +1169,7 @@ for i in Benzonase*.tbl
 do
     name=$(echo $i | awk -F".tbl" '{print $1}')
     echo $name
-    seqOutBias table $i ../mm39_data/mm39_liver_Benzonase.bam > ${name}_scale_factors.txt
+    seqOutBias table $i ../mm39_liver_Benzonase.bam > ${name}_scale_factors.txt
 done
 
 #Determine all Cyanase scale factors
@@ -1488,7 +1177,7 @@ for i in Cyanase*.tbl
 do
     name=$(echo $i | awk -F".tbl" '{print $1}')
     echo $name
-    seqOutBias table $i ../mm39_data/mm39_liver_Cyanase.bam > ${name}_scale_factors.txt
+    seqOutBias table $i ../mm39_liver_Cyanase.bam > ${name}_scale_factors.txt
 done
 
 #Determine all MNase scale factors
@@ -1496,29 +1185,29 @@ for i in MNase*.tbl
 do
     name=$(echo $i | awk -F".tbl" '{print $1}')
     echo $name
-    seqOutBias table $i ../mm39_data/mm39_liver_MNase.bam > ${name}_scale_factors.txt
+    seqOutBias table $i ../mm39_liver_MNase.bam > ${name}_scale_factors.txt
 done
 ```
 
 ## Plotting scale factors for Enzyme masks
 
-The k-mer counts tabulated with every mask are now plotted in box and whisker format in relation to the cut site. Scale factors are calculated using the scalefactor.func function.
+### Calculating scale factors from k-mer counts
+
+Using the scalefactor.func function, scale factors are calculated from k-mer counts for each enzyme. You can access this script at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ScaleFactor_Calc.R
 
 ``` {R eval=FALSE}
 library(lattice)
-library(reshape2)
 library(data.table)
-source('Figure1_Functions.R')
-setwd('../output')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 #Load in scale factor files
-Benzonase_factor_files = list.files('PATH/TO/mm39/scalefactors')
+Benzonase_factor_files = list.files('EnzymeBias_masks')
 #Subset only the Benzonase files
 Benzonase_factor_files = Benzonase_factor_files[grep('Benzonase', Benzonase_factor_files)]
-Benzonase_factor_files = Benzonase_factor_files[grep('scale_factors', Benzonase_factor_files)]
 Benzonase_scale_factors = vector(mode = 'list', length = length(Benzonase_factor_files))
 #Determine scale factors for each k-mer position 
 for (i in 1:length(Benzonase_factor_files)) {
-  Benzonase_scale_factors[[i]] = scalefactor.func(paste('PATH/TO/mm39/scalefactors/',
+  Benzonase_scale_factors[[i]] = scalefactor.func(paste('EnzymeBias_masks/',
                                                         Benzonase_factor_files[i], sep = ''))
 }
 names(Benzonase_scale_factors) = gsub( '_scale_factors.txt', '',Benzonase_factor_files)
@@ -1534,20 +1223,20 @@ Benzonase_scale_factors_df[, xaxis := factor_key[match(Benzonase_scale_factors_d
 #Add benzonase to the list of enzyme scale factors for plotting
 Figure1B_list = vector(mode = 'list', length = 1L)
 Figure1B_list[[1]] = Benzonase_scale_factors_df[,c(10,14)]
+#Combine Benzonase scale factors for plotting
 colnames(Figure1B_list[[1]])[1] = 'minusscalefact'
 Figure1B_list[[1]] = rbind(Figure1B_list[[1]], Benzonase_scale_factors_df[,c(13,14)])
 names(Figure1B_list)[1] = 'Benzonase_scale_factors_df'
 ######################################################################################################
 #Load in scale factor files
-Cyanase_factor_files = list.files('PATH/TO/mm39/scalefactors')
+Cyanase_factor_files = list.files('EnzymeBias_masks')
 #Subset only the Cyanase files
 Cyanase_factor_files = Cyanase_factor_files[grep('Cyanase', Cyanase_factor_files)]
-Cyanase_factor_files = Cyanase_factor_files[grep('scale_factors', Cyanase_factor_files)]
 Cyanase_scale_factors = vector(mode = 'list', length = length(Cyanase_factor_files))
 #Determine scale factors for each k-mer position 
 for (i in 1:length(Cyanase_factor_files)) {
-  Cyanase_scale_factors[[i]] = scalefactor.func(paste('PATH/TO/mm39/scalefactors/',
-                                                        Cyanase_factor_files[i], sep = ''))
+  Cyanase_scale_factors[[i]] = scalefactor.func(paste('EnzymeBias_masks/',
+                                                      Cyanase_factor_files[i], sep = ''))
 }
 names(Cyanase_scale_factors) = gsub( '_scale_factors.txt', '',Cyanase_factor_files)
 names(Cyanase_scale_factors) = gsub( 'Cyanase_', '',names(Cyanase_scale_factors))
@@ -1561,21 +1250,22 @@ Cyanase_scale_factors_df[, xaxis := factor_key[match(Cyanase_scale_factors_df$ID
 ######################################################################################################
 #Add Cyanase to the list of enzyme scale factors for plotting
 Figure1B_list[[2]] = Cyanase_scale_factors_df[,c(10,14)]
+#Combine Cyanase plus and minus scale factors for plotting:
 colnames(Figure1B_list[[2]])[1] = 'minusscalefact'
 Figure1B_list[[2]] = rbind(Figure1B_list[[2]], Cyanase_scale_factors_df[,c(13,14)])
 names(Figure1B_list)[2] = 'Cyanase_scale_factors_df'
 ######################################################################################################
 ######################################################################################################
 #Load in scale factor files
-MNase_factor_files = list.files('PATH/TO/mm39/scalefactors')
+MNase_factor_files = list.files('EnzymeBias_masks')
 #Subset only the MNase files
 MNase_factor_files = MNase_factor_files[grep('MNase', MNase_factor_files)]
 MNase_factor_files = MNase_factor_files[grep('scale_factors', MNase_factor_files)]
 MNase_scale_factors = vector(mode = 'list', length = length(MNase_factor_files))
 #Determine scale factors for each k-mer position 
 for (i in 1:length(MNase_factor_files)) {
-  MNase_scale_factors[[i]] = scalefactor.func(paste('PATH/TO/mm39/scalefactors/',
-                                                        MNase_factor_files[i], sep = ''))
+  MNase_scale_factors[[i]] = scalefactor.func(paste('EnzymeBias_masks/',
+                                                    MNase_factor_files[i], sep = ''))
 }
 names(MNase_scale_factors) = gsub( '_scale_factors.txt', '',MNase_factor_files)
 names(MNase_scale_factors) = gsub( 'MNase_', '',names(MNase_scale_factors))
@@ -1589,20 +1279,20 @@ MNase_scale_factors_df[, xaxis := factor_key[match(MNase_scale_factors_df$ID, fa
 ######################################################################################################
 #Add MNase to the list of enzyme scale factors for plotting
 Figure1B_list[[3]] = MNase_scale_factors_df[,c(10,14)]
+#Combine minus and plus scale factors for plotting
 colnames(Figure1B_list[[3]])[1] = 'minusscalefact'
 Figure1B_list[[3]] = rbind(Figure1B_list[[3]], MNase_scale_factors_df[,c(13,14)])
 names(Figure1B_list)[3] = 'MNase_scale_factors_df'
 ######################################################################################################
 ######################################################################################################
 #Load in scale factor files
-DNase_factor_files = list.files('/PATH/TO/DNase_scale_factors')
+DNase_factor_files = list.files('EnzymeBias_masks')
 #Subset only the DNase files
 DNase_factor_files = DNase_factor_files[grep('DNase', DNase_factor_files)]
-DNase_factor_files = DNase_factor_files[grep('scale_factors', DNase_factor_files)]
 DNase_scale_factors = vector(mode = 'list', length = length(DNase_factor_files))
 #Determine scale factors for each k-mer position 
 for (i in 1:length(DNase_factor_files)) {
-  DNase_scale_factors[[i]] = scalefactor.func(paste('/PATH/TO/DNase_scale_factors/',
+  DNase_scale_factors[[i]] = scalefactor.func(paste('EnzymeBias_masks/',
                                                     DNase_factor_files[i], sep = ''))
 }
 names(DNase_scale_factors) = gsub( '_scale_factors.txt', '',DNase_factor_files)
@@ -1617,24 +1307,23 @@ DNase_scale_factors_df[, xaxis := factor_key[match(DNase_scale_factors_df$ID, fa
 ######################################################################################################
 #Add DNase to the list of enzyme scale factors for plotting
 Figure1B_list[[4]] = DNase_scale_factors_df[,c(10,14)]
+#Combine minus and plus scale factors for plotting
 colnames(Figure1B_list[[4]])[1] = 'minusscalefact'
 Figure1B_list[[4]] = rbind(Figure1B_list[[4]], DNase_scale_factors_df[,c(13,14)])
 names(Figure1B_list)[4] = 'DNase_scale_factors_df'
 ######################################################################################################
 ######################################################################################################
 #Load in scale factor files
-Tn5_factor_files = list.files('/PATH/TO/Scale_Factors/Tn5')
-#Subset only the Tn5 files
+Tn5_factor_files = list.files('EnzymeBias_masks')
+#Subset only the Tn5 files with masks we desire
 Tn5_factor_files = Tn5_factor_files[grep('Tn5', Tn5_factor_files)]
-Tn5_factor_files = Tn5_factor_files[grep('scale_factors', Tn5_factor_files)]
-Tn5_factor_files = Tn5_factor_files[seq(3, length(Tn5_factor_files), 3)]
 Tn5_factor_files = Tn5_factor_files[(grep('XXXXXXXXXXNNNNNXXXXXXXXCXXXXXXXXXXXXXXXXXXXXXXX', Tn5_factor_files)):
-                              (grep('XXXXXXXXXXNNNNNXXXXXXXXCXXXXXXXXXXXXXXXXXXXXXXX', Tn5_factor_files)+30)]
+                                      (grep('XXXXXXXXXXNNNNNXXXXXXXXCXXXXXXXXXXXXXXXXXXXXXXX', Tn5_factor_files)+30)]
 Tn5_scale_factors = vector(mode = 'list', length = length(Tn5_factor_files))
 #Determine scale factors for each k-mer position 
 for (i in 1:length(Tn5_factor_files)) {
-  Tn5_scale_factors[[i]] = scalefactor.func(paste('/PATH/TO/Scale_Factors/Tn5/',
-                                                    Tn5_factor_files[i], sep = ''))
+  Tn5_scale_factors[[i]] = scalefactor.func(paste('EnzymeBias_masks/',
+                                                  Tn5_factor_files[i], sep = ''))
 }
 names(Tn5_scale_factors) = gsub( '_scale_factors.txt', '',Tn5_factor_files)
 names(Tn5_scale_factors) = gsub( 'Tn5_', '',names(Tn5_scale_factors))
@@ -1648,83 +1337,93 @@ Tn5_scale_factors_df[, xaxis := factor_key[match(Tn5_scale_factors_df$ID, factor
 ######################################################################################################
 #Add Tn5 to the list of enzyme scale factors for plotting
 Figure1B_list[[5]] = Tn5_scale_factors_df[,c(10,14)]
+#Combine minus and plus scale factors for plotting
 colnames(Figure1B_list[[5]])[1] = 'minusscalefact'
 Figure1B_list[[5]] = rbind(Figure1B_list[[5]], Tn5_scale_factors_df[,c(13,14)])
 names(Figure1B_list)[5] = 'Tn5_scale_factors_df'
 ######################################################################################################
-#Plot comparative nucleases
-for (i in 1:(length(Figure1B_list)-1)) {
-  pdf(paste(names(Figure1B_list)[i], '_maskpositions.pdf', sep = ''), width=23, height=7)
-  par(mar=c(10,4,4,4))
-  boxplot(log2((1/minusscalefact))~xaxis,data=Figure1B_list[[i]],
-          las=1, pch = 16, outcex=0.33, pars  =  list(xaxt = "n"),
-          ylab = '',
-          xlab = '',
-          whisklty = 1,
-          whisklwd = 4,
-          staplelwd = 4,
-          ylim = c(-6,4),
-          boxcol = 'light blue',
-          col = 'light blue',
-          frame.plot = FALSE,
-          par(cex.axis=3))
-  axis(1, at=seq(1, 32, by=1), labels = FALSE, tck = -0.05, lwd.ticks = 2)
-  axis(2, lwd.ticks = 2, labels = FALSE)
-  text(x = seq(1, 32, by=1)+0.25, par("usr")[3] - 0.75,
-       labels = seq(-15.5, 15.5, by=1), srt = 90, pos = 2, xpd = TRUE, cex = 3)
-  box(bty="l")
+save(Figure1B_list, file = 'Figure1B_scalefactor_list.Rdata')
+```
+
+### Plotting scale factors for each enzyme as box and whisker plots
+
+Scale factors for each enzyme are plotted in box-and-whisker plots. This is available in raw format here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ScaleFactor_BW_Plot.R
+
+```{R eval = FALSE}
+library(lattice)
+#Load in  scale factor files
+load('Figure1B_scalefactor_list.Rdata')
+
+for (i in 1:length(Figure1B_list)) {
+  Figure1B_list[[i]][,2] = as.factor(Figure1B_list[[i]][,2])
+}
+############################################################################################################
+
+bw_theme <- trellis.par.get()
+bw_theme$box.dot$pch <- "|"
+bw_theme$box.rectangle$fill <- "light blue"
+bw_theme$box.umbrella$lty <- 1
+bw_theme$box.umbrella$lwd <- 3
+bw_theme$box.umbrella$col <- "black"
+bw_theme$box.rectangle$col <- "black"
+bw_theme$box.rectangle$lwd <- 3
+
+for (i in 1:length(Figure1B_list)) {
+  pdf(paste(names(Figure1B_list)[i], '_maskpositions.pdf', sep = ''), width=26, height=7)
+  print(bwplot(log2(1/minusscalefact)~xaxis, Figure1B_list[[i]],
+               scales=list(x=list(rot=90), y=list(rot=0), relation="free", cex=3.5, font=1),
+               ylab="",
+               main="",
+               do.out=FALSE,
+               par.settings = bw_theme,
+               panel=function(...){
+                 panel.bwplot(...)
+               }))
   dev.off()
 }
-#Plot Tn5 transposase
-pdf('Tn5_scalefactors_maskpositions.pdf', width=23, height=7)
-par(mar=c(10,4,4,4))
-boxplot(log2((1/minusscalefact))~xaxis,data=Figure1B_list[[5]],
-        las=1, pch = 16, outcex=0.33, pars  =  list(xaxt = "n"),
-        ylab = '',
-        xlab = '',
-        whisklty = 1,
-        whisklwd = 4,
-        staplelwd = 4,
-        ylim = c(-6,4),
-        boxcol = 'light blue',
-        col = 'light blue',
-        frame.plot = FALSE,
-        par(cex.axis=3))
-axis(1, at=seq(1, 31, by=1), labels = FALSE, tck = -0.05, lwd.ticks = 2)
-axis(2, lwd.ticks = 2, labels = FALSE)
-text(x = seq(1, 31, by=1)+0.25, par("usr")[3] - 0.75,
-     labels = seq(-15, 15, by=1), srt = 90, pos = 2, xpd = TRUE, cex = 3)
-box(bty="l")
-dev.off()
 ```
 
-```{r Tn5_Allscalingvalues_maskposition_balanced, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Transposase Scaling Factor Distributions Output ', out.width = "100%"}
-knitr::include_graphics("figs/Tn5_scalefactors_maskpositions.pdf")
+```{r Tn5_Allscalingvalues_maskposition_balanced, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Tn5 Transposase Scaling Factor Distributions Output ', out.width = "100%"}
+knitr::include_graphics("Tn5_scale_factors_df_maskpositions.pdf")
 ```
 
+```{r DNase_Allscalingvalues_maskposition_balanced, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' DNase Scaling Factor Distributions Output ', out.width = "100%"}
+knitr::include_graphics("DNase_scale_factors_df_maskpositions.pdf")
+```
 
 # Figure 2. Use of scaling factors to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions.
 
 ```{r Figure2, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Use of direct k-mer scaling to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions. A) Barchart of observed divided by expected (from k-mer prevalence in the bias position probability matrix) k-mer frequency for specified 3-mers at a position -4 to -6bp upstream from the centrally recognized base. These values are corrected for background Tn5 3-mer frequency. B) Portions of the composite profile for the 3mer ‘CAG’ can be corrected by rationally designed masks, based on their position relative to the cutsite. Application of these corrections exacerbates the bias of nearby peaks within the composite. ', out.width = "80%"}
-knitr::include_graphics("figs/fig2_OL.pdf")
+knitr::include_graphics("figs/fig2_OL_JBW.pdf")
 ```
 
+Because we are beginning a new figure, create this directory and set it as PWD:
+
+```{bash eval = FALSE}
+cd ../
+mkdir(Figure2)
+cd Figure2
+```
 
 ## Tn5 upstream observed 3-mers divided by sequence logo frequency expected 3-mers
 This experiment illustrates that Tn5 sequence bias violates the assumption of positional independence in PSWM models. This is done by counting the number of each k-mer at positions -4 to -6 in the sequence data and dividing by the expected number of k-mers based on the PSWM frequencies. Before this, we determine background 3-mer observed divided by expected frequency and correct the observed values by multiplying them by the inverse of the background frequencies.
 
 ### Background k-mer frequency in Tn5 data
-First, we retrieve fasta sequence files for all of the sequences 50bp and 100bp upstream of our reads
+
+First, we retrieve fasta sequence files for all of the sequences 50bp and 100bp upstream of our reads. To run this yourself, visit:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_Background_kmercount.sh
+
 ```{bash eval=FALSE}
 #Make a fasta file of sequences 50bp upstream of all plus strand cutsites
-awk '{$2 = $2 - 50; print}' ../data/C1_gDNA_rep1_plus.oneentry.bed | \
+awk '{$2 = $2 - 50; print}' ../Figure1/C1_gDNA_rep1_plus.oneentry.bed | \
    awk '{OFS="\t";} {$3 = $2 + 3; print}' | grep -v - | \
-   fastaFromBed -fi ../data/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_50bp_plus.fasta
+   fastaFromBed -fi ../Figure1/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_50bp_plus.fasta
 
 #Make a fasta file of sequences 50bp upstream of all minus strand cutsites
-awk '{$2 = $2 - 50; print}' ../data/C1_gDNA_rep1_minus.oneentry.bed | \
+awk '{$2 = $2 - 50; print}' ../Figure1/C1_gDNA_rep1_minus.oneentry.bed | \
    awk '{OFS="\t";} {$3 = $2 + 3; print}' |  grep -v - | \
-   fastaFromBed -fi ../data/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_50bp_minus.fasta
+   fastaFromBed -fi ../Figure1/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_50bp_minus.fasta
 
 #Reverse complement all minus strand sequences
 awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' C1_gDNA_rep1_50bp_minus.fasta | \
@@ -1737,14 +1436,14 @@ cat C1_gDNA_rep1_50bp_minus_RC.fasta C1_gDNA_rep1_50bp_plus.fasta > C1_gDNA_rep1
 
 ################################################################################################################
 #Make a fasta file of sequences 100bp upstream of all plus strand cutsites
-awk '{$2 = $2 - 100; print}' ../data/C1_gDNA_rep1_plus.oneentry.bed | \
+awk '{$2 = $2 - 100; print}' ../Figure1/C1_gDNA_rep1_plus.oneentry.bed | \
    awk '{OFS="\t";} {$3 = $2 + 3; print}' | grep -v - | \
-   fastaFromBed -fi ../data/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_100bp_plus.fasta
+   fastaFromBed -fi ../Figure1/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_100bp_plus.fasta
 
 #Make a fasta file of sequences 100bp upstream of all minus strand cutsites
-awk '{$2 = $2 - 100; print}' ../data/C1_gDNA_rep1_minus.oneentry.bed | \
+awk '{$2 = $2 - 100; print}' ../Figure1/C1_gDNA_rep1_minus.oneentry.bed | \
    awk '{OFS="\t";} {$3 = $2 + 3; print}' |  grep -v - | \
-   fastaFromBed -fi ../data/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_100bp_minus.fasta
+   fastaFromBed -fi ../Figure1/hg38.fa -s -bed stdin -fo C1_gDNA_rep1_100bp_minus.fasta
 
 #Reverse complement all minus strand sequences
 awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' C1_gDNA_rep1_100bp_minus.fasta | \
@@ -1754,22 +1453,26 @@ awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' C1_gDNA_rep1_100b
 cat C1_gDNA_rep1_100bp_minus_RC.fasta C1_gDNA_rep1_100bp_plus.fasta > C1_gDNA_rep1_100bp_sepcat.fasta
 ```
 
-Next, we determine if background 50bp and 100bp k-mer frequencies are similar. First, we must determine nucleotide frequency for both in order to calculate the expected frequency, then we count k-mers in the desired positions and divide one by the other.
+Next, we determine if background 50bp and 100bp k-mer frequencies are similar. First, we must determine nucleotide frequency for both in order to calculate the expected frequency, then we count k-mers in the desired positions and divide one by the other. We finally plot these values as a bar chart. To recapitulate these results, run the script at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_Background_kmerplot.R
+
 ```{R eval=FALSE}
-system('mkdir kmercount_coherence')
-setwd('kmercount_coherence')
 source('https://raw.githubusercontent.com/guertinlab/seqOutBias/master/docs/R/seqOutBias_functions.R')
-source('../Tn5_Bias_Functions.R')
-library(ggseqlogo)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+library(data.table)
+library(ggplot2)
 options(scipen = 100)
 #Convert all sequences to uppercase
-uppercasenames <- list('C1_gDNA_rep1_100bp_sepcat_44cs.fasta', 'C1_gDNA_rep1_50bp_sepcat_44cs.fasta')
+uppercasenames <- list('C1_gDNA_rep1_100bp_sepcat.fasta', 'C1_gDNA_rep1_50bp_sepcat.fasta')
 uplist <- lapply(uppercasenames, uppercase)  
 Tn5_100bp_sepcat = as.data.frame(uplist[1])
 Tn5_50bp_sepcat = as.data.frame(uplist[2])
 #Determine pswm of each:
-Tn5_100bp_sepcat.pswm = pswm.func.2(Tn5_100bp_sepcat[,1], 'Tn5_100bp_bias', 3, FALSE)
-Tn5_50bp_sepcat.pswm = pswm.func.2(Tn5_50bp_sepcat[,1], 'Tn5_50bp_bias', 3, FALSE)
+Tn5_100bp_sepcat.pswm = transfac.func.2(Tn5_100bp_sepcat[,1], 3)
+Tn5_100bp_sepcat.pswm = t(apply(Tn5_100bp_sepcat.pswm, 1, function(x) x / sum(x)))
+
+Tn5_50bp_sepcat.pswm = transfac.func.2(Tn5_50bp_sepcat[,1], 3)
+Tn5_50bp_sepcat.pswm = t(apply(Tn5_50bp_sepcat.pswm, 1, function(x) x / sum(x)))
 #Make df of positions 50-47bp upstream (-50:-47 from cutsite)
 Tn5_pos100_98 = data.table(substr(uplist[[1]][,1], 1, 3))
 Tn5_pos100_98 = Tn5_pos100_98$V1
@@ -1789,30 +1492,38 @@ mertable[,5] = mertable[,3]/sum(mertable[,3])
 #Change column names
 colnames(mertable) = c('kmer', 'count100bp', 'count50bp', 'percent100bp', 'percent50bp')
 #Calculate expected k-mer frequency for 100bp, based on the PSWM created above
-pswm_100bp_Tn5 = read.table('Tn5_100bp_bias.txt', skip = 9)
+pswm_100bp_Tn5 = Tn5_100bp_sepcat.pswm
 colnames(pswm_100bp_Tn5) = c('A', 'C', 'G', 'T')
 ###Calculate expected upstream values based on nucleotide prevalence:
 expected_100bp_nuc_prevalence = expand.grid(rep(list(c('A','C','G','T')), 3))
 for (i in 1:nrow(expected_100bp_nuc_prevalence)) {
-  expected_100bp_nuc_prevalence[i,4] = pswm_100bp_Tn5[1 ,which(colnames(pswm_100bp_Tn5) == expected_100bp_nuc_prevalence[i,1])]
-  expected_100bp_nuc_prevalence[i,5] = pswm_100bp_Tn5[2 ,which(colnames(pswm_100bp_Tn5) == expected_100bp_nuc_prevalence[i,2])]
-  expected_100bp_nuc_prevalence[i,6] = pswm_100bp_Tn5[3 ,which(colnames(pswm_100bp_Tn5) == expected_100bp_nuc_prevalence[i,3])]
+  expected_100bp_nuc_prevalence[i,4] = 
+    pswm_100bp_Tn5[1 ,which(colnames(pswm_100bp_Tn5) == expected_100bp_nuc_prevalence[i,1])]
+  expected_100bp_nuc_prevalence[i,5] = 
+    pswm_100bp_Tn5[2 ,which(colnames(pswm_100bp_Tn5) == expected_100bp_nuc_prevalence[i,2])]
+  expected_100bp_nuc_prevalence[i,6] = 
+    pswm_100bp_Tn5[3 ,which(colnames(pswm_100bp_Tn5) == expected_100bp_nuc_prevalence[i,3])]
 }
-expected_100bp_nuc_prevalence[,7] = expected_100bp_nuc_prevalence[,4] * expected_100bp_nuc_prevalence[,5] * expected_100bp_nuc_prevalence[,6]
+expected_100bp_nuc_prevalence[,7] = 
+  expected_100bp_nuc_prevalence[,4] * expected_100bp_nuc_prevalence[,5] * expected_100bp_nuc_prevalence[,6]
 #calculate 100bp observed / expected:
 mertable$OE100bp = mertable$percent100bp / expected_100bp_nuc_prevalence$V7
 #Repeat for 50bp upstream
 #Calculate expected k-mer frequency for 50bp, based on the PSWM created above
-pswm_50bp_Tn5 = read.table('Tn5_50bp_bias.txt', skip = 9)
+pswm_50bp_Tn5 = Tn5_50bp_sepcat.pswm
 colnames(pswm_50bp_Tn5) = c('A', 'C', 'G', 'T')
 ###Calculate expected upstream values based on nucleotide prevalence:
 expected_50bp_nuc_prevalence = expand.grid(rep(list(c('A','C','G','T')), 3))
 for (i in 1:nrow(expected_50bp_nuc_prevalence)) {
-  expected_50bp_nuc_prevalence[i,4] = pswm_50bp_Tn5[1 ,which(colnames(pswm_50bp_Tn5) == expected_50bp_nuc_prevalence[i,1])]
-  expected_50bp_nuc_prevalence[i,5] = pswm_50bp_Tn5[2 ,which(colnames(pswm_50bp_Tn5) == expected_50bp_nuc_prevalence[i,2])]
-  expected_50bp_nuc_prevalence[i,6] = pswm_50bp_Tn5[3 ,which(colnames(pswm_50bp_Tn5) == expected_50bp_nuc_prevalence[i,3])]
+  expected_50bp_nuc_prevalence[i,4] = 
+    pswm_50bp_Tn5[1 ,which(colnames(pswm_50bp_Tn5) == expected_50bp_nuc_prevalence[i,1])]
+  expected_50bp_nuc_prevalence[i,5] = 
+    pswm_50bp_Tn5[2 ,which(colnames(pswm_50bp_Tn5) == expected_50bp_nuc_prevalence[i,2])]
+  expected_50bp_nuc_prevalence[i,6] = 
+    pswm_50bp_Tn5[3 ,which(colnames(pswm_50bp_Tn5) == expected_50bp_nuc_prevalence[i,3])]
 }
-expected_50bp_nuc_prevalence[,7] = expected_50bp_nuc_prevalence[,4] * expected_50bp_nuc_prevalence[,5] * expected_50bp_nuc_prevalence[,6]
+expected_50bp_nuc_prevalence[,7] = 
+  expected_50bp_nuc_prevalence[,4] * expected_50bp_nuc_prevalence[,5] * expected_50bp_nuc_prevalence[,6]
 #calculate 50bp observed / expected:
 mertable$OE50bp = mertable$percent50bp / expected_50bp_nuc_prevalence$V7
 #Calculate 1/50bp * 100bp Observed/Expected values 
@@ -1830,50 +1541,53 @@ ggplot(data=mertable, aes(x=kmer, y=Inv50OE100bp)) +
 dev.off()
 #Save the mertable df to use as a correction for observed/expected k-mer frequencies
 Tn5_kmer_count_correction = mertable
-save(Tn5_kmer_count_correction, file='Tn5_observedexpected_kmercounts.Rdata')
+save(Tn5_kmer_count_correction, file='Tn5_100bp_observedexpected_kmercounts.Rdata')
 ```
 
-```{r Tn5_100bpCorrectedby50bp_kmers, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='50bp and 100bp upstream k-mer observed divided by expected frequencies are very similar', out.width = "80%"}
+```{r Tn5_100bpCorrectedby50bp_kmers, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='50bp and 100bp upstream k-mer observed divided by expected frequencies are very similar', out.width = "100%"}
 knitr::include_graphics("figs/Tn5_100bpCorrectedby50bp_kmers.pdf")
 ```
 
 
 ### Upstream k-mer Observed divided by expected frequency
-We can now calculate the upstream divided by expected k-mer frequency at positions -6:-4, and correct these values by the 50bp upstream k-mer observed/expected values
+__Software installations:__
+
+stringr: https://stringr.tidyverse.org/
+
+We can now calculate the upstream divided by expected k-mer frequency at positions -6:-4, and correct these values by the 50bp upstream k-mer observed/expected values. To run this code, download it from:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_ObsExp_kmerFreq.R
+
+
 ``` {R eval=FALSE}
-source('../Tn5_Bias_Functions.R')
-source('https://raw.githubusercontent.com/guertinlab/seqOutBias/master/docs/R/seqOutBias_functions.R')
-library(stringr)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 library(data.table)
 library(lattice)
+library(stringr)
 options(scipen=10000)
-
-setwd('../output')
-
 #
-#Input filenames (from wd) into uppercasenames in this order: pe1.minus, pe1.plus, pe2.minus, pe2.plus
-uppercasenames <- list('../data/C1_gDNA_rep1_plus.fasta', '../data/C1_gDNA_rep1_minus_RC.fasta')
+#
+uppercasenames <- list('../Figure1/C1_gDNA_rep1_plus.fasta',
+                       '../Figure1/C1_gDNA_rep1_minus_RC.fasta')
 uplist <- lapply(uppercasenames, uppercase)  
-plus_tn5_44cs = as.data.frame(uplist[1])
-save(plus_tn5_44cs, file = 'Tn5_plus_seqs.Rdata')
-minus_tn5_44cs = as.data.frame(uplist[2])
-save(minus_tn5_44cs, file = 'Tn5_minus_seqs.Rdata')
+plus_Tn5 = as.data.frame(uplist[1])
+
+minus_Tn5 = as.data.frame(uplist[2])
 rm(uplist, uppercasenames)
 #
 #######################################################################################################
 #Make df of positions 10-12 (-6:-4 from cutsite)
-plus_Tn5_pos10_12 = data.table(str_split_fixed(plus_tn5_44cs[,1], '', 13))
+plus_Tn5_pos10_12 = data.table(str_split_fixed(plus_Tn5[,1], '', 13))
 plus_Tn5_pos10_12 = plus_Tn5_pos10_12[,10:12]
 plus_Tn5_pos10_12[, kmer := paste0(V10, V11, V12)]
 plus_Tn5_pos10_12 = plus_Tn5_pos10_12$kmer
-rm(plus_tn5_44cs)
+rm(plus_Tn5)
 
 #Make df of positions 10-12 (-6:-4 from cutsite)
-minus_Tn5_pos10_12 = data.table(str_split_fixed(minus_tn5_44cs[,1], '', 13))
+minus_Tn5_pos10_12 = data.table(str_split_fixed(minus_Tn5[,1], '', 13))
 minus_Tn5_pos10_12 = minus_Tn5_pos10_12[,10:12]
 minus_Tn5_pos10_12[, kmer := paste0(V10, V11, V12)]
 minus_Tn5_pos10_12 = minus_Tn5_pos10_12$kmer
-rm(minus_tn5_44cs)
+rm(minus_Tn5)
 
 #Make all possible 3mers:
 mertable = expand.grid(rep(list(c('A','C','G','T')), 3))
@@ -1890,16 +1604,14 @@ colnames(mertable) = c('kmer', 'upPlus', 'upMinus')
 save(mertable, file = 'mertable_kmer_counts.Rdata')
 load('mertable_kmer_counts.Rdata')
 
-mertable[,6] = mertable[,2] + mertable[,3]
-mertable[,7] = mertable[,4] + mertable[,5]
-colnames(mertable)[6:7] = c('upPercent', 'downPercent')
-mertable = mertable[,-c(2:5)]
-mertable[,2] = mertable[,2]/sum(mertable[,2])
-mertable[,3] = mertable[,3]/sum(mertable[,3])
+mertable[,4] = mertable[,2] + mertable[,3]
+colnames(mertable)[4] = c('upTotal')
+mertable[,4] = mertable[,4]/sum(mertable[,4])
 ##Load in tn5 bias transfac
-load('../ref/tn5_sepcat_bias_transfac.Rdata')
+transfac.tn5 = read.table('../Figure1/Tn5_sepcat_bias.transfac', skip = 3, fill = TRUE)
+transfac.tn5 = transfac.tn5[-c(32), -c(1)]
 colnames(transfac.tn5) = c('A', 'C', 'G', 'T')
-
+transfac.tn5 = t(apply(transfac.tn5, 1, function(x) x / sum(x)))
 ###Calculate expected upstream values based on nucleotide prevalence:
 expected_upstream_nuc_prevalence = expand.grid(rep(list(c('A','C','G','T')), 3))
 
@@ -1912,46 +1624,113 @@ for (i in 1:nrow(expected_upstream_nuc_prevalence)) {
     transfac.tn5[12 ,which(colnames(transfac.tn5) == expected_upstream_nuc_prevalence[i,3])]
 }
 
-#Multiply these together
+#Multiply these together to get each 3-mers expected prevalence
 expected_upstream_nuc_prevalence[,7] = expected_upstream_nuc_prevalence[,4] *
-                                       expected_upstream_nuc_prevalence[,5] * 
-                                       expected_upstream_nuc_prevalence[,6]
-#This should = 1:
-sum(expected_upstream_nuc_prevalence[,7])
+  expected_upstream_nuc_prevalence[,5] * 
+  expected_upstream_nuc_prevalence[,6]
+
 #calculate upstream observed / expected:
-mertable$upOE = mertable$upPercent / expected_upstream_nuc_prevalence$V7
+mertable$upOE = mertable$upTotal / expected_upstream_nuc_prevalence$V7
 #Correct the observed divided by expected k-mer counts by the 50bp upstream counts
-load('../kmercount_coherence/Tn5_observedexpected_kmercounts.Rdata')
-mertable$CorrupOE = mertable$upOE*Tn5_kmer_count_correction$(1/mertable$OE50bp)
+load('Tn5_100bp_observedexpected_kmercounts.Rdata')
+mertable$CorrupOE = mertable$upOE*(1/Tn5_kmer_count_correction$OE50bp)
+mertable$CorrupOE = log2(mertable$CorrupOE)
+mertable$kmer = factor(mertable$kmer, levels = mertable$kmer)
+
 #Plot corrected upstream observed/expected k-mer counts
 pdf(file = 'Figure2A_Tn5_upstream_OE_kmers.pdf', width=20, height=5)
 barchart(CorrupOE~kmer, mertable,
-         ylab = list(expression(bold(paste(frac(Observed, Expected), " 3-mers" ))), cex = 3),
+         ylab = list(expression("log"[2]~frac(Observed, Expected)~" 3-mers" ), cex = 3),
          scales=list(x=list(cex=2.2, rot = 90, fontfamily = "mono"), y=list(cex=2.5)),
-         ylim = c(0,1.8),
+         ylim = c(-1,1),
          col = 'black',
          par.settings = list(axis.line = list(col = 0)),
          panel=function(...) {
            panel.barchart(...)
-           panel.abline(h=1, col = 'red', lwd = 4, lty = 2)
+           panel.abline(h=0, col = 'red', lwd = 4, lty = 2)
          })
 dev.off()
 ```
 
-```{r Figure2A_Tn5_upstream_OE_kmers, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 2A. Tn5 upstream observed divided by expected 3-mers', out.width = "80%"}
+```{r Figure2A_Tn5_upstream_OE_kmers, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 2A. Tn5 upstream observed divided by expected 3-mers, corrected for background k-mer frequencies ', out.width = "100%"}
 knitr::include_graphics("figs/Figure2A_Tn5_upstream_OE_kmers.pdf")
 ```
 
 ## Generating 400,000 random CAG locations in the genome and plotting signal at these intervals
 
-First use seqOutBias seqtable command to generate a .tbl file of all 3-mers in hg38. Next, use seqOutBias dump command to make list of all 3-mer locations in the hg38 genome. Then use the dump_to_kmer_bed.py script to output the locations of all CAGs in the genome, in bed format. Finally, we take random 400,000 instances of CAG for plotting.
+### dump_to_kmer_bed.py
+
+This script uses seqOutBias dump output to output locations for a given k-mer, indicated by its position in an index (plus 19 and minus 31 is CAG). You may find the raw script here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/dump_to_kmer_bed.py
+
+```{python eval=FALSE}
+#! /sw/bin/python
+import re
+import string
+import sys
+import getopt
+import os
+import itertools
+import glob
+
+def function(dumpFileName, kmerp, kmerm):
+    infile=open(dumpFileName, 'r')
+    outfileplus=open(str.split(dumpFileName,'.dump')[0]+ 'plus.' + kmerp + '.bed', 'w')
+    outfileminus=open(str.split(dumpFileName,'.dump')[0]+ 'minus.' + kmerm + '.bed', 'w')
+    sze = int(infile.readline().split()[2])
+    plusoff = infile.readline().split()[2]
+    minusoff = int(infile.readline().split()[2])
+    readlen = int(infile.readline().split()[2])
+    while 1:
+        line=infile.readline()
+        if not line: break
+        splitline = line.split()
+        if line.startswith('>'):
+            chr = splitline[0].split('>')[1]
+        else:
+            if splitline[1] == kmerp:
+                start = int(splitline[0]) - int(plusoff)
+                outfileplus.write('%s\t%s\t%s\t%s\t%s\t%s\n'%(chr, str(start), str(start + sze), splitline[1], str(kmerp), '+'))
+#still workin gon this. do I need to RC on my own?
+            if splitline[2] == kmerm:
+                start = int(splitline[0]) + readlen
+                outfileminus.write('%s\t%s\t%s\t%s\t%s\t%s\n'%(chr, str(start), str(start + sze), splitline[2], str(kmerm), '-'))
+    infile.close()
+    outfileplus.close()
+    outfileminus.close()
+    
+def main(argv):
+    try:
+        opts, args = getopt.getopt(argv, "i:p:m:h", ["dump=", "kmerplus=","kmerminus=","help"])
+    except getopt.GetoptError as err:
+        print(str(err))
+        sys.exit(2)
+    infile = False
+    for opt, arg in opts:
+        if opt in ('-i', '--dump'):
+            infile = arg
+        elif opt in ('-p', '--kmerplus'):
+            inf2 = arg
+        elif opt in ('-m', '--kmerminus'):
+            inf3 = arg
+        elif opt in ('-h', '--help'):
+            print('\n python dump_to_kmer_bed.py -i hg38.3.3.3.dump.test.txt -kp 64 -km 1')
+            sys.exit()
+    if infile and inf2 and inf3:
+        print(infile)
+        function(infile, inf2, inf3)
+if __name__ == "__main__":
+    main(sys.argv[1:])
+```
+
+### Generate 400,000 random CAG locations in the genome and 3, 3-mer masks to correct bias
+
+First use seqOutBias seqtable command to generate a .tbl file of all 3-mers in hg38. Next, use seqOutBias dump command to make list of all 3-mer locations in the hg38 genome. Then use the dump_to_kmer_bed.py script to output the locations of all CAGs in the genome, in bed format. We take random 400,000 instances of CAG for plotting. To find this script, visit:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_seqOutBias_dump.sh
 
 ``` {bash eval=FALSE}
-mkdir seqdump
-cd seqdump
-
 #This will make a .tbl file of all 3-mers in the genome
-seqOutBias seqtable ../hg38.fa --kmer-size=3 --plus-offset=3 --minus-offset=3 --read-size=76 --out=hg38.3.3.3.tbl
+seqOutBias seqtable ../Figure1/hg38.fa --kmer-size=3 --plus-offset=3 --minus-offset=3 --read-size=76 --out=hg38.3.3.3.tbl
 #This will dump all indexed 3-mer locations to a text file. This file will be LARGE
 seqOutBias dump hg38.3.3.3.tbl > hg38.3.3.3.dump.txt
 #This will take the plus and minus index for CAG and output a bed file for each
@@ -1959,129 +1738,86 @@ python dump_to_kmer_bed.py -i hg38.3.3.3.dump.txt -p 19 -m 31
 #Combine the plus and minus bed files
 cat hg38.3.3.3plus.19.bed hg38.3.3.3minus.31.bed > CAG_locations.bed
 #Subset 400,000 random locations from combined bed files
-grep -v '_' CAG_locations.bed | perl -MList::Util=shuffle -e 'print shuffle(<STDIN>);' |
-                                head -400000 > CAG_locations_rand400k.bed
+shuf -n 400000 CAG_locations.bed > CAG_locations_rand400k.bed
 
 #Run seqOutBias with masks designed to correct each peak (mask is shifted 4 base pairs):
-seqOutBias hg38.fa C1_gDNA_rep1_plus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=NNCN \
-                                         --bed=C1_gDNA_rep1_plus_NNNXXXC.bed \
-                                         --bw=C1_gDNA_rep1_plus_NNNXXXC.bigWig --read-size=76
-seqOutBias hg38.fa C1_gDNA_rep1_minus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=NNCN \
-                                          --bed=C1_gDNA_rep1_minus_NNNXXXC.bed \
-                                          --bw=C1_gDNA_rep1_minus_NNNXXXC.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_plus.bam \
+                                    --custom-shift=4,-4 --strand-specific --kmer-mask=NNCN \
+                                    --bed=C1_gDNA_rep1_plus_NNNXXXC.bed \
+                                    --bw=C1_gDNA_rep1_plus_NNNXXXC.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_minus.bam \
+                                    --custom-shift=4,-4 --strand-specific --kmer-mask=NNCN \
+                                    --bed=C1_gDNA_rep1_minus_NNNXXXC.bed \
+                                    --bw=C1_gDNA_rep1_minus_NNNXXXC.bigWig --read-size=76
 
-seqOutBias hg38.fa C1_gDNA_rep1_plus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXNNN \
-                                         --bed=C1_gDNA_rep1_plus_NCNN.bed \
-                                         --bw=C1_gDNA_rep1_plus_NCNN.bigWig --read-size=76
-seqOutBias hg38.fa C1_gDNA_rep1_minus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXNNN \
-                                          --bed=C1_gDNA_rep1_minus_NCNN.bed \
-                                          --bw=C1_gDNA_rep1_minus_NCNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_plus.bam \
+                                    --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXNNN \
+                                    --bed=C1_gDNA_rep1_plus_NCNN.bed \
+                                    --bw=C1_gDNA_rep1_plus_NCNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_minus.bam \
+                                    --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXNNN \
+                                    --bed=C1_gDNA_rep1_minus_NCNN.bed \
+                                    --bw=C1_gDNA_rep1_minus_NCNN.bigWig --read-size=76
 
-seqOutBias hg38.fa C1_gDNA_rep1_plus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXXXXXXNNN \
-                                         --bed=C1_gDNA_rep1_plus_CXXXXNNN.bed \
-                                         --bw=C1_gDNA_rep1_plus_CXXXXNNN.bigWig --read-size=76
-seqOutBias hg38.fa C1_gDNA_rep1_minus.bam --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXXXXXXNNN \
-                                          --bed=C1_gDNA_rep1_minus_CXXXXNNN.bed \
-                                          --bw=C1_gDNA_rep1_minus_CXXXXNNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_plus.bam \
+                                    --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXXXXXXNNN \
+                                    --bed=C1_gDNA_rep1_plus_CXXXXNNN.bed \
+                                    --bw=C1_gDNA_rep1_plus_CXXXXNNN.bigWig --read-size=76
+seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_minus.bam \
+                                    --custom-shift=4,-4 --strand-specific --kmer-mask=CXXXXXXXXNNN \
+                                    --bed=C1_gDNA_rep1_minus_CXXXXNNN.bed \
+                                    --bw=C1_gDNA_rep1_minus_CXXXXNNN.bigWig --read-size=76
 ```
 
 ### Plot CAG peak direction composites
+
+Plot the composite profile of 400,000 CAG sites in the genome, then see how masks correct each peak. This script can be accessed at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_CAG_composite_correction.R
+
 ``` {R eval=FALSE}
 library(bigWig)
 library(lattice)
 library(data.table)
-source('../scripts/Figure1_Functions.R')
-setwd('../seqdump')
-
-
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 ####CAG peak direction
 #Load in random 400,000 CAG instances 
-CAG_BED <- fread(input = '/PATH/TO/CAG_locations_rand400k.bed')
+CAG_BED <- fread(input = 'CAG_locations_rand400k.bed')
 colnames(CAG_BED) <- c('chr', 'start', 'end', 'gene', 'location', 'strand')
 
 #Plot the unscaled signal at the CAG instances 
 CAG_unscaled_composite <- BED.query.bigWig(CAG_BED,
-                      bwPlus = '../data/tn5_C1_gDNA_rep1_plus.bigWig',
-                      bwMinus = '../data/tn5_C1_gDNA_rep1_minus.bigWig',
-                      upstream = 15, downstream = 15, group = 'Unscaled', factor = '')
+                                    bwPlus = '../Figure1/C1_gDNA_rep1_plus.bigWig',
+                                    bwMinus = '../Figure1/C1_gDNA_rep1_minus.bigWig',
+                                    upstream = 15, downstream = 15, group = 'Unscaled', factor = '')
 
-#Plot the NNCN scaled signal at the CAG instances 
-CAG_NNCN_composite <- BED.query.bigWig(CAG_BED,
-                      bwPlus =  '../data/C1_gDNA_rep1_plus_NNCN.bigWig',
-                      bwMinus =  '../data/C1_gDNA_rep1_minus_NNCN.bigWig',
-                      upstream = 15, downstream = 15, group = 'NNCN', factor = '')
-CAG_NNCN_composite <- rbind(CAG_NNCN_composite, CAG_unscaled_composite)
-CAG_NNCN_composite$factor <- c('NNCN')
+#Plot the NCNN scaled signal at the CAG instances 
+CAG_NCNN_composite <- BED.query.bigWig(CAG_BED,
+                                    bwPlus =  'C1_gDNA_rep1_plus_NCNN.bigWig',
+                                    bwMinus =  'C1_gDNA_rep1_minus_NCNN.bigWig',
+                                    upstream = 15, downstream = 15, group = 'NCNN', factor = '')
+CAG_NCNN_composite <- rbind(CAG_NCNN_composite, CAG_unscaled_composite)
+CAG_NCNN_composite$factor <- c('NCNN')
 
 
-#Plot the CXXXNNN scaled signal at the CAG instances 
-CAG_CXXXNNN_composite <- BED.query.bigWig(CAG_BED,
-                       bwPlus =  '../data/C1_gDNA_rep1_plus_CXXXNNN.bigWig',
-                       bwMinus =  '../data/C1_gDNA_rep1_minus_CXXXNNN.bigWig',
-                       upstream = 15, downstream = 15, group = 'CXXXNNN', factor = '')
-CAG_CXXXNNN_composite <- rbind(CAG_CXXXNNN_composite, CAG_unscaled_composite)
-CAG_CXXXNNN_composite$factor <- c('CXXXNNN')
+#Plot the CXXXXNNN scaled signal at the CAG instances 
+CAG_CXXXXNNN_composite <- BED.query.bigWig(CAG_BED,
+                                    bwPlus =  'C1_gDNA_rep1_plus_CXXXXNNN.bigWig',
+                                    bwMinus =  'C1_gDNA_rep1_minus_CXXXXNNN.bigWig',
+                                    upstream = 15, downstream = 15, group = 'CXXXXNNN', factor = '')
+CAG_CXXXXNNN_composite <- rbind(CAG_CXXXXNNN_composite, CAG_unscaled_composite)
+CAG_CXXXXNNN_composite$factor <- c('CXXXXNNN')
 
-#Plot the CXXXXXXXXNNN scaled signal at the CAG instances 
-CAG_CXXXXXXXXNNN_composite <- BED.query.bigWig(CAG_BED,
-                        bwPlus =  '../data/C1_gDNA_rep1_plus_CXXXXXXXXNNN.bigWig',
-                        bwMinus =  '../data/C1_gDNA_rep1_minus_CXXXXXXXXNNN.bigWig',
-                        upstream = 15, downstream = 15, group = 'CXXXXXXXXNNN', factor = '')
-CAG_CXXXXXXXXNNN_composite <- rbind(CAG_CXXXXXXXXNNN_composite, CAG_unscaled_composite)
-CAG_CXXXXXXXXNNN_composite$factor <- c('CXXXXXXXXNNN')
-CAG_fig_composite <- rbind(CAG_NNCN_composite,
-                           CAG_CXXXNNN_composite, CAG_CXXXXXXXXNNN_composite)
+#Plot the NNNXXXC scaled signal at the CAG instances 
+CAG_NNNXXXC_composite <- BED.query.bigWig(CAG_BED,
+                                    bwPlus =  'C1_gDNA_rep1_plus_NNNXXXC.bigWig',
+                                    bwMinus =  'C1_gDNA_rep1_minus_NNNXXXC.bigWig',
+                                    upstream = 15, downstream = 15, group = 'NNNXXXC', factor = '')
+CAG_NNNXXXC_composite <- rbind(CAG_NNNXXXC_composite, CAG_unscaled_composite)
+CAG_NNNXXXC_composite$factor <- c('NNNXXXC')
+CAG_fig_composite <- rbind(CAG_NCNN_composite,
+                           CAG_CXXXXNNN_composite, CAG_NNNXXXC_composite)
+save(CAG_fig_composite, file = 'Figure2B_CAG_correction.Rdata')
 #Plot random CAG composites with mask corrections
-plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
-                            xlabel = '', striplabel = TRUE, legend = TRUE,
-                            motifline = FALSE, Motiflen = 10,
-                            figwidth = 2.5, figheight=3,
-                            indexlist = NULL, layoutgrid = NULL,
-                            col.lines = c("#0000FF", "#0000FF", "#0000FF", "#a1a3ab"), 
-                            fill.poly = c(rgb(0,0,1,1/4), 
-                                          rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
-                                          rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
-  require(lattice)
-  pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
-  print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
-               type = 'l', as.table = TRUE,
-               scales=list(x=list(at=seq(-15,15,5), cex=1.4, relation = "free", axs ="i", rot = 90), 
-                           y =list(cex=1.4, relation="free", tick.number=2)),
-               col = col.lines,
-               auto.key = if (legend == TRUE) 
-               {list(points=F, lines=T, cex=0.8)} else{},
-               par.settings = list(strip.background=list(col="#00000000"),
-                                   strip.border = list(col = 'transparent'),
-                                   superpose.symbol = list(pch = c(16),
-                                                           col=col.lines, 
-                                                           cex =0.5), 
-                                   superpose.line = list(col = col.lines, 
-                                                         lwd=c(2), 
-                                                         lty = c(1))),
-               cex.axis=1.4,
-               par.strip.text=list(cex=1.2, font=1, col='black'),
-               aspect=1.0,
-               between=list(y=0.5, x=0.5),
-               lwd=3,
-               ylab = list(label = paste(ylabel), cex =1.4),
-               xlab = list(label = paste(xlabel), cex =1.4),
-               xlim = c(-15,15),
-               ylim = c(0,0.0175),
-               index.cond = indexlist,
-               layout = layoutgrid,
-               panel = function(x, y, ...) {
-                 panel.xyplot(x, y, ...)
-                 #panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')
-                 level = dimnames(trellis.last.object())[["factor"]][packet.number()]
-                 if (motifline == TRUE) 
-                 {panel.abline(v = Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
-                 if (motifline == TRUE) 
-                 {panel.abline(v = -Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
-               }
-  ))
-  dev.off()
-}
-
 plot.composites(CAG_fig_composite, legend = FALSE, 
                 pdf_name = 'Figure2B_CAG_direction_maskcompare',
                 ylabel = 'Insertion Frequency',
@@ -2089,21 +1825,26 @@ plot.composites(CAG_fig_composite, legend = FALSE,
                 indexlist = list(c(3,2,1)),
                 layoutgrid = c(3,1),
                 figwidth = 8, figheight=5,
-                motifline = FALSE)
-
+                motifline = FALSE, y_axis = TRUE,
+                y_axis_range = seq(0,0.0185, 0.003), x_axis_range = -15:15, nYticks = 2,
+                col.lines = c('#096000', '#5409C9', '#FF0000','#A1A3AB'),
+                linethick = 3)
 ```
 
 ```{r Figure2B, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure2B CAG direction', out.width = "100%"}
 knitr::include_graphics("figs/Figure2B_CAG_direction_maskcompare.pdf")
 ```
 \pagebreak
-# Figure 4. Hierarchical clustering of transcription factor motifs based on information content and GC%
+
+
+# Figure 4. Size constrained, followed by hierarchical clustering of transcription factor motifs based on information content and GC%
 
 ```{r Figure3, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="Figure 4. Unbiased hierarchical clustering of transcription factor motifs creates diverse test and training sets. A) transcription factor motifs are clustered into test and training sets based on motif information content and GC\\%. Points are colored according to cluster and set assignment is indicated by label name color. Cluster number and grouping is indicated by same-colored ovals. B) Training and test transcription factor motifs used for the rule ensemble.", out.width = "80%"}
 knitr::include_graphics("figs/fig3_OL.pdf")
 ```
 
 ## Download transcription factor motifs from JASPAR
+
 ``` {bash eval=FALSE}
 mkdir ref_FIMO
 cd ref_FIMO
