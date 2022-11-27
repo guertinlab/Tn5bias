@@ -5,6 +5,8 @@ do
     echo $name
     fimo --thresh 0.001 --text ${meme} ../Figure1/hg38.fa > ${name}_FIMO.txt
 done
+#Remove DUX4
+rm DUX4_FIMO.txt
 ##wget repeatmasker coordinates
 wget  https://www.repeatmasker.org/genomes/hg38/RepeatMasker-rm405-db20140131/hg38.fa.out.gz
 gunzip -c hg38.fa.out.gz > hg38_repeatmasker.fa
