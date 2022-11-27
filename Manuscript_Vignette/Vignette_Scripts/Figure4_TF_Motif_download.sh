@@ -1,0 +1,47 @@
+mkdir Figure4
+cd Figure4
+#wget transfac from JASPAR
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0007.2.meme > AR.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1100.1.meme > ASCL1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0605.2.meme > ATF3.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0466.1.meme > CEBPB.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0819.1.meme > CLOCK.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0139.1.meme > CTCF.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0885.1.meme > DLX2.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0468.1.meme > DUX4.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0024.2.meme > E2F1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0154.3.meme > EBF1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0162.3.meme > EGR1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0473.1.meme > ELF1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0112.3.meme > ESR1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1485.1.meme > FERD3L.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0476.1.meme > FOS.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0148.3.meme > FOXA1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1103.1.meme > FOXK2.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0036.2.meme > GATA2.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0735.1.meme > GLIS1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0906.1.meme > HOXC12.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0486.2.meme > HSF1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0050.2.meme > IRF1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0488.1.meme > JUN.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0768.1.meme > LEF1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0058.2.meme > MAX.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0052.3.meme > MEF2A.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0774.1.meme > MEIS2.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0801.1.meme > MGA.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0663.1.meme > MLX.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0147.3.meme > MYC.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0625.1.meme > NFATC3.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1111.1.meme > NR2F2.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0786.1.meme > POU3F1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0906.1.meme > PPARG.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0138.2.meme > REST.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0002.1.meme > RUNX1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0631.1.meme > Six3.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0079.4.meme > SP1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0081.1.meme > SPIB.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0084.1.meme > SRY.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0137.3.meme > STAT1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0090.1.meme > TEAD1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0796.1.meme > TGIF1.meme
+wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0093.2.meme > USF1.meme
