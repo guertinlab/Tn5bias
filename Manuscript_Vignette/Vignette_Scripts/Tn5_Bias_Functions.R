@@ -328,8 +328,8 @@ BED.query.bigWig <- function(beddf, bwPlus, bwMinus, upstream = 10,
 ##Plot.composites takes the composite.lattice object and creates a plot for 
 #this data, while also allowing a mapping of the original motif width onto the
 #plot by specifying a TFlen value (the default is 10). 
-plot.composites <- function(dat, x_axis_range = 1:length(dat$x), ylabel = '',
-                            pdf_name = 'PLEASE_SET_FILE_NAME', y_axis_range = NULL,
+plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = '',
+                            pdf_name = 'PLEASE_SET_FILE_NAME', y_axis_range = min(dat$est):max(dat$est),
                             xlabel = '', striplabel = TRUE, legend = TRUE,
                             motifline = FALSE, Motiflen = 10, nXticks = 6, nYticks = 3,
                             figwidth = 2.5, figheight=3, hline = FALSE,
