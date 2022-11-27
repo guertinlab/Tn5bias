@@ -1,7 +1,7 @@
 library(lattice)
 
 setwd('../output')
-load('../data/Figure2C_Tn5_CAG_peak_direction_composite.Rdata')
+load('../data/Figure2B_CAG_correction.Rdata')
 
 ##Plot.composites takes the composite.lattice object and creates a plot for 
 #this data, while also allowing a mapping of the original motif width onto the
