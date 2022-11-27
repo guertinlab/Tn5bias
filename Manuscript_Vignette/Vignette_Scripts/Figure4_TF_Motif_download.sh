@@ -1,6 +1,6 @@
 mkdir Figure4
 cd Figure4
-#wget transfac from JASPAR
+#wget  from JASPAR
 wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0007.2.meme > AR.meme
 wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1100.1.meme > ASCL1.meme
 wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0605.2.meme > ATF3.meme
