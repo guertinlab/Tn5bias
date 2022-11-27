@@ -444,6 +444,7 @@ uppercase <- function(tableinput){
 
 #Plots seqlogos of JASPAR PSWMs
 plot.seqlogo.meme <-function(infile, outfile = "memefunc_test.pdf") {
+  require(ggseqlogo)  
   wd <- getwd()
   memefile <- paste0(wd,"/",infile)
   minmeme <- read.csv(memefile, skip = 11, header = FALSE, sep = '')
