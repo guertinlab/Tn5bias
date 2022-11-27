@@ -33,6 +33,14 @@ vignette: >
 knitr::include_graphics("figs/fig1_OL_JBW.pdf")
 ```
 
+The scripts for this figure cover all the steps necessary to reproduce figure 1.
+
+Make a new folder for Figure 1 data and results:
+```{bash eval = FALSE}
+mkdir Figure1
+cd Figure1
+```
+
 ## Downloading genomic FASTA files
 
 This step will download all of the necessary genomic reference files for figure 1. The script can be found at:
@@ -1398,11 +1406,13 @@ knitr::include_graphics("DNase_scale_factors_df_maskpositions.pdf")
 knitr::include_graphics("figs/fig2_OL_JBW.pdf")
 ```
 
+The scripts for this figure cover all the steps necessary to reproduce figure 2.
+
 Because we are beginning a new figure, create this directory and set it as PWD:
 
 ```{bash eval = FALSE}
 cd ../
-mkdir(Figure2)
+mkdir Figure2
 cd Figure2
 ```
 
@@ -1839,65 +1849,52 @@ knitr::include_graphics("figs/Figure2B_CAG_direction_maskcompare.pdf")
 
 # Figure 4. Size constrained, followed by hierarchical clustering of transcription factor motifs based on information content and GC%
 
-```{r Figure3, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="Figure 4. Unbiased hierarchical clustering of transcription factor motifs creates diverse test and training sets. A) transcription factor motifs are clustered into test and training sets based on motif information content and GC\\%. Points are colored according to cluster and set assignment is indicated by label name color. Cluster number and grouping is indicated by same-colored ovals. B) Training and test transcription factor motifs used for the rule ensemble.", out.width = "80%"}
-knitr::include_graphics("figs/fig3_OL.pdf")
+```{r Figure3, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=" Figure 4. Clustering of transcription factor motifs creates diverse test and training sets. A) We clustered transcription factor motifs into test and training sets based on motif information content and GC content. We indicate clusters with transparent ovals. Training and test sets are indicated as red or blue text that indicates the motif name. B) The seqLogos of training and test transcription factor motifs illustrate their diversity. ", out.width = "80%"}
+knitr::include_graphics("figs/fig3_OL_JBW.pdf")
+```
+
+The scripts for this figure cover all the steps necessary to reproduce figure 4.
+
+Make a directory for Figure 4:
+```{bash eval = FALSE}
+cd ../
+mkdir Figure4
+cd Figure4
 ```
 
 ## Download transcription factor motifs from JASPAR
 
+__Software installations:__
+
+svn: http://subversion.apache.org/
+
+Because the motifs listed in the JASPAR database change with new experimental data, we archived the results which were used to cluster our data. These motifs can be downloaded using the following script:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure4_TF_Motif_download.sh
+
 ``` {bash eval=FALSE}
-mkdir ref_FIMO
-cd ref_FIMO
-#wget transfac from JASPAR
-#Chose TFs with ENCODE listed under 'source' field when multiple versions listed
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0007.2.meme > AR.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1100.1.meme > ASCL1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0605.2.meme > ATF3.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0466.1.meme > CEBPB.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0819.1.meme > CLOCK.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0139.1.meme > CTCF.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0885.1.meme > DLX2.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0468.1.meme > DUX4.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0024.2.meme > E2F1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0154.3.meme > EBF1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0162.3.meme > EGR1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0473.1.meme > ELF1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0112.3.meme > ESR1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1485.1.meme > FERD3L.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0476.1.meme > FOS.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0148.3.meme > FOXA1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1103.1.meme > FOXK2.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0036.2.meme > GATA2.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0735.1.meme > GLIS1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0906.1.meme > HOXC12.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0486.2.meme > HSF1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0050.2.meme > IRF1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0488.1.meme > JUN.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0768.1.meme > LEF1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0058.2.meme > MAX.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0052.3.meme > MEF2A.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0774.1.meme > MEIS2.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0801.1.meme > MGA.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0663.1.meme > MLX.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0147.3.meme > MYC.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0625.1.meme > NFATC3.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA1111.1.meme > NR2F2.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0786.1.meme > POU3F1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0906.1.meme > PPARG.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0138.2.meme > REST.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0002.1.meme > RUNX1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0631.1.meme > Six3.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0079.4.meme > SP1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0081.1.meme > SPIB.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0084.1.meme > SRY.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0137.3.meme > STAT1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0090.1.meme > TEAD1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0796.1.meme > TGIF1.meme
-wget  -cO - http://jaspar.genereg.net/api/v1/matrix/MA0093.2.meme > USF1.meme
+svn export https://github.com/guertinlab/Tn5bias/trunk/Manuscript_Vignette/Motifs/
+cd Motifs
+mv *.meme ../
+cd ../
+rm -r Motifs
 ```
 
 ## Implement size-constrained, hierchical clustering to make groups of TFs based on IC and GC content then plot TFs along with cluster/group designation
-This clustering was done including the transcription factor DUX4. We later excluded DUX4 due to overlap with repetitive regions and odd baseline k-mer frequencies. This is why the variable for DUX4 is included in the clustering approach, then immediately removed from the data set. We manually made test/training determinations for each cluster in order to preserve an even distribution in both groups. Finally, the circles colored according to cluster number were added in a post-processing step.
+
+__Software installations:__
+
+ggplot2: https://ggplot2.tidyverse.org/
+seqLogo: https://github.com/ivanek/seqLogo
+scclust: https://github.com/fsavje/scclust-R
+RColorBrewer: https://cran.r-project.org/web/packages/RColorBrewer/index.html
+ggrepel: https://github.com/slowkow/ggrepel
+ggnewscale: https://eliocamp.github.io/ggnewscale/
+ggseqLogo: https://omarwagih.github.io/ggseqlogo/
+
+This splits the transcription factors downloaded from JASPAR into test and training sets. We first determine IC and GC for each motif, then cluster them by these values using size-constrained, followed by hierarchical clustering. This clustering was done including the transcription factor DUX4. We later excluded DUX4 due to overlap with repetitive regions and odd baseline k-mer frequencies. We manually made test/training determinations for each cluster in order to preserve an even distribution in both groups. Finally, the circles colored according to cluster number were added in a post-processing step. This script can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure4_TF_Motif_clustering.R
+
+
 ```{R eval=FALSE}
 library(data.table)
 library(ggplot2)
@@ -1906,8 +1903,8 @@ library(scclust)
 library(RColorBrewer)
 library(ggrepel)
 library(ggnewscale)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 ################################################################################
-setwd('../ref_FIMO')
 train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF',
            'DLX2', 'EBF1', 'EGR1', 'ELF1',
            'FOS', 'FOXA1', 'FOXK2', 'GATA2',
@@ -1919,12 +1916,9 @@ test = c('AR', 'CEBPB', 'E2F1', 'ESR1',
          'MEF2A', 'MGA', 'NFATC3', 'NR2F2',
          'POU3F1', 'REST', 'Six3', 'SP1',
          'USF1', 'TEAD1')
-
-
 #Determine GC and IC of each transcription factor
 Memes <- list.files('./')
 Memes = Memes[grep('.meme', Memes)]
-
 GCvec = NULL
 ICvec = NULL
 for(i in 1:length(Memes)) {
@@ -1941,7 +1935,6 @@ for(i in 1:length(Memes)) {
   ICcon = sum(ic(pwmMeme))
   ICvec[i] = ICcon
 }
-
 #Combine IC and GC vectors and add TF name column
 GCbyIC = as.data.frame(cbind(GCvec, ICvec))
 GCbyIC[,3] = substr(Memes, 1, nchar(Memes)- 5)
@@ -1958,17 +1951,16 @@ GCbyICstd[,2] = (GCbyIC$IC-ICmean)/ICstddv
 GCbyICstd[,3] = GCbyIC$TF
 #Add column names
 colnames(GCbyICstd) = c('zstdGC', 'zstdIC', 'TF')
-
-#Comput euclidean distances between points
+#Compute euclidean distances between points
 GCbyIC_dist = distances(GCbyICstd,
-                     id_variable = "TF",
-                     dist_variables = c("zstdGC", "zstdIC"))
+                        id_variable = "TF",
+                        dist_variables = c("zstdGC", "zstdIC"))
 #Implement size-constrained clustering
 set.seed(42)
 GCbyIC_scclust = sc_clustering(GCbyIC_dist, 2)
 #Refine clustering using hierarchical clustering
 GCbyIC_clust = hierarchical_clustering(GCbyIC_dist, 2, batch_assign = TRUE,
-                        existing_clustering = GCbyIC_scclust)
+                                       existing_clustering = GCbyIC_scclust)
 #Add clusters to dataframe
 GCbyICstd[,4] = GCbyIC_clust
 colnames(GCbyICstd)[4] = 'Cluster'
@@ -1989,10 +1981,11 @@ GCbyICstd[,6] = 'red'
 GCbyICstd[which(GCbyICstd[,5] == 'Train'),6] = 'blue'
 colnames(GCbyICstd)[6] = 'TestTrain'
 colnames(GCbyICstd)[5] = 'Set'
+GCbyICstd$Cluster = factor(GCbyICstd$Cluster, levels = 0:17)
 mycolors = colorRampPalette(brewer.pal(8, "Set1"))(22)
 
 #Plot clustered transcription factor motifs
-GCbyICstd_kmeans_plot = ggplot(data = GCbyICstd, 
+GCbyICstd_clust_plot = ggplot(data = GCbyICstd, 
                                mapping = aes(x = zstdIC, 
                                              y = zstdGC, 
                                              color = Cluster, label = TF)) + geom_point(size = 4) +
@@ -2013,102 +2006,117 @@ GCbyICstd_kmeans_plot = ggplot(data = GCbyICstd,
   guides(colour = guide_legend(override.aes = list(alpha = 1))) + coord_fixed(ratio = 1.086468)
 
 pdf("ICbyMotifGC_TestTrain_clust.pdf", width=12, height=12)
-GCbyICstd_kmeans_plot
+GCbyICstd_clust_plot
 dev.off()
+
+#Plot each motif's seqlogo:
+for (i in 1:length(Memes)) {
+  plot.seqlogo.meme(Memes[i],
+        outfile = paste(substr(Memes[i],1,nchar(Memes[i])-5),'_seqLogo.pdf',sep = ''))
+}
 ```
 
 ```{r Figure4A, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 4A Plot', out.width = "100%"}
 knitr::include_graphics("figs/ICbyMotifGC_TestTrain_clust.pdf")
 ```
 
+
+
 # Figure 5. Application of a prediction rules ensemble to DNase data can slightly enhance k-mer scaling
 
 ```{r Figure5, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 3. Application of a prediction rules ensemble to DNase data can slightly enhance kmer scaling.', out.width = "80%"}
-knitr::include_graphics("figs/fig5_OL.pdf")
+knitr::include_graphics("figs/fig5_OL_JBW.pdf")
 ```
 
+Make a directory for Figure 5:
+```{bash eval = FALSE}
+cd ../
+mkdir Figure5
+cd Figure5
+```
+
+
 ## Generate scaling factors for DNase 
-These scaling factors based on mask positions within 30bp of the cutsite are generated in [Figure1](#5merkcount).
+These scaling factors based on mask positions within 30bp of the cutsite are generated for [Figure1](#5merkcount).
 
-## Use the FIMO algorithm to find 400,000 locations of the test and training motifs in the genome. 
+## Use the FIMO algorithm to find 400,000 plus and minus strand locations of the test and training motifs in the genome, with repetitive regions removed.
+
+__Software installations:__
+
+bedtools: https://bedtools.readthedocs.io/en/latest/
+
+Direct the FIMO algorithm to find region sets for the test and training motifs. Then use bedtools to remove all regions which are in repetitive elements, as indicated by repeatmasker. The code to execute this can be found at:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_TF_motif_FIMO.sh
+
 ``` {bash eval=FALSE}
-
-cd ../Figure4/ref_FIMO
-
 ####FIMO transcription factor motifs using hg38
-for meme in *.meme
+for meme in ../Figure4/*.meme
 do
-    name=$(echo $meme | awk -F".meme" '{print $1}')
+    name=$(echo $meme | awk -F".meme" '{print $1}' | awk -F"../Figure4/" '{print $2}')
     echo $name
-    fimo --thresh 0.001 --text ${name}.meme ../data/hg38.fa > ${name}_fimo.txt
-
+    fimo --thresh 0.001 --text ${meme} ../Figure1/hg38.fa > ${name}_FIMO.txt
 done
-
-
+#Remove DUX4
+rm DUX4_FIMO.txt
 ##wget repeatmasker coordinates
 wget  https://www.repeatmasker.org/genomes/hg38/RepeatMasker-rm405-db20140131/hg38.fa.out.gz
 gunzip -c hg38.fa.out.gz > hg38_repeatmasker.fa
 awk  '{ OFS="\t" } {print $5, $6, $7, $11}' hg38_repeatmasker.fa | tail +4 > hg38_repeatmasker.bed
 rm hg38_repeatmasker.fa
-
 ###Remove repeatmasker regions from all FIMO files
-for file in ../Figure4/ref_FIMO/*_fimo.txt
+for file in *_FIMO.txt
 do
-  TF=$(echo $file | awk -F"_fimo.txt" '{print $1}' | awk -F"../ref_FIMO/" '{print $2}')
+  TF=$(echo $file | awk -F"_FIMO.txt" '{print $1}')
   echo ${TF}
   awk  '{ OFS="\t" } {print $3, $4, $5, $2, $1, $6, $7, $8, $9}' $file | tail +2 > ${TF}_FIMO.bed
-
   bedtools intersect -wa -v \
   -a ${TF}_FIMO.bed \
-  -b ../data/hg38_repeatmasker.bed \
+  -b hg38_repeatmasker.bed \
    > ${TF}.removed.bed
   echo ${TF}.removed.bed
   awk  '{ OFS="\t" } {print $5, $4, $1, $2, $3, $6, $7, $8, "", $9}' ${TF}.removed.bed > ${TF}_nohead_FIMO.bed
-  head -n 1 ../ref_FIMO/AR_fimo.txt | cat - ${TF}_nohead_FIMO.bed > ${TF}_rm_FIMO.txt
-
+  head -n 1 AR_fimo.txt | cat - ${TF}_nohead_FIMO.bed > ${TF}_rm_FIMO.txt
   rm ${TF}_FIMO.bed ${TF}.removed.bed ${TF}_nohead_FIMO.bed
 done
 ```
 
-## Separate 400,000 plus/minus motifs from the original FIMO file to use for rule ensemble modeling
+Separate 400,000 plus/minus motifs from the FIMO file to use for rule ensemble modeling, and remove all motifs in mitochondrial or alternate chromosomes. To access the raw script, please visit:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_TF_motif_FIMO_subset.R
+
+
 ``` {R eval = FALSE}
 library(data.table)
-system('mkdir ref_FIMO')
-setwd('../Figure4/ref_FIMO')
-
-FIMO_files = list.files('../Figure4/ref_FIMO/')
-FIMO_files = FIMO_files[grep('rm_FIMO.txt')]
+FIMO_files = list.files('./')
+FIMO_files = FIMO_files[grep('rm_FIMO.txt', FIMO_files)]
 #Make 400k plus/minus strand reads
 for (z in 1:length(FIMO_files)) {
-
-#Load in FIMO file    
-FIMO = fread(paste('../ref_FIMO/', FIMO_files[z], sep = ''),
-             sep = 'auto', skip = 0, header = TRUE, fill = FALSE)
-
-#Remove alternative and mitochondrial chromosomes
-FIMO = FIMO[-c(grep('_', FIMO$sequence_name))]
-FIMO = FIMO[-c(grep('chrM', FIMO$sequence_name))]
-print(unique(FIMO$sequence_name))
-
-FIMO_minus = FIMO[FIMO$strand=='-']
-FIMO_minus = FIMO_minus[order(-score)][1:400000]
-write.table(FIMO_minus, file = paste(substr(FIMO_files[z], 1, nchar(FIMO_files[z])-9),
-                                    '_minus_400k_fimo.txt', sep = ''), 
-                                    quote=FALSE, sep = '\t', row.names=FALSE, na = "")
-
-FIMO_plus = FIMO[FIMO$strand=='+']
-FIMO_plus = FIMO_plus[order(-score)][1:400000]
-write.table(FIMO_plus, file = paste(substr(FIMO_files[z], 1, nchar(FIMO_files[z])-9),
-                                    '_plus_400k_fimo.txt', sep = ''), 
-                                    quote=FALSE, sep = '\t', row.names=FALSE, na = "")
+  #Load in FIMO file    
+  FIMO = fread(paste('./', FIMO_files[z], sep = ''),
+               sep = 'auto', skip = 0, header = TRUE, fill = FALSE)
+  #Remove alternative and mitochondrial chromosomes
+  FIMO = FIMO[-c(grep('_', FIMO$sequence_name))]
+  FIMO = FIMO[-c(grep('chrM', FIMO$sequence_name))]
+  print(unique(FIMO$sequence_name))
+  
+  FIMO_minus = FIMO[FIMO$strand=='-']
+  FIMO_minus = FIMO_minus[order(-score)][1:400000]
+  write.table(FIMO_minus, file = paste(substr(FIMO_files[z], 1, nchar(FIMO_files[z])-9),
+                                       '_minus_400k_fimo.txt', sep = ''), 
+              quote=FALSE, sep = '\t', row.names=FALSE, na = "")
+  
+  FIMO_plus = FIMO[FIMO$strand=='+']
+  FIMO_plus = FIMO_plus[order(-score)][1:400000]
+  write.table(FIMO_plus, file = paste(substr(FIMO_files[z], 1, nchar(FIMO_files[z])-9),
+                                      '_plus_400k_fimo.txt', sep = ''), 
+              quote=FALSE, sep = '\t', row.names=FALSE, na = "")
 }
-
-system('cp *_plus_400k_fimo.txt ../../Figure5/ref_FIMO')
-system('cp *_minus_400k_fimo.txt ../../Figure5/ref_FIMO')
 ```
 
 
 ## Plot unscaled DNase composite values for FIMO motifs (values which rule ensemble predicts)
+
+The rule ensemble model predicts the unscaled values of each transcription factor motif's composite profile. This will calculate these values in addition to plotting them for inspection and saving them for later use as input.
+
 ``` {R eval=FALSE}
 library(bigWig)
 library(zoo)
