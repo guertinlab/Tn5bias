@@ -1,7 +1,7 @@
 library(lattice)
 setwd('../output')
 #Load in  scale factor files
-load('../data/Figure1B_scalefactors_list.Rdata')
+load('../data/Figure1B_scalefactor_list.Rdata')
 
 for (i in 1:length(Figure1C_list)) {
   Figure1C_list[[i]][,14] = as.factor(Figure1C_list[[i]][,14])
