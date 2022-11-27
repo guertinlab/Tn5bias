@@ -4,7 +4,7 @@ options(scipen=10000)
 
 setwd('../output')
 
-load('Figure2A_UPstream_OE_kmers.Rdata')
+load('Figure2A_Upstream_OE_kmers.Rdata')
 
 load('220801_Tn5_kmer_count_correction.Rdata')
 
