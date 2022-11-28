@@ -173,8 +173,7 @@ scalefactor.by.kmerfrequency <- function(scalefactors, kmerfrequency, tfname) {
     
         }
        saveRDS(scaledkfreq, file = paste(tfname, '_',
-                        substr(names(scalefactors[j]), 1,
-                               nchar(names(scalefactors[j]))-22), '.rds', sep = ''))
+              gsub('_scale_factors.txt', '', names(scalefactors[j])), '.rds', sep = ''))
        #all_scalefactors[[j]] = scaledkfreq 
        }
       #return(all_scalefactors)
