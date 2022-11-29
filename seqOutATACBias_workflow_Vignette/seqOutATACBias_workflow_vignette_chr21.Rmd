@@ -1,0 +1,333 @@
+---
+title: "seqOutATACBias: Rule Ensemble Correction of ATAC-seq Data Vignette"
+header-includes:
+- \usepackage{color}
+- \usepackage{float}
+- \usepackage{amsmath}
+author:
+- Jacob B. Wolpe^[Department of Biochemistry and Molecular Genetics, University of Virginia, Charlottesville, Virginia, United States of America]
+- Michael J. Guertin^[Department of Genetics and Genome Sciences, University of Connecticut, Farmington, Connecticut, United States of America]
+geometry: margin=0.75cm 
+output:
+  pdf_document:
+      fig_caption: yes
+      number_sections: yes
+      toc: yes
+      pandoc_args:
+        - '--highlight-style=breezeDark'
+package: 
+abstract: |
+  This vignette shows an example workflow which applies a rule ensemble model to correct Tn5 insertion sequence bias in ATAC-seq data. To start, example reads and reference genome are downloaded from cyverse. seqOutBias is next ran 13 times to generate unscaled read depth and input for the modeling. The rule ensemble model is then applied to the input data. Finally, the signal at ESR1 motifs in the test chromosome (chromosome 21) are plotted and compared with unscaled and seqOutBias output.
+vignette: >
+  %\VignetteIndexEntry{ATAC Bias Scaling}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+\pagebreak
+# Foreword
+
+The analysis should take about 15 minutes to complete using chromosome 21 and require about 650 Mb of disk space.
+
+  This workflow shows the method of correcting ATAC-seq bias using a rule ensemble model. Input is a pre-aligned BAM file containing reads mapping to chromosome 21 from the SRR5123141 data set and hg38 reference genome chromosome 21. We recommend a fresh install of seqOutBias if it has not been installed since 07/02/22. This model was trained and created using the methods in the accompanying paper. Because this is a workflow, it requires several prerequisites to be in PATH or installed as a package in R.
+
+# Installations
+
+In order to run this vignette, you must have the following installed and added to PATH:    
+seqOutBias (downloaded after 07/02/22)       
+Rust >= 1.32.0    
+genometools >= 1.6.1     
+pyfaidx >= 0.7.1   
+GNU parallel >= 20220722   
+GNU wget >= 1.21.3   
+bedtools >= 2.30.0   
+bigWigToBedGraph >= 438   
+bedGraphToBigWig >= 2.9   
+wigToBigWig >= 2.8
+Pandoc >= 2.19.2    
+R >= 4.2.1   
+  R Packages:    
+  -  R data.table package >= 1.14.2   
+  -  bigWig R package   
+
+
+Check to see if you have the required dependencies in PATH. The following will print a message if a dependency cannot be called:
+
+```{bash eval=TRUE}
+  if ! command -v wget &> /dev/null
+  then
+      echo "wget could not be found"
+  elif ! command -v faidx &> /dev/null
+  then
+      echo "faidx could not be found"
+  elif ! command -v parallel &> /dev/null
+  then
+      echo "GNU parallel could not be found"
+  elif ! command -v bigWigToBedGraph &> /dev/null
+  then
+      echo "bigWigToBedGraph could not be found"
+  elif ! command -v bedGraphToBigWig &> /dev/null
+  then
+      echo "bedGraphToBigWig could not be found"
+  elif ! command -v gt &> /dev/null
+  then
+      echo "Genome tools could not be found"
+  elif ! command -v rustc &> /dev/null
+  then
+      echo "Rust could not be found"
+  elif ! command -v seqOutBias &> /dev/null
+  then
+      echo "seqOutBias could not be found"
+  elif ! command -v wigToBigWig &> /dev/null
+  then
+      echo "wigToBigWig could not be found"    
+  else
+      echo "Checked dependencies installed"
+  fi
+```
+
+
+If you find that any of these dependencies are not in PATH, you may install them from the following:
+
+seqOutBias (downloaded after 07/02/22): https://github.com/guertinlab/seqOutBias    
+Rust: https://www.rust-lang.org/     
+genometools: http://genometools.org/     
+R: https://rstudio-education.github.io/hopr/starting.html     
+pyfaidx: https://pypi.org/project/pyfaidx/     
+GNU parallel: https://www.gnu.org/software/parallel/       
+bedtools: https://bedtools.readthedocs.io/en/latest/     
+bigWigToBedGraph: http://hgdownload.soe.ucsc.edu/admin/exe/      
+bedGraphToBigWig: http://hgdownload.soe.ucsc.edu/admin/exe/       
+bigWig R package: https://github.com/guertinlab/bigWig     
+wigToBigWig: https://anaconda.org/bioconda/ucsc-wigtobigwig    
+GNU wget: https://www.gnu.org/software/wget/      
+
+
+## Auto-install R packages
+
+Install the `data.table`, `bigWig`, and  `devtools` R packages, if necessary:
+
+```{R eval = TRUE}
+tabletest = require(data.table)
+if(tabletest==FALSE){
+  install.packages('data.table')
+}
+bigWigtest = require(bigWig)
+if(bigWigtest==FALSE){
+  install.packages('devtools')
+  devtools::install_github("andrelmartins/bigWig", subdir="bigWig")
+}
+```
+
+# Generating scaled seqOutBias output for rule ensemble implementation
+
+This section prepares the input data necessary for rule ensemble scaling of seqOutBias output.  The first section downloads the chromosome 21 reference genome (hg38) and aligned, unscaled chromosome 21 read files in BAM format, from cyverse. Next, run seqOutBias with no scaling in order to generate the necessary suffixerator and tallymer reference files for future runs in addition to getting a raw read depth count. 
+
+## Downloading reference genome and read data.
+
+Download the reference genome (hg38) and aligned, deproteinized ATAC-seq read file from cyverse.
+
+```{bash eval=TRUE}
+#To test this vignette with a subset (chr 21) genome and reads:
+wget -nv https://data.cyverse.org/dav-anon/iplant/home/jacobwolpe/C1_gDNA_rep1_chr21.bam
+wget -nv https://data.cyverse.org/dav-anon/iplant/home/jacobwolpe/hg38_chr21.fa
+```
+
+## Initial run of seqOutBias to generate suffix and tallymer files
+
+This initial run of seqOutBias will take some time, as it generates all suffix (.sft) and tallymer (.tal) reference files necessary for bias correction using this reference genome and data set. Subsequent runs are faster and may be done in parallel, using the same reference files. To preserve space, we delete the output .tbl file once the run is complete, as it is no longer needed and very large.
+
+```{bash eval=TRUE}
+#Run seqOutBias with unscaled parameters to generate reference files and unscaled read depth:
+seqOutBias hg38_chr21.fa C1_gDNA_rep1_chr21.bam --read-size=76 --no-scale \
+            --strand-specific --custom-shift=4,-4 --bed=C1_gDNA_rep1_chr21_scaling_test.bed \
+            --bw=C1_gDNA_rep1_chr21_unscaled.bigWig
+#Remove large .tbl file:            
+rm hg38_chr21_76.4.2.2.tbl            
+```
+
+## Multiple runs of seqOutBias to generate rule ensemble modeling input
+
+Now run seqOutBias in parallel to generate the 12 input masks for rule ensemble scaling. Once each mask is generated, the large .tbl files are also deleted.
+
+```{bash eval=TRUE}
+#Masks necessary for rule ensemble implementation
+masks=("XXXXXXXXXXXXXXXXXNNNNNNCNXXXXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXNNNNNCNNXXXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXNNNNCNNNXXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXNNNCNNNNXXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXNNCNNNNNXXXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCNNNNNNNXXXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXNNNNNNNXXXXXXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXNNNNNNNXXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXNNNNNNNXXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXNNNNNNNXXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXXNNNNNNNXXXXXX"
+"XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXXXXNNNNNNNXXXX")
+printf "%s\n" "${masks[@]}" > masks.txt
+#Run seqOutBias on the rest of the masks, in parallel and remove .tbl files to conserve space
+parallel -j3 'seqOutBias hg38_chr21.fa C1_gDNA_rep1_chr21.bam --read-size=76 \
+      --strand-specific --custom-shift=4,-4 \
+      --kmer-mask={} --bed=C1_gDNA_rep1_chr21_{}.bed \
+      --out=C1_gDNA_rep1_chr21_{}.tbl --bw=C1_gDNA_rep1_chr21_{}.bigWig
+      echo Cleaning up C1_gDNA_rep1_chr21_{}
+      rm C1_gDNA_rep1_chr21_{}.tbl
+      rm C1_gDNA_rep1_chr21_{}_scaled.bed' ::: ${masks[@]}
+```
+
+
+## Convert bigWigs into bedGraph format
+
+Convert bigWig files into bedGraph format using bigWigToBedGraph. This ensures proper formatting of our input for later use with unionbedgraph.
+
+``` {bash eval=TRUE}
+#Read in masks
+while IFS= read -r line; do masks+=( "$line" ); done < masks.txt
+#Convert bigwigs to bedGraph format
+parallel -j3 'bigWigToBedGraph C1_gDNA_rep1_chr21_{}.bigWig C1_gDNA_rep1_chr21_{}.bedGraph' ::: ${masks[@]}
+```
+
+
+## Combine all bedGraph files into a single file
+
+Combine all bedGraph files into a single file using unionbedgraph and delete the individual bedGraph files.
+
+```{bash eval=TRUE}
+#Read in masks
+while IFS= read -r line; do masks+=( "$line" ); done < masks.txt
+#Make array of bedGraph output
+beds=( "${masks[@]/%/.bedGraph}" )
+beds=( "${beds[@]/#/C1_gDNA_rep1_chr21_}" )
+printf '%s\n' "${beds[@]}"
+#Combine all bedGraph files into a single file
+bedtools unionbedg -i ${beds[@]} > C1_gDNA_rep1_chr21_union.bedGraph
+#Clean up all individual bedGraph files
+for pos in ${beds[@]}; do
+echo "Clean up" ${pos}
+rm ${pos}
+done
+```
+
+
+# Rule ensemble implementation
+
+In this section, take the seqOutBias scaled output (in bedGraph format) and apply the pre-trained rule ensemble model. Then scale this output to the original read depth. Read depth scaled rule ensemble output is then written into a bedGraph file. Finally, convert this bedGraph file into bigWig format for further use and analysis. 
+
+## Rule ensemble implementation
+
+Implement the rule ensemble modeling using the pre-trained model and single bedgraph file. Then scale this output to the unscaled read depth. Lastly, write this to a bedGraph output.
+
+```{R eval=TRUE}
+library(data.table)
+options(scipen = 100)
+#Read the unscaled bed file for read depth
+print('Reading unscaled bed file...')
+unscaled_bed = fread("C1_gDNA_rep1_chr21_scaling_test_not_scaled.bed")
+unscaled_bed = sum(unscaled_bed$V5)
+#Read the unionbedGraph file
+print('Reading bed file C1_gDNA_rep1_chr21_union.bedGraph')
+x <- fread('C1_gDNA_rep1_chr21_union.bedGraph')
+#Set column names based on masks.txt file
+masknames = read.table('masks.txt', header = FALSE)
+masknames = masknames[,1]
+masknames = c('chr', 'start', 'stop', masknames)
+colnames(x) = masknames
+#Retrieve 12 mask rule ensemble model:
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/seqOutATACBias_workflow_Vignette/12mask_RuleEnsemble_Tn5_scaling.R')
+
+
+#Implement rule ensemble model on union bedgraph
+print('Applying rule ensemble model')
+x = RE_scale_12mask(x)
+
+#Scale output to read depth
+pre_read_depth = sum(x$RuleEnsemble)
+RDS = unscaled_bed/pre_read_depth
+x[, RuleEnsemble_RDS := RuleEnsemble*RDS ]
+
+print('Writing rule ensemble scaled bed file...')
+write.table(x[,c(1:3,17)], file = 'C1_gDNA_rep1_chr21_RE_scaled.bedGraph',
+            col.names = FALSE, row.names=FALSE, sep = '\t', quote=FALSE)
+
+```
+
+## Convert the bedGraph rule ensemble output to bigWig format
+
+To convert the bedGraph rule ensemble scaled output to bigWig format, we must first create a chrom.sizes file from our reference genome.
+
+```{bash eval=TRUE}
+faidx hg38_chr21.fa -i chromsizes > hg38_chr21.fa.chrom.sizes
+```
+
+Next, we convert our bedGraph output into bigWig format
+```{bash eval=TRUE}
+bedGraphToBigWig C1_gDNA_rep1_chr21_RE_scaled.bedGraph \
+hg38_chr21.fa.chrom.sizes C1_gDNA_rep1_chr21_RE_scaled.bigWig
+```
+
+
+# Bias correction analysis
+
+This section verifies that the rule ensemble model has corrected the Tn5 sequence bias by plotting the composite signal at the ESR1 motif against the seqOutBias output and unscaled output.
+
+## Downloading ESR1 FIMO motifs
+
+Download chromosome 21 plus and minus ESR1 FIMO motifs from cyverse.
+
+```{bash eval=TRUE}
+wget https://data.cyverse.org/dav-anon/iplant/home/jacobwolpe/ESR1_rm_chr21_fimo.txt
+```
+
+## Plotting the ESR1 composite profile
+
+Plot the rule ensemble scaled output, seqOutBias scaled output and unscaled output at the ESR1 motif. First, coordinates are converted into bed format from input FIMO format. Next, the signal at these genomic locations is retrieved and averaged. Finally, we overlay these plotted values for comparison.
+
+```{R eval=TRUE}
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+###################################################################################
+
+#Load in the ESR1 motif region set
+Motiflist <- vector('list', 1)
+Motiflist[[1]] <- FIMO.to.BED('ESR1_rm_chr21_fimo.txt')
+
+#Determine signal at the ESR1 motif in unscaled data
+unscaled_compositelist = vector('list', 1)
+unscaled_compositelist[[1]] = BED.query.bigWig(Motiflist[[1]],
+                              'C1_gDNA_rep1_chr21_unscaled.bigWig',
+                              'C1_gDNA_rep1_chr21_unscaled.bigWig', 
+                                        upstream = 20, downstream = 20,
+                                        factor = 'ESR1',
+                                        group = 'Unscaled', ATAC = TRUE)
+#Determine signal at the ESR1 motif in seqOutBias data
+seqOutBias_compositelist = vector('list', 1)
+seqOutBias_compositelist[[1]] = BED.query.bigWig(Motiflist[[1]],
+                              'C1_gDNA_rep1_chr21_XXXXXXXXXXXXXXXXXXXXNNNCNNNNXXXXXXXXXXXXXXXXXXX.bigWig',
+                              'C1_gDNA_rep1_chr21_XXXXXXXXXXXXXXXXXXXXNNNCNNNNXXXXXXXXXXXXXXXXXXX.bigWig', 
+                                        upstream = 20, downstream = 20,
+                                        factor = 'ESR1',
+                                        group = 'seqOutBias', ATAC = TRUE)
+#Determine signal at the ESR1 motif in Rule Ensemble data
+RE_compositelist = vector('list', 1)
+RE_compositelist[[1]] = BED.query.bigWig(Motiflist[[1]],
+                              'C1_gDNA_rep1_chr21_RE_scaled.bigWig',
+                              'C1_gDNA_rep1_chr21_RE_scaled.bigWig', 
+                                        upstream = 20, downstream = 20,
+                                        factor = 'ESR1',
+                                        group = 'Rule Ensemble', ATAC = TRUE)
+
+
+composite_plot = rbind(do.call(rbind, RE_compositelist),
+                       do.call(rbind, unscaled_compositelist),
+                       do.call(rbind, seqOutBias_compositelist))
+
+composite_plot$group = factor(composite_plot$group)
+
+plot.composites(composite_plot, legend = TRUE, 
+                pdf_name = 'Rule_ensemble_scaling_ESR1_chr21_composite',
+                ylabel = 'Insertion Frequency',
+                xlabel = 'Distance from Motif Center',
+                motifline = FALSE, Motiflen = 0, figwidth = 6, figheight = 6, x_axis_range = -20:20)  
+```
+
+```{r Rule_ensemble_scaling_ESR1_chr21_composite, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="", out.width = "100%"}
+knitr::include_graphics("Rule_ensemble_scaling_ESR1_chr21_composite.pdf")
+```
