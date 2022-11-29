@@ -1,5 +1,4 @@
-
-#
+#Calculate scale factors from a seqOutBias table file
 scalefactor.func <- function(factortable){
     require(data.table)
     datatable = fread(factortable, skip = 1)
@@ -456,3 +455,29 @@ plot.seqlogo.meme <-function(infile, outfile = "memefunc_test.pdf") {
   print(ggseqlogo(meme.trans,  facet = "wrap", font = 'helvetica_bold'))
   dev.off()
 }
+
+#Import rule ensemble formula in usable form from output .txt file                 
+import.rules = function(input) {
+  rulesdf = data.table(read.table(input, sep = ',', header = TRUE))
+  intcoeff = NULL
+  lincoeff = NULL
+  rulescoeff = NULL
+  for (i in 1:nrow(rulesdf)) {
+    intcoeff[i] = fifelse(rulesdf[i,description] == 1, rulesdf[i,coefficient], 0)
+  }
+  intcoeff = intcoeff[!(intcoeff==0)]
+  for (i in 1:nrow(rulesdf)) {
+    lincoeff[i] = fifelse(!grepl(">|<|=",rulesdf[i, description]), 
+                          paste('(',rulesdf[i, description], '*',
+                                rulesdf[i, coefficient], ')', sep = ''),paste(''))}
+  lincoeff = lincoeff[!(lincoeff=='')]
+  linpaste = capture.output(cat(lincoeff, sep = ' + '))
+  for (i in 1:nrow(rulesdf)) {
+    rulescoeff[i] = fifelse(grepl(">|<|=",rulesdf[i, description]),
+                            paste('fifelse(', rulesdf[i, description], ', ', 
+                                  rulesdf[i, coefficient], ', 0)', sep = ''), '')}
+  rulescoeff = rulescoeff[!(rulescoeff=='')]
+  rulespaste = capture.output(cat(rulescoeff, sep = ' + '))
+  output = paste(intcoeff, linpaste, rulespaste, sep = ' + ')
+  return(output)
+}                 
