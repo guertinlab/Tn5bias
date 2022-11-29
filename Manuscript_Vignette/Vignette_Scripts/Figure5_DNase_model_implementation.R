@@ -28,12 +28,9 @@ RE_scale_DNase(x)
 pre_read_depth = sum(x$RuleEnsemble)
 #Create a ratio to scale Rule ensemble read depth to unscaled read depth
 RDS = unscaled_read_depth/pre_read_depth
-
 x[, pre_RDS := RuleEnsemble*RDS ]
-
-colnames(x)[25]
-write.table(x[,c(1:3,25)], file = 'DNase_Rule_Ensemble_Scaled.bedGraph', col.names = FALSE, 
+#Write the scaled DNase data in bedGraph format
+write.table(x[,c(1:3,24)], file = 'DNase_Rule_Ensemble_Scaled.bedGraph', col.names = FALSE, 
             row.names=FALSE, sep = '\t', quote=FALSE)
-
-#Run the following line from terminal in pwd
+#Convert the bedGraph to bigWig format
 system('bedGraphToBigWig DNase_Rule_Ensemble_Scaled.bedGraph ../Figure1/hg38.fa.chrom.sizes DNase_Rule_Ensemble_Scaled.bigWig')
