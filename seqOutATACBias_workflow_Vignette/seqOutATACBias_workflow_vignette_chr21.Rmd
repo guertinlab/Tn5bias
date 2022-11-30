@@ -33,7 +33,7 @@ The analysis should take about 15 minutes to complete using chromosome 21 and re
 # Installations
 
 In order to run this vignette, you must have the following installed and added to PATH:    
-seqOutBias (downloaded after 07/02/22)       
+seqOutBias (https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip)     
 Rust >= 1.32.0    
 genometools >= 1.6.1     
 pyfaidx >= 0.7.1   
@@ -88,7 +88,7 @@ Check to see if you have the required dependencies in PATH. The following will p
 
 If you find that any of these dependencies are not in PATH, you may install them from the following:
 
-seqOutBias (downloaded after 07/02/22): https://github.com/guertinlab/seqOutBias    
+seqOutBias: https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip
 Rust: https://www.rust-lang.org/     
 genometools: http://genometools.org/     
 R: https://rstudio-education.github.io/hopr/starting.html     
