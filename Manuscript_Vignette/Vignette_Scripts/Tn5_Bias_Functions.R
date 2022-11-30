@@ -329,9 +329,10 @@ BED.query.bigWig <- function(beddf, bwPlus, bwMinus, upstream = 10,
 plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = '',
                             pdf_name = 'PLEASE_SET_FILE_NAME', y_axis_range = min(dat$est):max(dat$est),
                             xlabel = '', striplabel = TRUE, legend = TRUE,
-                            motifline = FALSE, Motiflen = 10, nXticks = 6, nYticks = 3,
+                            motifline = FALSE, Motiflen = 10, nYticks = 3,
                             figwidth = 2.5, figheight=3, hline = FALSE, nYaxisdigits = 3,
                             indexlist = NULL, layoutgrid = NULL, y_axis = FALSE, linethick = 2,
+                            X_axis_ticks = seq(-20,20,10), hline_val = 0, Y_axis_ticks = seq(0,0.02,0.01),
                     col.lines = c("#0000FF", "#FF0000", "#00000090", 
                                   rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
                                   rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
@@ -345,11 +346,8 @@ plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = 
     pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
     print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
                  type = 'l', as.table = TRUE,
-                 scales=list(x=list(at=seq(min(x_axis_range),max(x_axis_range),
-                                           floor(length(x_axis_range)/nXticks)),
-                                    cex=1.1, relation = "free", axs ="i", rot = 45), 
-                             y =list(at=as.numeric(format(seq(min(y_axis_range),max(y_axis_range),
-                                            ((max(y_axis_range)-min(y_axis_range))/(nYticks-1))), digits = nYaxisdigits)),
+                 scales=list(x=list(at= X_axis_ticks,cex=1.1, relation = "free", axs ="i", rot = 45), 
+                             y =list(at=as.numeric(format(Y_axis_ticks, digits = nYaxisdigits)),
                                cex=1.1, relation = "free", rot = 0)),
                  col = col.lines,
                  auto.key = if (legend == TRUE) 
@@ -376,7 +374,7 @@ plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = 
                  panel = function(x, y, ...) {
                    panel.xyplot(x, y, ...)
                    if (hline == TRUE)
-                   {panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')}else{}
+                   {panel.abline(h = hline_val, lty =2, lwd = 2, col = '#FF0000')}else{}
                    level = dimnames(trellis.last.object())[["factor"]][packet.number()]
                    if (motifline == TRUE) 
                    {panel.abline(v = Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
