@@ -377,9 +377,9 @@ plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = 
                    {panel.abline(h = hline_val, lty =2, lwd = 2, col = '#FF0000')}else{}
                    level = dimnames(trellis.last.object())[["factor"]][packet.number()]
                    if (motifline == TRUE) 
-                   {panel.abline(v = Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
+                   {panel.abline(v = ceiling(Motiflen[rownames(Motiflen)==level,]/2), lty = 2, col = "red")} else{}
                    if (motifline == TRUE) 
-                   {panel.abline(v = -Motiflen[rownames(Motiflen)==level,]/2, lty = 2, col = "red")} else{}
+                   {panel.abline(v = ceiling(-Motiflen[rownames(Motiflen)==level,]/2), lty = 2, col = "red")} else{}
                  }
     ))
     dev.off()
