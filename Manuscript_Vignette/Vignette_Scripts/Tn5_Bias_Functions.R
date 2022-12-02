@@ -328,7 +328,7 @@ BED.query.bigWig <- function(beddf, bwPlus, bwMinus, upstream = 10,
 #plot by specifying a TFlen value (the default is 10). 
 plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = '',
                             pdf_name = 'PLEASE_SET_FILE_NAME', y_axis_range = min(dat$est):max(dat$est),
-                            xlabel = '', striplabel = TRUE, legend = TRUE,
+                            xlabel = '', striplabel = TRUE, legend = TRUE, labsize = 1.1,
                             motifline = FALSE, Motiflen = 10, nYticks = 3, Y_ticks = TRUE,
                             figwidth = 2.5, figheight=3, hline = FALSE, nYaxisdigits = 3,
                             indexlist = NULL, layoutgrid = NULL, y_axis = FALSE, linethick = 2,
@@ -346,10 +346,10 @@ plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = 
     pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
     print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
                  type = 'l', as.table = TRUE,
-                 scales=list(x=list(at= X_axis_ticks,cex=1.1, relation = "free", axs ="i", rot = 45), 
+                 scales=list(x=list(at= X_axis_ticks,cex=labsize, relation = "free", axs ="i", rot = 45), 
                              y = if (Y_ticks == TRUE) {list(at = as.numeric(format(Y_axis_ticks, digits = nYaxisdigits)), 
-                                                            tick.number=nYticks, cex=1.1, relation = "free", rot = 0)}
-                                 else{list(tick.number=nYticks, cex=1.1, relation = "free", rot = 0)}),
+                                                            tick.number=nYticks, cex=labsize, relation = "free", rot = 0)}
+                                 else{list(tick.number=nYticks, cex=labsize, relation = "free", rot = 0)}),
                  col = col.lines,
                  auto.key = if (legend == TRUE) 
                      {list(points=F, lines=T, cex=0.8)} else{},
