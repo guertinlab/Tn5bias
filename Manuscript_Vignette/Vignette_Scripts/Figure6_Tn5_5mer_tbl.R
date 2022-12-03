@@ -38,4 +38,4 @@ prefix = "Tn5_"
 #Apply run.cutmask to each possible 5-mer 
 scores = mclapply(nextlst, function(cutmask) {
   bw.paths = run.cutmask(cutmask, seqOutBias.args, sqcmd=sqcmd, prefix=prefix, cleanup = FALSE)
-}, mc.cores = 20)
+}, mc.cores = 1)
