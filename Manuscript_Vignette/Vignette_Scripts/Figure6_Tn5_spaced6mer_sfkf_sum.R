@@ -30,4 +30,4 @@ TF_minus_scalefactors_kmerfreq = foreach (i = 1:length(RDSlist)) %dopar% {
 names(TF_minus_scalefactors_kmerfreq) = RDSlist
 
 save(TF_minus_scalefactors_kmerfreq, 
-     file = 'Tn5_TF_minus_pre_input_spaced3mers.Rdata')
+     file = 'Tn5_TF_minus_pre_input_spaced6mers.Rdata')
