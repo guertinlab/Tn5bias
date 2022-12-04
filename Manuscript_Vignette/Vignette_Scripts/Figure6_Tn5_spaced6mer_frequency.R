@@ -21,9 +21,9 @@ rm(unique_factorfiles)
 ###############################################################
 load('../../../Figure5/hg38_Plus_motif_sequences.Rdata')
 for (i in 1:length(unique_factorfiles_spacing)) {
-  TFseq_plus = lapply(TFseq_plus, mer.positions,
+  TFseq_plus_s = lapply(TFseq_plus, mer.positions,
                         mermask = unique_factorfiles_spacing[i])
-  TFseq_plus = lapply(TFseq_plus_s, position.frequencies,
+  TFseq_plus_s = lapply(TFseq_plus_s, position.frequencies,
                         mermask = unique_factorfiles_spacing[i])
   save(TFseq_plus, file = paste(unique_factorfiles_spacing[i],
                                   '_TFseq_plus_posfreqs.Rdata', sep = ''))
