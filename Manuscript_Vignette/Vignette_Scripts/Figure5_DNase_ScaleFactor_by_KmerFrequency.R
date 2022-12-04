@@ -57,13 +57,13 @@ names(TFseq_plus) <- names(TFmotifs)
 for (i in 1:length(TFmotifs)) {
   TFseq_plus[[i]] <- fread(paste(names(TFmotifs[i]), '_hg38seq.bed', sep = ''))
 }
-save(TFseq_plus, file = 'hg38_Plus_motif_sequences.Rdata')
 #Make sure you still have 400k rows
 for (i in 1:length(TFseq_plus)) {
   print(nrow(TFseq_plus[[i]]))
 }
 #Make all sequences upper case
 TFseq_plus = lapply(TFseq_plus, function(x) {toupper(x$V7)})
+save(TFseq_plus, file = 'hg38_Plus_motif_sequences.Rdata')
 #Break sequences into 5bp chunks (for 5mer)
 TFseq_plus = lapply(TFseq_plus, mer.positions, mermask = "NNNNN")
 #Find frequency of each possible 5mer for each position
@@ -184,13 +184,13 @@ names(TFseq_minus) <- names(TFmotifs)
 for (i in 1:length(TFmotifs)) {
   TFseq_minus[[i]] <- fread(paste(names(TFmotifs[i]), '_hg38seq.bed', sep = ''))
 }
-save(TFseq_minus, file = 'hg38_Minus_motif_sequences.Rdata')
 #Make sure you still have 400k rows
 for (i in 1:length(TFseq_minus)) {
   print(nrow(TFseq_minus[[i]]))
 }
 #Make all sequences upper case
 TFseq_minus = lapply(TFseq_minus, function(x) {toupper(x$V7)})
+save(TFseq_minus, file = 'hg38_Minus_motif_sequences.Rdata')
 #Break sequences into 5bp chunks (for 5mer)
 TFseq_minus = lapply(TFseq_minus, mer.positions, mermask = "NNNNN")
 #Find frequency of each possible 5mer for each position
