@@ -40,3 +40,4 @@ for (i in 1:length(unique_factorfiles_spacing)) {
   save(TFseq_minus_s, file = paste(unique_factorfiles_spacing[i],
                                    '_TFseq_minus_posfreqs.Rdata', sep = ''))
 }
+setwd('../../')
