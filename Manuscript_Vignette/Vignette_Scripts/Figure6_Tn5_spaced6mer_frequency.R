@@ -1,8 +1,8 @@
 library(data.table)
 source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
-system('mkdir spaced_3mer')
-setwd('spaced_3mer')
+system('mkdir spaced_6mer')
+setwd('spaced_6mer')
 system('mkdir plus')
 setwd('plus')
 #Determine the unique spacings of 3mers in 46bp
