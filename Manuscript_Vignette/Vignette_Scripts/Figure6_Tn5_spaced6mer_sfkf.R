@@ -35,8 +35,8 @@ for (i in 1:length(scalefactors)) {
 scalefactor_names = substr(names(scalefactors), 5, 51)
 scalefactor_names = gsub('C', '', scalefactor_names)
 
-TFseq_files = list.files('spaced_3mer/plus')
-#Here we make a 'key' for each spacing of 3mers. 
+TFseq_files = list.files('spaced_6mer/plus')
+#Here we make a 'key' for each spacing of 6mers. 
 #Each key lists the spacings of k-mer frequency to be
 #multiplied by their respective scale factors
 system('mkdir HPC_scripts')
@@ -63,7 +63,7 @@ for (i in 1:length(TFseq_files)) {
                                                          1, nchar(TFseq_files[i])-26),
                                                   '_sfkf_key.Rdata', sep = ''), "')", sep = ''),
                "load('Tn5_spaced6mer_scalefactors.Rdata')",
-               "setwd('../plus_Rivanna_output')",
+               "setwd('../plus_HPC_output')",
                "options(scipen = 100)",
                "registerDoParallel(20)",
                "TF_scalefactors_kmerfreq <- vector(mode = 'list', length = length(TFseq_plus_s))",
@@ -71,14 +71,14 @@ for (i in 1:length(TFseq_files)) {
                "foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors[which(names(scalefactors) %in% sfkf_key)],
              kmerfrequency = TFseq_plus_s[[i]], tfname = names(TFseq_plus_s[i]))}",
                "rm(TFseq_plus_s)",
-               "setwd('../minus_Rivanna_output')",
+               "setwd('../minus_HPC_output')",
                paste("load('spaced_6mer/minus/", gsub('plus_', 'minus_', TFseq_files[i]), "')", sep = ''),
                "TF_scalefactors_kmerfreq <- vector(mode = 'list', length = length(TFseq_minus_s))",
                "names(TF_scalefactors_kmerfreq) = names(TFseq_minus_s)",
                "foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors[which(names(scalefactors) %in% sfkf_key)],
              kmerfrequency = TFseq_minus_s[[i]], tfname = paste(names(TFseq_minus_s[i]), sep = ''))}"
   ),
-  paste(substr(TFseq_files[i], 1, nchar(TFseq_files[i])-26), "_sfkf_Rivanna.R", sep = ''))
+  paste(substr(TFseq_files[i], 1, nchar(TFseq_files[i])-26), "_sfkf_HPC.R", sep = ''))
 }
 #This section writes a slurm script to run each of the above scripts using an HPC
 for (i in 1:length(TFseq_files)) {
@@ -95,7 +95,7 @@ for (i in 1:length(TFseq_files)) {
                "module load intelmpi/18.0",
                "module load R/4.0.3",
                paste("Rscript ", substr(TFseq_files[i], 1,
-                                        nchar(TFseq_files[i])-26), "_sfkf_Rivanna.R", sep = "")),
+                                        nchar(TFseq_files[i])-26), "_sfkf_HPC.R", sep = "")),
              paste(substr(TFseq_files[i], 1,
-                          nchar(TFseq_files[i])-26), "_sfkf_Rivanna.slurm", sep = ''))
+                          nchar(TFseq_files[i])-26), "_sfkf_HPC.slurm", sep = ''))
 }
