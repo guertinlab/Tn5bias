@@ -25,7 +25,7 @@ for (i in 1:length(unique_factorfiles_spacing)) {
                         mermask = unique_factorfiles_spacing[i])
   TFseq_plus_s = lapply(TFseq_plus_s, position.frequencies,
                         mermask = unique_factorfiles_spacing[i])
-  save(TFseq_plus, file = paste(unique_factorfiles_spacing[i],
+  save(TFseq_plus_s, file = paste(unique_factorfiles_spacing[i],
                                   '_TFseq_plus_posfreqs.Rdata', sep = ''))
 }
 ###############################################################
