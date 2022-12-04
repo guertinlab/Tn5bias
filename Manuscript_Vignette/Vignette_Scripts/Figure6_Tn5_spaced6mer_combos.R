@@ -41,5 +41,5 @@ for (i in 1:ncol(all_masks)) {
 mask_col = mask_col[-grep('NNNN' ,mask_col)]
 #Find unique masks
 mask_col = unique(mask_col)
-write.table(mask_col, file = 'all_possible_spaced_3mers_46bp.txt', quote = FALSE,
+write.table(mask_col, file = 'all_possible_spaced_6mers_46bp.txt', quote = FALSE,
             sep = '\n', row.names = FALSE)
