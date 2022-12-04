@@ -11,7 +11,7 @@ save(TFseq_plus, file = 'Tn5_TF_position_frequencies_7mer_plus.Rdata')
 
 #Determine minus strand 7-mer frequencies
 load('../Figure5/hg38_Minus_motif_sequences.Rdata')
-#Break sequences into 6bp chunks (for 7-mer)
+#Break sequences into 7bp chunks (for 7-mer)
 TFseq_minus = lapply(TFseq_minus, mer.positions, mermask = "NNNNNNN")
 #Find frequency of each possible 7-mer for each position
 TFseq_minus = lapply(TFseq_minus, position.frequencies, mermask = "NNNNNNN")
