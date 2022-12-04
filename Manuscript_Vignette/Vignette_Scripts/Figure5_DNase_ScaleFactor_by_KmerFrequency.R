@@ -57,6 +57,7 @@ names(TFseq_plus) <- names(TFmotifs)
 for (i in 1:length(TFmotifs)) {
   TFseq_plus[[i]] <- fread(paste(names(TFmotifs[i]), '_hg38seq.bed', sep = ''))
 }
+save(TFseq_plus, file = 'hg38_Plus_motif_sequences.Rdata')
 #Make sure you still have 400k rows
 for (i in 1:length(TFseq_plus)) {
   print(nrow(TFseq_plus[[i]]))
@@ -183,6 +184,7 @@ names(TFseq_minus) <- names(TFmotifs)
 for (i in 1:length(TFmotifs)) {
   TFseq_minus[[i]] <- fread(paste(names(TFmotifs[i]), '_hg38seq.bed', sep = ''))
 }
+save(TFseq_minus, file = 'hg38_Minus_motif_sequences.Rdata')
 #Make sure you still have 400k rows
 for (i in 1:length(TFseq_minus)) {
   print(nrow(TFseq_minus[[i]]))
