@@ -5,8 +5,8 @@ header-includes:
 - \usepackage{float}
 - \usepackage{amsmath}
 author:
-- Jacob B. Wolpe^[University of Virginia]
-- Michael J. Guertin^[University of Connecticut]
+- Jacob B. Wolpe^[Department of Biochemistry and Molecular Genetics, University of Virginia, Charlottesville, Virginia, United States of America]
+- Michael J. Guertin^[Center for Cell Analysis and Modeling, University of Connecticut, Farmington, Connecticut, United States of America]
 geometry: margin=1.25cm 
 output:
   pdf_document:
@@ -17,7 +17,8 @@ output:
         - '--highlight-style=breezeDark'
 package: 
 abstract: |
-  Applying a correction for Tn5 insertion sequence bias to ATAC-seq data.
+  This is a comprehensive vignette which reproduces all figures and computations in the paper "Correction of transposase sequence bias in ATAC-seq data with rule ensemble modeling". Each chapter focuses on the necessary code for a figure in the text. Functions used in each section are listed at the end of the vignette. Each code chunk listed in this vignette should have a raw version listed on GitHub, allowing for easy reproduction.
+
 vignette: >
   %\VignetteIndexEntry{ATAC Bias}
   %\VignetteEncoding{UTF-8}
@@ -1402,11 +1403,10 @@ knitr::include_graphics("DNase_scale_factors_df_maskpositions.pdf")
 
 # Figure 2. Use of scaling factors to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions.
 
-```{r Figure2, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Use of direct k-mer scaling to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions. A) Barchart of observed divided by expected (from k-mer prevalence in the bias position probability matrix) k-mer frequency for specified 3-mers at a position -4 to -6bp upstream from the centrally recognized base. These values are corrected for background Tn5 3-mer frequency. B) Portions of the composite profile for the 3mer ‘CAG’ can be corrected by rationally designed masks, based on their position relative to the cutsite. Application of these corrections exacerbates the bias of nearby peaks within the composite. ', out.width = "80%"}
+```{r Figure2, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 2. Use of direct k-mer scaling to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions. A) Barchart of observed divided by expected (from k-mer prevalence in the bias position probability matrix) k-mer frequency for specified 3-mers at a position -4 to -6bp upstream from the centrally recognized base. These values are corrected for background Tn5 3-mer frequency. B) Portions of the composite profile for the 3mer ‘CAG’ can be corrected by rationally designed masks, based on their position relative to the cutsite. Application of these corrections exacerbates the bias of nearby peaks within the composite. ', out.width = "80%"}
 knitr::include_graphics("figs/fig2_OL_JBW.pdf")
 ```
 
-The scripts for this figure cover all the steps necessary to reproduce figure 2.
 
 Because we are beginning a new figure, create this directory and set it as PWD:
 
@@ -2024,8 +2024,8 @@ knitr::include_graphics("figs/ICbyMotifGC_TestTrain_clust.pdf")
 
 # Figure 5. Application of a prediction rules ensemble to DNase data can slightly enhance k-mer scaling
 
-```{r Figure5, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 3. Application of a prediction rules ensemble to DNase data can slightly enhance kmer scaling.', out.width = "80%"}
-knitr::include_graphics("figs/fig5_OL_JBW.pdf")
+```{r Figure5, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 5. Rule ensemble modeling effectively corrects DNase bias. A) Rule ensemble modeling provides information about the importance of variable in the model. The positions proximal to DNase cleavage are most important. B) Violin plots quantify the log2 ratio of unbiased signal to output for each transcription factor’s composite profile given the method of k-mer scaling. Regions measured in each plot are within 10 base pairs of each motif, as indicated by the graphic above the figure panel. C) We plotted composite profiles of transcription factors from rule ensemble output compared with direct k-mer scaling of the 5-mer that encompasses the five most influential positions in panel A. D) We visualized improvement of rule ensemble modeling over seqOutBias by using a violin plot of distance from calculated random cut frequency for rule ensemble output subtracted from seqOutBias. Positions which rule ensemble outperforms seqOutBias will be above 0 (dashed red line). 62\\% of positions in this plot were improved. ', out.width = "100%"}
+knitr::include_graphics("figs/fig5_OL_JBW_vig.pdf")
 ```
 
 Make a directory for Figure 5:
@@ -2115,35 +2115,29 @@ for (z in 1:length(FIMO_files)) {
 
 ## Plot unscaled DNase composite values for FIMO motifs (values which rule ensemble predicts)
 
-The rule ensemble model predicts the unscaled values of each transcription factor motif's composite profile. This will calculate these values in addition to plotting them for inspection and saving them for later use as input.
+The rule ensemble model predicts the unscaled values of each transcription factor motif's composite profile. This will calculate these values in addition to plotting them for inspection and saving them for later use as input. To run this script, use the raw version here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_unscaled_TF_plots.R
 
 ``` {R eval=FALSE}
-library(bigWig)
-library(zoo)
-library(lattice)
 library(data.table)
-library(matrixStats)
-library(gridExtra)
-source('../Tn5_Bias_Functions.R')
-system('mkdir DNase_unscaled_composites')
-setwd('DNase_unscaled_composites')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 ########################### For only plus unscaled composites
 #Load in plus coordinates for each TF Motif
-Motifs <- list.files('../ref_FIMO')
-Motifs = Motifs[grep('plus', Motifs)]
+Motifs <- list.files('./')
+Motifs = Motifs[grep('plus_400k_fimo', Motifs)]
 Motiflist <- vector('list', length(Motifs))
 for (i in 1:length(Motifs)) {
-  Motiflist[[i]] <- FIMO.to.BED(paste('../ref_FIMO/',Motifs[i], sep = ''))
+  Motiflist[[i]] <- FIMO.to.BED(paste('./',Motifs[i], sep = ''))
 }
 names(Motiflist) = substr(Motifs, 1, nchar(Motifs)-14)
 Motifs = names(Motiflist)
 #Determine signal at each plus motif
-BWs <- c('/PATH/TO/DNase_Naked_plus_unscaled.bigWig')
+BWs <- c('../Figure1/DNase_Naked_plus_unscaled.bigWig')
 DNase_plus_unscaled_compositelist <- vector('list', length(Motifs))
 for (i in 1:length(Motiflist)) {
   DNase_plus_unscaled_compositelist[[i]] = BED.query.bigWig(Motiflist[[i]], paste(BWs), paste(BWs), 
-                                        upstream = 100, downstream = 100, factor = Motifs[i],
-                                        group = 'Unscaled', ATAC = FALSE)
+                                           upstream = 100, downstream = 100, factor = Motifs[i],
+                                           group = 'Unscaled', ATAC = FALSE)
 }
 names(DNase_plus_unscaled_compositelist) <- Motifs
 
@@ -2151,31 +2145,34 @@ names(DNase_plus_unscaled_compositelist) <- Motifs
 for (i in 1:length(DNase_plus_unscaled_compositelist)) {
   plot.composites(DNase_plus_unscaled_compositelist[[i]], legend = FALSE, 
                   pdf_name = paste('DNase_plus_unscaled_400k_', 
-                                   paste(names(DNase_plus_unscaled_compositelist[i])), '_composite', sep = ''),
+                  paste(names(DNase_plus_unscaled_compositelist[i])), '_composite', sep = ''),
                   ylabel = 'Cut Frequency',
                   xlabel = 'Distance from Motif Center',
-                  motifline = FALSE, Motiflen = Motiflen[i]
+                  motifline = FALSE, Motiflen = Motiflen[i],
+                  y_axis_range = c(0, max(DNase_plus_unscaled_compositelist[[i]]$est)),
+                  x_axis_range = -100:100, nXticks = 4,
+                  figwidth = 4, figheight=4, nYticks = 2, nYaxisdigits = 2
   )}
 #Save values
 save(DNase_plus_unscaled_compositelist, file = 'DNase_plus_unscaled_compositelist.Rdata')
 
 ########################### For only minus unscaled composites
 #Load in minus coordinates for each TF Motif
-Motifs <- list.files('../ref_FIMO')
-Motifs = Motifs[grep('minus', Motifs)]
+Motifs <- list.files('./')
+Motifs = Motifs[grep('minus_400k_fimo', Motifs)]
 Motiflist <- vector('list', length(Motifs))
 for (i in 1:length(Motifs)) {
-  Motiflist[[i]] <- FIMO.to.BED(paste('../ref_FIMO/',Motifs[i], sep = ''))
+  Motiflist[[i]] <- FIMO.to.BED(paste('./',Motifs[i], sep = ''))
 }
 names(Motiflist) = substr(Motifs, 1, nchar(Motifs)-14)
 Motifs = names(Motiflist)
 #Determine signal at each minus motif
-BWs <- c('/PATH/TO/DNase_Naked_minus_unscaled.bigWig')
+BWs <- c('../Figure1/DNase_Naked_minus_unscaled.bigWig')
 DNase_minus_unscaled_compositelist <- vector('list', length(Motifs))
 for (i in 1:length(Motiflist)) {
   DNase_minus_unscaled_compositelist[[i]] = BED.query.bigWig(Motiflist[[i]], paste(BWs), paste(BWs), 
-                                                            upstream = 100, downstream = 100, factor = Motifs[i],
-                                                            group = 'Unscaled', ATAC = FALSE)
+                                            upstream = 100, downstream = 100, factor = Motifs[i],
+                                            group = 'Unscaled', ATAC = FALSE)
 }
 names(DNase_minus_unscaled_compositelist) <- Motifs
 
@@ -2183,23 +2180,27 @@ names(DNase_minus_unscaled_compositelist) <- Motifs
 for (i in 1:length(DNase_minus_unscaled_compositelist)) {
   plot.composites(DNase_minus_unscaled_compositelist[[i]], legend = FALSE, 
                   pdf_name = paste('DNase_minus_unscaled_400k_', 
-                                   paste(names(DNase_minus_unscaled_compositelist[i])), '_composite', sep = ''),
+                  paste(names(DNase_minus_unscaled_compositelist[i])), '_composite', sep = ''),
                   ylabel = 'Cut Frequency',
                   xlabel = 'Distance from Motif Center',
-                  motifline = FALSE, Motiflen = Motiflen[i]
+                  motifline = FALSE, Motiflen = Motiflen[i],
+                  y_axis_range = c(0, max(DNase_plus_unscaled_compositelist[[i]]$est)),
+                  x_axis_range = -100:100, nXticks = 4,
+                  figwidth = 4, figheight=4, nYticks = 2, nYaxisdigits = 2
   )}
 #Save values
 save(DNase_minus_unscaled_compositelist, file = 'DNase_minus_unscaled_compositelist.Rdata')
 ```
 
 ## Determine 5-mer frequency for rule ensemble modeling and multiply this by inverse scale factors for each mask
-Before a rule ensemble model can be generated, k-mer frequency of the predicted motif must be calculated. In this section we take all of the sequences from our motifs of interest and digest them into 5bp chunks. Next, we tally the number of each 5-mer found at each position in our composites. Once we have this data, we then multiply each k-mer frequency at a position by its inverse scale factor as input for each unscaled composite trace. The output is then summed for each position and finally shifted to align with unscaled DNase traces as input for rule ensemble training.
+
+Before a rule ensemble model can be generated, k-mer frequency of the predicted motif must be calculated. In this section we take all of the sequences from our motifs of interest and digest them into 5bp chunks. Next, we tally the number of each 5-mer found at each position in our composites. Once we have this data, we then multiply each k-mer frequency at a position by its inverse scale factor as input for each unscaled composite trace. The output is then summed for each position and finally shifted to align with unscaled DNase traces as input for rule ensemble training. This script can be found here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_ScaleFactor_by_KmerFrequency.R
+
 ``` {R eval=FALSE}
 library(data.table)
-source('../Tn5_Bias_Functions.R')
-library('bigWig')
-system('mkdir DNase_RE_output')
-setwd('DNase_RE_output')
+library(doParallel)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
 train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF',
            'DLX2', 'EBF1', 'EGR1', 'ELF1',
@@ -2208,26 +2209,30 @@ train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF',
            'MEIS2', 'MLX', 'MYC', 'PPARG', 
            'RUNX1', 'SPIB', 'SRY', 'STAT1', 'TGIF1')
 #Import kmer counts and compute scale factors for each
-factorfiles = list.files('../../Figure1/EnzymeBias_masks')
+factorfiles = list.files('../Figure1')
 factorfiles = factorfiles[c(grep('DNase', factorfiles))]
 factorfiles = factorfiles[c(grep('_scale_factors.txt', factorfiles))]
+factorfiles = factorfiles[grep('NNNNNXXXXXCXXXXXXXXXX', factorfiles):
+                            grep('XXXXXXXXXXCXXXXXNNNNN', factorfiles)]
 scalefactors = vector(mode = "list", length = length(factorfiles))
 names(scalefactors) = factorfiles
-
 for (i in 1:length(factorfiles)) {
-  scalefactors[[i]] <- scalefactor.func(paste('../../Figure1/EnzymeBias_masks/', factorfiles[i], sep = ''))
+  scalefactors[[i]] <- scalefactor.func(paste('../Figure1/', factorfiles[i], sep = ''))
 }
 
+
 #Import TF FIMO coordinates to extract the sequences from the FASTA
-FIMOfiles = list.files('../ref_FIMO')
-FIMOfiles = FIMOfiles[grep('plus', FIMOfiles)]
+FIMOfiles = list.files('./')
+FIMOfiles = FIMOfiles[grep('plus_400k_fimo', FIMOfiles)]
+
 FIMOfiles = FIMOfiles[which(substr(FIMOfiles,1,nchar(FIMOfiles)-22) %in% train)]
 TFmotifs = vector(mode = "list", length = length(FIMOfiles))
 names(TFmotifs) = substr(FIMOfiles, 1, (nchar(FIMOfiles)-14))
 
-#Import FIMO files for genomic coordinates and expand a 'window' around these sites (using a central base)
+#Import FIMO files for genomic coordinates and expand a 'window'
+#around these sites (using a central base)
 for (i in 1:length(TFmotifs)) {
-  TFmotifs[[i]] <- FIMO.to.BED(paste('../ref_FIMO/', FIMOfiles[i], sep = ''), window = 100)
+  TFmotifs[[i]] <- FIMO.to.BED(paste('./', FIMOfiles[i], sep = ''), window = 100)
 }
 
 #Ensure that no start positions are off the chromosome
@@ -2243,7 +2248,7 @@ for (i in 1:length(TFmotifs)) {
 
 #Run getfasta on genomic coordinates to get sequences for window
 for (i in 1:length(TFmotifs)) {
-  system(paste('bedtools getfasta -bedOut -s -fi /PATH/TO/hg38.fa -bed ', 
+  system(paste('bedtools getfasta -bedOut -s -fi ../Figure1/hg38.fa -bed ', 
                names(TFmotifs[i]), '_hg38coords.bed > ',
                names(TFmotifs[i]), '_hg38seq.bed', sep = ''))
 }
@@ -2265,53 +2270,57 @@ TFseq_plus = lapply(TFseq_plus, mer.positions, mermask = "NNNNN")
 TFseq_plus = lapply(TFseq_plus, position.frequencies, mermask = 'NNNNN')
 #Multiply 1/scale_factor by its corresponding kmer frequency for each TF motif. This will produce an
 # .rds file for each TF/mask combo (scale factor * k-mer frequency - sfkf)
-TF_plus_scalefactors_kmerfreq <- vector(mode = "list", length = length(TFseq_plus))
-names(TF_plus_scalefactors_kmerfreq) <- names(TFseq_plus)
-for (i in 1:length(TF_plus_scalefactors_kmerfreq)) {
-  TF_plus_scalefactors_kmerfreq[[i]] <- scalefactor.by.kmerfrequency(scalefactors = scalefactors, 
-                                        kmerfrequency = TFseq_plus[[i]], 
-                                        tfname = names(TF_plus_scalefactors_kmerfreq)[i])
-}
+registerDoParallel(3)
+TF_scalefactors_kmerfreq <- vector(mode = "list", length = length(TFseq_plus))
+names(TF_scalefactors_kmerfreq) = names(TFseq_plus)
+
+foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = 
+                               scalefactor.by.kmerfrequency(scalefactors = scalefactors,
+                               kmerfrequency = TFseq_plus[[i]], tfname = names(TFseq_plus[i]))}
 
 #Next we load in each sfkf combo to the same list
 TF_sfkf_5mer_plus <- vector(mode = "list", length = length(TFseq_plus))
 names(TF_sfkf_5mer_plus) = names(TFseq_plus)
 
-
 RDSlist = list.files('./')
 RDSlist = RDSlist[grep('plus', RDSlist)]
-RDSlist = RDSlist[grep('_.rds', RDSlist)]
+RDSlist = RDSlist[grep('.rds', RDSlist)]
+
 for (i in 1:length(RDSlist)) {
   TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) == 
-                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 49))]][[grep(substr(RDSlist[i],
-                    nchar(RDSlist[i]) - 41, nchar(RDSlist[i])- 4),
-                    factorfiles)]] = readRDS(paste( './', RDSlist[i], sep = ''))
-  names(TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) == 
-                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 49))]])[grep(substr(RDSlist[i],
-                    nchar(RDSlist[i]) - 41, nchar(RDSlist[i])- 4),
-                    factorfiles)] =  substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
-  TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) == 
-                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 49))]][[grep(substr(RDSlist[i],
-                    nchar(RDSlist[i]) - 41, nchar(RDSlist[i])- 4),
-                    factorfiles)]] = scaledkmerfreq.sum.plus(TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus)
-                                                                                      == substr(RDSlist[i], 1,
-                    nchar(RDSlist[i]) - 49))]][[grep(substr(RDSlist[i], nchar(RDSlist[i]) - 41,
-                                                            nchar(RDSlist[i])- 4), factorfiles)]])
+          substr(RDSlist[i], 1, nchar(RDSlist[i]) - 48))]][[grep(substr(RDSlist[i],
+          nchar(RDSlist[i]) - 40, nchar(RDSlist[i])- 4),
+          factorfiles)]] = readRDS(paste( './', RDSlist[i], sep = ''))
+          names(TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) == 
+          substr(RDSlist[i], 1, nchar(RDSlist[i]) - 48))]])[grep(substr(RDSlist[i],
+          nchar(RDSlist[i]) - 40, nchar(RDSlist[i])- 4),
+          factorfiles)] =  substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+          TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) == 
+          substr(RDSlist[i], 1, nchar(RDSlist[i]) - 48))]][[grep(substr(RDSlist[i],
+          nchar(RDSlist[i]) - 40, nchar(RDSlist[i])- 4),
+          factorfiles)]] = scaledkmerfreq.sum.plus(TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus)
+          == substr(RDSlist[i], 1,
+          nchar(RDSlist[i]) - 48))]][[grep(substr(RDSlist[i], nchar(RDSlist[i]) - 40,
+                                                                                                                                                                                                        nchar(RDSlist[i])- 4), factorfiles)]])
 }
 Plus_pre_input = TF_sfkf_5mer_plus
 
 ###############################################################################
 #Load in unscaled composites
-load('../DNase_unscaled_composites/DNase_plus_unscaled_compositelist.Rdata')
+load('DNase_plus_unscaled_compositelist.Rdata')
 DNase_unscaled_composites = do.call(rbind, DNase_plus_unscaled_compositelist)
 #Trim unscaled composites to the size of predicted area
-DNase_unscaled_composites = DNase_unscaled_composites[-c(which(DNase_unscaled_composites$x < -69.5 |
-                                                                 DNase_unscaled_composites$x > 82.5)),]
+DNase_unscaled_composites = DNase_unscaled_composites[-c(which(DNase_unscaled_composites$x < -90.5 |
+                                                                 DNase_unscaled_composites$x > 90.5)),]
+#Normalize unscaled composites to the same value for all composites
 DNase_unscaled_composites$est = DNase_unscaled_composites$est/mean(DNase_unscaled_composites$correction)
+#Subset out training motifs
+DNase_unscaled_composites = DNase_unscaled_composites[which(substr(DNase_unscaled_composites$factor,1,
+                            nchar(DNase_unscaled_composites$factor)-8) %in% train),]
 #Shift pre predictor variables. Each masks' position shifts by the mask's offset
-input_correction = data.frame(matrix(nrow = 32, ncol = 2))
-input_correction[1:32,1] = 14:45
-input_correction[1:32,2] = 166:197
+input_correction = data.frame(matrix(nrow = 16, ncol = 2))
+input_correction[1:16,1] = 1:16
+input_correction[1:16,2] = 182:197
 
 Plus_pred_input = vector(mode = 'list', length = length(Plus_pre_input))
 names(Plus_pred_input) <- names(Plus_pre_input)
@@ -2326,27 +2335,32 @@ for (i in 1:length(Plus_pre_input)) {
 for (i in 1:length(Plus_pred_input)) {
   names(Plus_pred_input[[i]]) = names(Plus_pre_input[[i]])  
 }
+#Make all mask names the same:
+for (i in 1:length(Plus_pred_input)) {
+  names(Plus_pred_input[[i]]) = substr(names(Plus_pred_input[[i]]),
+                    nchar(names(Plus_pred_input[[i]]))-36, nchar(names(Plus_pred_input[[i]])))
+}
 #Turn plus_pred_input into DF
-Plus_pred_input = cbind(seq(-69.5,82.5,1), DNase_unscaled_composites$est, do.call(rbind, Plus_pred_input))
+Plus_pred_input = cbind(seq(-90.5,90.5,1), DNase_unscaled_composites$est,
+                        do.call(rbind, Plus_pred_input))
 colnames(Plus_pred_input)[1:2] = c('X', 'unscaled')
-colnames(Plus_pred_input)[3:ncol(Plus_pred_input)] = 
-  substr(colnames(Plus_pred_input)[3:ncol(Plus_pred_input)], 21,
-         nchar(colnames(Plus_pred_input)[3:ncol(Plus_pred_input)])-1)
+Plus_pred_input = Plus_pred_input[which(Plus_pred_input$X >= -39.5 & Plus_pred_input$X <= 39.5),]
 #This is the plus input for the rule ensemble
 save(Plus_pred_input, file = 'DNase_TF_plus_pre_input.Rdata')
 
 ###############################################################################
 #Repeat for Minus strand motifs
 #Import TF FIMO coordinates to extract the sequences from the FASTA
-FIMOfiles = list.files('../ref_FIMO')
-FIMOfiles = FIMOfiles[grep('minus', FIMOfiles)]
+FIMOfiles = list.files('./')
+FIMOfiles = FIMOfiles[grep('rm_minus_400k_fimo.txt', FIMOfiles)]
 FIMOfiles = FIMOfiles[which(substr(FIMOfiles,1,nchar(FIMOfiles)-23) %in% train)]
 TFmotifs = vector(mode = "list", length = length(FIMOfiles))
 names(TFmotifs) = substr(FIMOfiles, 1, (nchar(FIMOfiles)-14))
 
-#Import FIMO files for genomic coordinates and expand a 'window' around these sites (using a central base)
+#Import FIMO files for genomic coordinates and expand a 'window'
+#around these sites (using a central base)
 for (i in 1:length(TFmotifs)) {
-  TFmotifs[[i]] <- FIMO.to.BED(paste('../ref_FIMO/', FIMOfiles[i], sep = ''), window = 100)
+  TFmotifs[[i]] <- FIMO.to.BED(paste('./', FIMOfiles[i], sep = ''), window = 100)
 }
 
 #Ensure that no start positions are off the chromosome
@@ -2362,7 +2376,7 @@ for (i in 1:length(TFmotifs)) {
 
 #Run getfasta on genomic coordinates to get sequences for window
 for (i in 1:length(TFmotifs)) {
-  system(paste('bedtools getfasta -bedOut -s -fi /PATH/TO/hg38.fa -bed ', 
+  system(paste('bedtools getfasta -bedOut -s -fi ../Figure1/hg38.fa -bed ', 
                names(TFmotifs[i]), '_hg38coords.bed > ',
                names(TFmotifs[i]), '_hg38seq.bed', sep = ''))
 }
@@ -2384,13 +2398,13 @@ TFseq_minus = lapply(TFseq_minus, mer.positions, mermask = "NNNNN")
 TFseq_minus = lapply(TFseq_minus, position.frequencies, mermask = 'NNNNN')
 #Multiply 1/scale_factor by its corresponding kmer frequency for each TF motif. This will produce an
 # .rds file for each TF/mask combo (scale factor * k-mer frequency - sfkf)
-TF_minus_scalefactors_kmerfreq <- vector(mode = "list", length = length(TFseq_minus))
-names(TF_minus_scalefactors_kmerfreq) <- names(TFseq_minus)
-for (i in 1:length(TF_minus_scalefactors_kmerfreq)) {
-  TF_minus_scalefactors_kmerfreq[[i]] <- scalefactor.by.kmerfrequency(scalefactors = scalefactors, 
-                                         kmerfrequency = TFseq_minus[[i]], 
-                                         tfname = names(TF_minus_scalefactors_kmerfreq)[i])
-}
+registerDoParallel(3)
+TF_scalefactors_kmerfreq <- vector(mode = "list", length = length(TFseq_minus))
+names(TF_scalefactors_kmerfreq) = names(TFseq_minus)
+
+foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = 
+  scalefactor.by.kmerfrequency(scalefactors = scalefactors,
+                               kmerfrequency = TFseq_minus[[i]], tfname = names(TFseq_minus[i]))}
 
 #Next we load in each sfkf combo to the same list
 TF_sfkf_5mer_minus <- vector(mode = "list", length = length(TFseq_minus))
@@ -2398,39 +2412,43 @@ names(TF_sfkf_5mer_minus) = names(TFseq_minus)
 
 
 RDSlist = list.files('./')
-RDSlist = RDSlist[grep('minus', RDSlist)]
-RDSlist = RDSlist[grep('_.rds', RDSlist)]
+RDSlist = RDSlist[grep('rm_minus_DNase_', RDSlist)]
+RDSlist = RDSlist[grep('.rds', RDSlist)]
 for (i in 1:length(RDSlist)) {
   TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) == 
-                  substr(RDSlist[i], 1, nchar(RDSlist[i]) - 49))]][[grep(substr(RDSlist[i],
-                  nchar(RDSlist[i]) - 41, nchar(RDSlist[i])- 5),
-                  factorfiles)]] = readRDS(paste( './', RDSlist[i], sep = ''))
-  names(TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) == 
-                  substr(RDSlist[i], 1, nchar(RDSlist[i]) - 49))]])[grep(substr(RDSlist[i],
-                  nchar(RDSlist[i]) - 41, nchar(RDSlist[i])- 5),
-                  factorfiles)] =  substr(RDSlist[i], 1, nchar(RDSlist[i]) - 5)
-  TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) == 
-                  substr(RDSlist[i], 1, nchar(RDSlist[i]) - 49))]][[grep(substr(RDSlist[i],
-                  nchar(RDSlist[i]) - 41, nchar(RDSlist[i])- 5),
-                  factorfiles)]] = scaledkmerfreq.sum.minus(TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus)
-                  == substr(RDSlist[i], 1,
-                  nchar(RDSlist[i]) - 49))]][[grep(substr(RDSlist[i], nchar(RDSlist[i]) - 41,
-                  nchar(RDSlist[i])- 4), factorfiles)]])
+          substr(RDSlist[i], 1, nchar(RDSlist[i]) - 48))]][[grep(substr(RDSlist[i],
+          nchar(RDSlist[i]) - 40, nchar(RDSlist[i])- 4),
+          factorfiles)]] = readRDS(paste( './', RDSlist[i], sep = ''))
+          names(TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) == 
+          substr(RDSlist[i], 1, nchar(RDSlist[i]) - 48))]])[grep(substr(RDSlist[i],
+          nchar(RDSlist[i]) - 40, nchar(RDSlist[i])- 4),
+          factorfiles)] =  substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+          TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) == 
+          substr(RDSlist[i], 1, nchar(RDSlist[i]) - 48))]][[grep(substr(RDSlist[i],
+          nchar(RDSlist[i]) - 40, nchar(RDSlist[i])- 4),
+          factorfiles)]] = scaledkmerfreq.sum.minus(TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus)
+          == substr(RDSlist[i], 1,
+          nchar(RDSlist[i]) - 48))]][[grep(substr(RDSlist[i], nchar(RDSlist[i]) - 40,
+          nchar(RDSlist[i])- 4), factorfiles)]])
 }
 minus_pre_input = TF_sfkf_5mer_minus
 
 ###############################################################################
 #Load in unscaled composites
-load('../DNase_unscaled_composites/DNase_minus_unscaled_compositelist.Rdata')
+load('DNase_minus_unscaled_compositelist.Rdata')
 DNase_unscaled_composites = do.call(rbind, DNase_minus_unscaled_compositelist)
 #Trim unscaled composites to the size of predicted area
-DNase_unscaled_composites = DNase_unscaled_composites[-c(which(DNase_unscaled_composites$x < -69.5 |
-                                                                 DNase_unscaled_composites$x > 82.5)),]
+DNase_unscaled_composites = DNase_unscaled_composites[-c(which(DNase_unscaled_composites$x < -90.5 |
+                                                                 DNase_unscaled_composites$x > 90.5)),]
+#Normalize unscaled composites to the same value for all composites
 DNase_unscaled_composites$est = DNase_unscaled_composites$est/mean(DNase_unscaled_composites$correction)
+#Subset out training motifs
+DNase_unscaled_composites = DNase_unscaled_composites[which(substr(DNase_unscaled_composites$factor,
+                            1,nchar(DNase_unscaled_composites$factor)-9) %in% train),]
 #Shift pre predictor variables. Each masks' position shifts by the mask's offset
 input_correction = data.frame(matrix(nrow = 32, ncol = 2))
-input_correction[1:32,1] = 14:45
-input_correction[1:32,2] = 166:197
+input_correction[1:32,1] = 1:16
+input_correction[1:32,2] = 182:197
 
 minus_pred_input = vector(mode = 'list', length = length(minus_pre_input))
 names(minus_pred_input) <- names(minus_pre_input)
@@ -2445,69 +2463,52 @@ for (i in 1:length(minus_pre_input)) {
 for (i in 1:length(minus_pred_input)) {
   names(minus_pred_input[[i]]) = names(minus_pre_input[[i]])  
 }
+#Make all mask names the same:
+for (i in 1:length(minus_pred_input)) {
+  names(minus_pred_input[[i]]) = substr(names(minus_pred_input[[i]]),
+            nchar(names(minus_pred_input[[i]]))-36, nchar(names(minus_pred_input[[i]])))
+}
 #Turn minus_pred_input into DF
-minus_pred_input = cbind(seq(-69.5,82.5,1), DNase_unscaled_composites$est, do.call(rbind, minus_pred_input))
+minus_pred_input = cbind(seq(-90.5,90.5,1), DNase_unscaled_composites$est,
+                         do.call(rbind, minus_pred_input))
 colnames(minus_pred_input)[1:2] = c('X', 'unscaled')
-colnames(minus_pred_input)[3:ncol(minus_pred_input)] = 
-  substr(colnames(minus_pred_input)[3:ncol(minus_pred_input)], 22,
-         nchar(colnames(minus_pred_input)[3:ncol(minus_pred_input)])-1)
-#This is the minus input for the rule ensemble
+minus_pred_input = minus_pred_input[which(minus_pred_input$X >= -39.5 & minus_pred_input$X <= 39.5),]
+#This is the plus input for the rule ensemble
 save(minus_pred_input, file = 'DNase_TF_minus_pre_input.Rdata')
+
 ```
 
 ## Train a rule ensemble model using the prepared DNase data from above.
 
+Use the DNase input data prepared in the previous section to train a rule ensemble model to correct DNase bias. Once the model has been trained, use the importance values to plot a barchart. To run this script yourself, visit:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_RuleEnsemble_train.R
+
 ``` {R eval=FALSE}
 library(data.table)
-source('../scripts/Figure3_functions.R')
-library('pre')
-library("caret")
-library('bigWig')
-setwd('../DNase_RE_output')
+library(pre)
+library(ggplot2)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
-
 #These are the training and test TF motif sets
 train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF', 'DLX2', 'EBF1',
            'EGR1', 'ELF1', 'FOS', 'FOXA1', 'FOXK2', 'GATA2',
            'GLIS1', 'IRF1', 'JUN', 'LEF1', 'MEIS2', 'MLX',
            'MYC', 'PPARG','RUNX1', 'SPIB', 'SRY', 'STAT1', 'TGIF1')
-
 test = c('AR', 'CEBPB', 'E2F1', 'ESR1', 'FERD3L', 'HOXC12',
          'HSF1', 'MAX', 'MEF2A', 'MGA', 'NFATC3', 'NR2F2',
          'POU3F1', 'REST', 'Six3', 'SP1', 'USF1', 'TEAD1')
-
-load('/path/to/DNase_TF_pre_input.Rdata')
-#load in unscaled composites and reduce the size to the predicted area
-#(last 4 bases are unmappable because of 5mer)
-load('/path/to/DNase_unscaled_compositelist.Rdata')
-
-DNase_unscaled_composites = do.call(rbind, DNase_unscaled_compositelist)
-
+load('DNase_TF_plus_pre_input.Rdata')
+load('DNase_TF_minus_pre_input.Rdata')
 #Subset test data
-Plus_pred_test = Plus_pred_input[which(names(Plus_pred_input) %in% test)]
-DNase_pre_test = do.call(rbind, Plus_pred_test)
-Plus_pred_input = Plus_pred_input[which(names(Plus_pred_input) %in% train)]
-
-
-DNase_unscaled_composites = DNase_unscaled_composites[-c(which(DNase_unscaled_composites$x < -77.5 |
-                                                                 DNase_unscaled_composites$x > 78.5)),]
-DNase_unscaled_composites$factor = substr(DNase_unscaled_composites$factor, 1,
-                                          nchar(DNase_unscaled_composites$factor)-8)
-DNase_unscaled_composites_test = DNase_unscaled_composites[which(DNase_unscaled_composites$factor %in% test),]
-DNase_unscaled_composites = DNase_unscaled_composites[which(DNase_unscaled_composites$factor %in% train),]
-
-DNase_pre_data <- cbind(DNase_unscaled_composites, do.call(rbind, Plus_pred_input))
-
+DNase_pre_data <- rbind(Plus_pred_input, minus_pred_input)
 #Remove X, factor, group, correction columns
-DNase_pre_data = data.frame(DNase_pre_data[,-c(1,3,4,5)])
-
-
+DNase_pre_data = data.frame(DNase_pre_data[,-c(1)])
 ################################################################################
 #Train rule ensemble model using DNase input
 set.seed(42)
-DNase_pre_model <- pre(est ~  ., data = DNase_pre_data, type = 'both', sampfrac = 0.5, 
-                       verbose = TRUE, ntrees = 1000,
-                       use.grad = TRUE, nfolds = 20, winsfrac = 0, maxdepth = 3L,
+DNase_pre_model <- pre(unscaled ~  ., data = DNase_pre_data, type = 'both', sampfrac = 0.5, 
+                       verbose = TRUE, ntrees = 3500,
+                       use.grad = TRUE, nfolds = 10, winsfrac = 0, maxdepth = 3L,
                        learnrate = 0.1, intercept = FALSE)
 save(DNase_pre_model, file = 'DNase_PRE_model.Rdata')
 ################################################################################
@@ -2515,47 +2516,52 @@ save(DNase_pre_model, file = 'DNase_PRE_model.Rdata')
 print(DNase_pre_model, penalty.par.val = DNase_pre_model$glmnet.fit$lambda.min)
 DNase_pre_model_coef <- coef(DNase_pre_model, penalty.par.val = DNase_pre_model$glmnet.fit$lambda.min)
 DNase_pre_model_coef = DNase_pre_model_coef[which(DNase_pre_model_coef$coefficient != 0),]
-write.table(DNase_pre_model_coef[,2:3], file = 'DNasePN_pre_coeff.txt', quote = FALSE, sep = ',',
+write.table(DNase_pre_model_coef[,2:3], file = 'DNase_pre_coeff.txt', quote = FALSE, sep = ',',
             row.names = FALSE)
-#
-
-
 #Plot variable importances for PRE model:
 imps = importance(DNase_pre_model, penalty.par.val = DNase_pre_model$glmnet.fit$lambda.min,
                   abbreviate = FALSE)
 base_imps = imps$varimps
 base_imps$varname = as.factor(base_imps$varname)
 redundant_base_imps = redundantpos(base_imps, labelnum = 1, impnum = 2)
+redundant_base_imps = redundant_base_imps[9:28,]
+redundant_base_imps$position = seq(-9.5,9.5,1)
 #Plot redundant_var_imps
-pdf(file = 'Redundant_DNasePN_RE_variable_importances.pdf', width = 8, height = 10)
+pdf(file = 'Figure5A_Redundant_DNase_PRE_variable_importances.pdf', width = 9, height = 12)
 impbarplot <-ggplot(data=redundant_base_imps, aes(x=position, y=possum)) 
 impbarplot +
-  labs(x= 'Position', y= 'Importance') +
+  labs(x= 'Position Relative to Cut Site', y= 'Importance') +
   geom_bar(stat="identity", fill="black") +
   theme_classic() +
-  theme(axis.title.x = element_text(size=14, face="bold", colour = "black"),
-        axis.title.y = element_text(size=16, face="bold", colour = "black"),
-        axis.text.x = element_text(size=10, face="bold", colour = "black"),
-        axis.text.y = element_text(size=12, face="bold", colour = "black"),
+  theme(axis.title.x = element_text(size=40, colour = "black"),
+        axis.title.y = element_text(size=40, colour = "black"),
+        axis.text.x = element_text(size=38, colour = "black"),
+        axis.text.y = element_text(size=38, colour = "black"),
         axis.line = element_line(colour = 'black', size = 1),
         plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x=element_text(angle=75,hjust=1,vjust=1))  
+  scale_x_continuous(breaks = c(-9.5, -4.5, 0.5, 4.5, 9.5), labels = c(-9.5, -4.5, 0.5, 4.5, 9.5)) + 
+  scale_y_continuous(breaks = seq(0,0.6,0.1), labels = seq(0,0.6,0.1)) + 
+  theme(axis.text.x=element_text(vjust=1), plot.margin = margin(1,1,1.5,1.2, "cm"),
+        axis.ticks.length=unit(.75, "cm"), axis.ticks=element_line(size=2))  
 dev.off()
 ```
 
 ```{r DNase_variable_imps, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='DNase rule ensemble variable importances', out.width = "80%"}
-knitr::include_graphics("figs/Redundant_DNasePN_PRE_variable_importances.pdf")
+knitr::include_graphics("figs/Figure5A_Redundant_DNase_PRE_variable_importances.pdf")
 ```
 
 ## Combine all relevant bigwig files into a single bedGraph for application of the rule ensemble model
 
+Convert the bigWig files created in Figure1 into bedGraph format. Then use unionbedg to combine all of these into a single file. This script can be found at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_bigWig_to_UnionBedGraph.sh
+
 ``` {bash eval=FALSE}
 #convert bigWigs into bedGraphs
-for bw in /path/to/bigwigs/*.bigWig
+for bw in ../Figure1/DNase*.bigWig
 do
-	name=$(echo $bw | awk -F".bigWig" '{print $1}' | awk -F"/path/to/bigwigs/" '{print $2}')
+	name=$(echo $bw | awk -F".bigWig" '{print $1}' | awk -F"../Figure1/" '{print $2}')
   echo $name
-  bigWigToBedGraph '/path/to/bigwigs/'$name'.bigWig' $name'.bedGraph'
+  bigWigToBedGraph '../Figure1/'$name'.bigWig' $name'.bedGraph'
 done
 
 #Make a text file with all bedgraph names and order
@@ -2570,138 +2576,112 @@ done
 bedtools unionbedg -i *.bedGraph > DNase_5mer_union.bedGraph
 ```
 
-## Apply a rule ensemble model to a bedgraph then convert the bedgraph into a bigwig
+## Apply rule ensemble model to DNase data and generate a scaled bigWig as output
+
+__Software installations:__
+
+bedGraphToBigWig: http://hgdownload.soe.ucsc.edu/admin/exe/
+
+First, import the rule ensemble model previously written to a text file. Reformat the model so it can be used as a function to scale the combined bigWig and save this as an R script. Scale the rule ensemble model output to unscaled read depth. Finally, output a bedGraph and reformat this to a bigWig. You can run these commands yourself here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_model_implementation.R
 
 ``` {R eval=FALSE}
 library(data.table)
 options(scipen = 100)
-setwd('../multiscale')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 ################################################################################
-import.rules = function(input) {
-  rulesdf = data.table(read.table(input, sep = ',', header = TRUE))
-  intcoeff = NULL
-  lincoeff = NULL
-  rulescoeff = NULL
-  for (i in 1:nrow(rulesdf)) {
-    intcoeff[i] = fifelse(rulesdf[i,description] == 1, rulesdf[i,coefficient], 0)
-  }
-  intcoeff = intcoeff[!(intcoeff==0)]
-  for (i in 1:nrow(rulesdf)) {
-    lincoeff[i] = fifelse(!grepl(">|<|=",rulesdf[i, description]), 
-                          paste('(',rulesdf[i, description], '*',
-                                rulesdf[i, coefficient], ')', sep = ''),paste(''))}
-  lincoeff = lincoeff[!(lincoeff=='')]
-  linpaste = capture.output(cat(lincoeff, sep = ' + '))
-  for (i in 1:nrow(rulesdf)) {
-    rulescoeff[i] = fifelse(grepl(">|<|=",rulesdf[i, description]),
-                            paste('fifelse(', rulesdf[i, description], ', ', 
-                                  rulesdf[i, coefficient], ', 0)', sep = ''), '')}
-  rulescoeff = rulescoeff[!(rulescoeff=='')]
-  rulespaste = capture.output(cat(rulescoeff, sep = ' + '))
-  output = paste(intcoeff, linpaste, rulespaste, sep = ' + ')
-  return(output)
-}
-################################################################################
-x <- fread('/path/to/DNase_5mer_union.bedGraph')
-masknames = fread('/path/to/DNase_5mer_names.txt', header = FALSE)
+#Import union bedGraph and set column names
+x <- fread('DNase_5mer_union.bedGraph')
+masknames = fread('DNase_allmasks_names.txt', header = FALSE)
 masknames = masknames$V1
-masknames = substr(masknames, 6, nchar(masknames))
+masknames = substr(masknames, 7, nchar(masknames))
 masknames = c('chr', 'start', 'stop', masknames)
 colnames(x) = masknames
-
-unscaled_read_depth = sum(x$unscaled)
-
-prerules = import.rules('DNasePN_pre_coeff.txt')
-
-#Take this output and find + replace ' + ' with ' + \n'
-#then find & replace '\\n' to '\n' w/ REGEX enabled
-prerules
-
-#THIS IS NOT THE MODEL APPLIED IN THIS FIGURE
-#BECAUSE MODELS ARE MANY LINES LONG, THIS IS AN EXAMPLE RE MODEL
-x[, pre := ((XXXXXXXXXXXXXXXXXXXNNNXCXXXXXXXXXXXXNNNXXXXXXXX*-0.00033835853362444) + 
-              (XXXXXXXXXXXXXXXXXXXXXXXCXXXXXNNNNNNNXXXXXXXXXXX*0.000325170754782039) + 
-              (XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXNNNXXXXXXXXXXNNNX*-0.00017781714699625) + 
-              (XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXXXNNNNNXXXXXXX*0.000156335578871717) + 
-              (XXXXXNNNNNNXXXXXXXXXXXXCXXXXXXXXXXXXXXXXXXXXXXX*0.000120334948927112) + 
-              (XXXXXNNNNNNNXXXXXXXXXXXCXXXXXXXXXXXXXXXXXXXXXXX*0.0000996545475286086) + 
-              (XXXXXXXXXXXXXXXXXXNNNNNCXXXXXXXXXXXXXXXXXXXXXXX*-0.0000554629144223403) + 
-              (XXXXXXXXXXXXNNNXXXXXXXXCNNNXXXXXXXXXXXXXXXXXXXX*-0.0000228569691501714) + 
-              fifelse(XXXXXXXXXXXXXXXXXNNNNNNCNXXXXXXXXXXXXXXXXXXXXXX > 1.31426302696887 &
-                      XXXXXXXXXXXXXXXXXXXXNNNCNNNNXXXXXXXXXXXXXXXXXXX > 2.3666460904978, 
-                      0.199133517904557, 0) + 
-              fifelse(XXXXXXXXXXXXXXXXXXXXXXXCXXXXXXXXXXNNNNNNNXXXXXX > 1.32015962584499 &
-                      XXXXXXXXXXXXXXXXXXXXXXXCXXXXNNNNNNNXXXXXXXXXXXX > 1.84844446194714,
-                      0.139895551532551, 0) + 
-              fifelse(XXXXXXXXXXXXXXXXXXXXXXXCXXNNNNNNNXXXXXXXXXXXXXX > 1.05395715443702 &
-                      XXXXXXXXXXXXXXXXXXXNNNXCXXXXXXXXXXXXNNNXXXXXXXX > 1.88046112618925, 
-                      0.13034286851597, 0) + 
-              fifelse(XXXXXXXXXXXXXXXXXXXXXXXCNNNNNNNXXXXXXXXXXXXXXXX > 1.2080714012571 &
-                      XXXXXXXXXXXXXXXXXXXXXXXCXXXXNNNNNNNXXXXXXXXXXXX > 1.91740303016198,
-                      0.127269204338179, 0) + 
-              fifelse(XXXXXXXXXXXXXXXXXXXXXXNCNNXXXXXXXNNNXXXXXXXXXXX > 1.18763877707487 &
-                      XXXXXXXXXXXXXXXXXXXXXXXCXXXNNNXNNNXXXXXXXXXXXXX > 1.60240612072104,
-                      0.124824271879124, 0))]
-
-pre_read_depth = sum(x$pre)
-
+#Get the unscaled read depth for later scaling
+unscaled_read_depth = sum(x$Naked_unscaled)
+#Import the formula from the rule ensemble 
+prerules = import.rules('DNase_pre_coeff.txt')
+prerules = gsub(' + ', ' + \n', prerules, fixed = TRUE)
+#Format the formula into a function and write a file containing this function
+write.table('', file = 'DNase_RuleEnsemble_model.R')
+fileConn<-file("DNase_RuleEnsemble_model.R")
+writeLines(c('RE_scale_DNase = function (input) { input[, RuleEnsemble :=', prerules, '] \nreturn(input)}'), fileConn)
+close(fileConn)
+source('DNase_RuleEnsemble_model.R')
+#This function can also be called from GitHub:
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/DNase_RuleEnsemble_model.R')
+#Apply the model to the DNase data
+RE_scale_DNase(x)
+#Get model read depth
+pre_read_depth = sum(x$RuleEnsemble)
+#Create a ratio to scale Rule ensemble read depth to unscaled read depth
 RDS = unscaled_read_depth/pre_read_depth
-
-x[, pre_RDS := pre*RDS ]
-
-colnames(x)[96]
-write.table(x[,c(1:3,96)], file = 'DNase_RE.bedGraph', col.names = FALSE, 
+x[, pre_RDS := RuleEnsemble*RDS ]
+#Write the scaled DNase data in bedGraph format
+write.table(x[,c(1:3,24)], file = 'DNase_Rule_Ensemble_Scaled.bedGraph', col.names = FALSE, 
             row.names=FALSE, sep = '\t', quote=FALSE)
-
-#Run the following line from terminal in pwd
-#bedGraphToBigWig DNase_RE.bedGraph hg38.fa.chrom.sizes DNase_RE.bedGraph
+#Convert the bedGraph to bigWig format
+system('bedGraphToBigWig DNase_Rule_Ensemble_Scaled.bedGraph ../Figure1/hg38.fa.chrom.sizes DNase_Rule_Ensemble_Scaled.bigWig')
 ```
 
-## Once we have the applied rule ensemble model in a bigwig format, we can analyze the bias correction
+## Analyze the bias correction in rule ensemble-scaled DNase-seq data
+
+Take the bigWig containing all DNase-seq scaled reads and use it to compare the output with seqOutBias output using the best performing mask 'NNNCNN'. Plot these comparisons. Calculate the value which each method improves bias correction. These scripts can be found here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_BiasCorrection_Analysis.R
 
 ``` {R eval = FALSE}
-
-library(bigWig)
-library(zoo)
-library(lattice)
-library(ggseqlogo)
+options(scipen = 100)
 library(data.table)
-library(matrixStats)
-library(gridExtra)
+library(lattice)
 library(ggplot2)
-source('path/to/Figure3_functions.R')
+library(grid)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 #Set test and training sets
-train = c('AR', 'ASCL1', 'ATF3', 'CEBPB', 'CLOCK', 'CTCF', 'DLX2', 'DUX4', 'EGR1',
-          'ELF1', 'ESR1', 'FOXA1', 'FOXK2', 'GLIS1', 'HSF1', 'JUN', 'LEF1',
-          'MEIS2', 'MLX', 'MYC', 'NR2F2', 'SPIB', 'SRY', 'STAT1', 'TEAD1', 'TGIF1')
-test = c('E2F1', 'EBF1', 'FERD3L', 'FOS', 'GATA2', 'HOXC12', 'IRF1', 'MAX', 'MEF2A',
-         'MGA', 'NFATC3', 'POU3F1', 'PPARG', 'REST', 'RUNX1', 'Six3', 'SP1', 'USF1')
-
-setwd('DNase_RE_analysis')
-#Load in and format unscaled traces
-load('DNase_unscaled_compositelist.Rdata')
-names(unscaled_compositelist) = substr(names(unscaled_compositelist), 1,
-                                       nchar(names(unscaled_compositelist) )- 8)
-for (i in 1:length(unscaled_compositelist)) {
-  unscaled_compositelist[[i]]$factor = substr(unscaled_compositelist[[i]]$factor, 1,
-                                              nchar(unscaled_compositelist[[i]]$factor) - 8)
-}
+train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF',
+           'DLX2', 'EBF1', 'EGR1', 'ELF1',
+           'FOS', 'FOXA1', 'FOXK2', 'GATA2',
+           'GLIS1', 'IRF1', 'JUN', 'LEF1',
+           'MEIS2', 'MLX', 'MYC', 'PPARG', 
+           'RUNX1', 'SPIB', 'SRY', 'STAT1', 'TGIF1')
+test = c('AR', 'CEBPB', 'E2F1', 'ESR1',
+         'FERD3L', 'HOXC12', 'HSF1', 'MAX',
+         'MEF2A', 'MGA', 'NFATC3', 'NR2F2',
+         'POU3F1', 'REST', 'Six3', 'SP1',
+         'USF1', 'TEAD1')
 
 ########################### Load in TF motif coordinates and each TF's length
-Motifs <- list.files('/path/to/FIMO')
+Motifs = list.files('./')
+Motifs = Motifs[grep('_fimo', Motifs)]
 
 Motiflist <- vector('list', length(Motifs))
 for (i in 1:length(Motifs)) {
-  Motiflist[[i]] <- FIMO.to.BED(paste('/path/to/FIMO/', Motifs[i], sep = ''))
+  Motiflist[[i]] <- FIMO.to.BED(paste('./', Motifs[i], sep = ''))
 }
-names(Motiflist) <- substr(Motifs, 1, nchar(Motifs)-22)
+names(Motiflist) = Motifs
+#Combine minus and plus motifs
+minus_Motifs = Motiflist[seq(1, 88, 2)]
+plus_Motifs = Motiflist[-c(seq(1, 88, 2))]
+Motiflist = vector('list', length(plus_Motifs))
+for (i in 1:length(plus_Motifs)) {
+  Motiflist[[i]] = rbind(plus_Motifs[[i]], minus_Motifs[[i]])
+}
+names(Motiflist) <- substr(names(plus_Motifs), 1, nchar(names(plus_Motifs))-22)
+rm(plus_Motifs, minus_Motifs)
 Motifs <- names(Motiflist)
+#Get lengths for each motif
+Motiflen_files = list.files('./')
+Motiflen_files = Motiflen_files[grep('_fimo', Motiflen_files)]
+Motiflen_files = Motiflen_files[grep('plus', Motiflen_files)]
 Motiflen = NULL
-for (i in 1:length(Motiflist)) {
-  Motiflen[i] = Motiflist[[i]]$end - Motiflist[[i]]$start
+Motif_len = NULL
+for (i in 1:length(Motiflen_files)) {
+  Motif_len = fread(Motiflen_files[i])
+  Motiflen[i] = (Motif_len$stop[1] - Motif_len$start[1])+1
 }
+names(Motiflen) = Motifs
+save(Motiflen, file = 'Motiflen.Rdata')
 #Plot RE model corrected TFs
-BWs <- c('/path/to/DNase_RE.bigWig')
+BWs <- c('DNase_Rule_Ensemble_Scaled.bigWig')
 
 compositelist <- vector('list', length(Motifs))
 for (i in 1:length(Motiflist)) {
@@ -2712,14 +2692,10 @@ for (i in 1:length(Motiflist)) {
 
 names(compositelist) <- Motifs
 DNase_RE_composite = compositelist
-for (i in 1:length(DNase_RE_composite)) {
-  DNase_RE_composite[[i]]$factor = substr(DNase_RE_composite[[i]]$factor,
-                                           1, nchar(DNase_RE_composite[[i]]$factor) - 22)
-}
 save(DNase_RE_composite, file = 'DNase_RE_composite.Rdata')
 
 #Plot masked TFs for comparison (this seqOutBias command was run for figure 1C)
-BWs <- c('/path/to/DNase_XXXXXXXNNNCNNXXXXXXXX.bigWig')
+BWs <- c('../Figure1/DNase_XXXXXXXXXXXXXXXNNNCNNXXXXXXXXXXXXXXXX.bigWig')
 
 compositelist <- vector('list', length(Motifs))
 for (i in 1:length(Motiflist)) {
@@ -2733,38 +2709,112 @@ DNase_NNNCNN_compositelist = compositelist
 
 save(DNase_NNNCNN_compositelist, file = 'DNase_NNNCNN_compositelist.Rdata')
 
+#Plot masked TFs for comparison (this seqOutBias command was run for figure 1C)
+BWs <- c('../Figure1/DNase_Naked_unscaled.bigWig')
+
+compositelist <- vector('list', length(Motifs))
+for (i in 1:length(Motiflist)) {
+  compositelist[[i]] <- BED.query.bigWig(Motiflist[[i]], paste(BWs), paste(BWs), 
+                                         upstream = 100, downstream = 100,
+                                         factor = Motifs[i], group = 'Unscaled', ATAC = FALSE)
+}
+
+names(compositelist) <- Motifs
+DNase_unscaled_compositelist = compositelist
+
+save(DNase_unscaled_compositelist, file = 'DNase_unscaled_compositelist.Rdata')
+
 ##Combine rule ensemble, seqOutBias and unscaled compositelists for plotting
 combined_compositelist <- vector(mode = 'list', length = 1)
-for (i in 1:length(unscaled_compositelist)) {
+for (i in 1:length(DNase_unscaled_compositelist)) {
   combined_compositelist[[i]] <- rbind(DNase_RE_composite[[i]],
-                                       unscaled_compositelist[[i]],
+                                       DNase_unscaled_compositelist[[i]],
                                        DNase_NNNCNN_compositelist[[i]])
 }
-names(combined_compositelist) <- names(compositelist)
+names(combined_compositelist) <- names(DNase_unscaled_compositelist)
 
 #Separate out the TFs to be plotted (for 3C) and their motif lengths
-figure3C_plot = do.call(rbind, combined_compositelist[c(13, 35, 44)])
-mlen <- Motiflen[c(13, 35, 44)]
+figure5C_plot = do.call(rbind, combined_compositelist[c(4, 20, 41)])
+
+mlen <- Motiflen[c(4, 20, 41)]
 mlen <- as.data.frame(mlen)
-rownames(mlen) <- levels(as.factor(figure3C_plot$factor))
+rownames(mlen) <- levels(as.factor(figure5C_plot$factor))
 
-plot.composites(figure3C_plot, legend = TRUE, 
-                pdf_name = 'Figure3C_DNasePN_PRE_NNNCNN_comparison',
+
+plot.composites(figure5C_plot, legend = TRUE, 
+                pdf_name = 'Figure5C_DNasePN_PRE_NNNCNN_comparison',
                 figwidth = 8, figheight = 4,
-                ylabel = 'Cut Frequency',
-                xlabel = 'Distance from Motif Center',
-                motifline = TRUE, Motiflen = mlen, layoutgrid = c(3,1))
+                ylabel = '',
+                xlabel = '',
+                motifline = TRUE, Motiflen = mlen, layoutgrid = c(3,1),
+                x_axis_range = -20:20, X_axis_ticks = seq(-20,20,10),
+                Y_axis_ticks = seq(0,0.05,0.01), nYaxisdigits = 2,
+                hline_val = 0.006831447, y_axis_range = seq(0,0.02,0.01),
+                y_axis = FALSE, hline = TRUE, Y_ticks = FALSE, labsize = 0.85)
 
-###Plot log fold change from calculated avg (0.003422133)
+#Plot supplemental composites
+supp_figure5C_plot = do.call(rbind, combined_compositelist[-c(4, 20, 41)])
+supp_figure5C_plot = supp_figure5C_plot[which(supp_figure5C_plot$factor %in% test),]
+
+mlen = Motiflen[-c(4, 20, 41)]
+mlen = mlen[which(names(mlen) %in% test)]
+mlen = as.data.frame(mlen)
+rownames(mlen) = levels(as.factor(supp_figure5C_plot$factor))
+
+
+plot.composites(supp_figure5C_plot, legend = TRUE, 
+                pdf_name = 'Supplemental5B_DNasePN_PRE_NNNCNN_comparison',
+                figwidth = 12, figheight = 10,
+                ylabel = '',
+                xlabel = '',
+                motifline = TRUE, Motiflen = mlen, layoutgrid = c(5,3),
+                x_axis_range = -20:20, X_axis_ticks = seq(-20,20,10),
+                Y_ticks = FALSE,
+                hline_val = 0.006831447, y_axis_range = seq(0,0.02,0.01),
+                y_axis = FALSE, hline = TRUE, labsize = 0.85)
+
+
+
+###Subset test motifs out
 test_DNase_RE_compositelist = DNase_RE_composite[which(names(DNase_RE_composite) %in% test)]
-test_unscaled_compositelist = unscaled_compositelist[which(names(unscaled_compositelist) %in% test)]
+test_unscaled_compositelist = 
+  DNase_unscaled_compositelist[which(names(DNase_unscaled_compositelist) %in% test)]
 test_DNase_NNNCNN_compositelist = 
   DNase_NNNCNN_compositelist[which(names(DNase_NNNCNN_compositelist) %in% test)]
-
-#Plot difference b/t avg baseline and corrected...
+Motiflen = Motiflen[which(names(Motiflen) %in% test)]
+#Make data frame for single nucleotide measurements of each treatment
 test_DNase_RE = do.call(rbind, test_DNase_RE_compositelist)
+singlenuc_frame = NULL
+singlenuc_store = NULL
+for (i in 1:length(Motiflen)) {
+  singlenuc_store = test_DNase_RE[which(test_DNase_RE$factor == names(Motiflen)[i] &
+                                          test_DNase_RE$x < ((Motiflen[i]/2)+10) &
+                                          test_DNase_RE$x > - ((Motiflen[i]/2)+10)),]
+  singlenuc_frame = rbind(singlenuc_frame, singlenuc_store)
+}
+test_DNase_RE = singlenuc_frame
+
 test_unscaled = do.call(rbind, test_unscaled_compositelist)
+singlenuc_frame = NULL
+singlenuc_store = NULL
+for (i in 1:length(Motiflen)) {
+  singlenuc_store = test_unscaled[which(test_unscaled$factor == names(Motiflen)[i] &
+                                          test_unscaled$x < ((Motiflen[i]/2)+10) &
+                                          test_unscaled$x > - ((Motiflen[i]/2)+10)),]
+  singlenuc_frame = rbind(singlenuc_frame, singlenuc_store)
+}
+test_unscaled = singlenuc_frame
+
 test_DNase_NNNCNN = do.call(rbind, test_DNase_NNNCNN_compositelist)
+singlenuc_frame = NULL
+singlenuc_store = NULL
+for (i in 1:length(Motiflen)) {
+  singlenuc_store = test_DNase_NNNCNN[which(test_DNase_NNNCNN$factor == names(Motiflen)[i] &
+                                              test_DNase_NNNCNN$x < ((Motiflen[i]/2)+10) &
+                                              test_DNase_NNNCNN$x > - ((Motiflen[i]/2)+10)),]
+  singlenuc_frame = rbind(singlenuc_frame, singlenuc_store)
+}
+test_DNase_NNNCNN = singlenuc_frame
 
 #to get log2 diff- first change to percent diff from baseline
 #Calculate distance between target and output
@@ -2772,9 +2822,9 @@ DNase_RE_log = NULL
 DNase_NNNCNN_log = NULL
 unscaled_log = NULL
 for (i in 1:length(test_unscaled$factor)) {
-  DNase_RE_log[i] = log2(test_DNase_RE$est[i] / 0.00309736)
-  unscaled_log[i] = log2(test_unscaled$est[i] / 0.00309736)
-  DNase_NNNCNN_log[i] = log2(test_DNase_NNNCNN$est[i] / 0.00309736)
+  DNase_RE_log[i] = log2(test_DNase_RE$est[i] / 0.006831447)
+  unscaled_log[i] = log2(test_unscaled$est[i] / 0.006831447)
+  DNase_NNNCNN_log[i] = log2(test_DNase_NNNCNN$est[i] / 0.006831447)
 }
 
 unscaled_log = data.frame(unscaled_log)
@@ -2784,12 +2834,12 @@ colnames(unscaled_log) = c('Difference', 'Factor', 'Treatment')
 
 DNase_RE_log = data.frame(DNase_RE_log)
 DNase_RE_log[,2] = test_unscaled$factor
-DNase_RE_log[,3] = 'RE'
+DNase_RE_log[,3] = 'Rule Ensemble'
 colnames(DNase_RE_log) = c('Difference', 'Factor', 'Treatment')
 
 DNase_NNNCNN_log = data.frame(DNase_NNNCNN_log)
 DNase_NNNCNN_log[,2] = test_unscaled$factor
-DNase_NNNCNN_log[,3] = 'NNNCNN'
+DNase_NNNCNN_log[,3] = 'seqOutBias'
 colnames(DNase_NNNCNN_log) = c('Difference', 'Factor', 'Treatment')
 
 log_fold = rbind(DNase_NNNCNN_log, DNase_RE_log, unscaled_log)
@@ -2797,539 +2847,168 @@ log_fold$Treatment = factor(log_fold$Treatment, levels = c('Unscaled',
                                                            'seqOutBias',
                                                            'Rule Ensemble'))
 
-
-x = DNase_PRE_NNNCNN_log_fold_change
-
-panel.violin.hack <-
-  function (x, y, box.ratio = 1, box.width = box.ratio/(1 + box.ratio),
-            horizontal = TRUE, alpha = plot.polygon$alpha, border =  
-              plot.polygon$border,
-            lty = plot.polygon$lty, lwd = plot.polygon$lwd, col = plot.polygon 
-            $col,
-            varwidth = FALSE, bw = NULL, adjust = NULL, kernel = NULL,
-            window = NULL, width = NULL, n = 50, from = NULL, to = NULL,
-            cut = NULL, na.rm = TRUE, ...){
-    if (all(is.na(x) | is.na(y)))
-      return()
-    x <- as.numeric(x)
-    y <- as.numeric(y)
-    plot.polygon <- trellis.par.get("plot.polygon")
-    darg <- list()
-    darg$bw <- bw
-    darg$adjust <- adjust
-    darg$kernel <- kernel
-    darg$window <- window
-    darg$width <- width
-    darg$n <- n
-    darg$from <- from
-    darg$to <- to
-    darg$cut <- cut
-    darg$na.rm <- na.rm
-    my.density <- function(x) {
-      ans <- try(do.call("density", c(list(x = x), darg)),
-                 silent = TRUE)
-      if (inherits(ans, "try-error"))
-        list(x = rep(x[1], 3), y = c(0, 1, 0))
-      else ans
-    }
-    numeric.list <- if (horizontal)
-      split(x, factor(y))
-    else split(y, factor(x))
-    levels.fos <- as.numeric(names(numeric.list))
-    d.list <- lapply(numeric.list, my.density)
-    dx.list <- lapply(d.list, "[[", "x")
-    dy.list <- lapply(d.list, "[[", "y")
-    max.d <- sapply(dy.list, max)
-    if (varwidth)
-      max.d[] <- max(max.d)
-    xscale <- current.panel.limits()$xlim
-    yscale <- current.panel.limits()$ylim
-    height <- box.width
-    if (horizontal) {
-      for (i in seq_along(levels.fos)) {
-        if (is.finite(max.d[i])) {
-          pushViewport(viewport(y = unit(levels.fos[i],
-                                         "native"), height = unit(height, "native"),
-                                yscale = c(max.d[i] * c(-1, 1)), xscale = xscale))
-          grid.polygon(x = c(dx.list[[i]], rev(dx.list[[i]])),
-                       y = c(dy.list[[i]], -rev(dy.list[[i]])),  
-                       default.units = "native",
-                       # this is the point at which the index is added
-                       gp = gpar(fill = col[i], col = border, lty = lty,
-                                 lwd = lwd, alpha = alpha))
-          popViewport()
-        }
-      }
-    }
-    else {
-      for (i in seq_along(levels.fos)) {
-        if (is.finite(max.d[i])) {
-          pushViewport(viewport(x = unit(levels.fos[i],
-                                         "native"), width = unit(height, "native"),
-                                xscale = c(max.d[i] * c(-1, 1)), yscale = yscale))
-          grid.polygon(y = c(dx.list[[i]], rev(dx.list[[i]])),
-                       x = c(dy.list[[i]], -rev(dy.list[[i]])),  
-                       default.units = "native",
-                       # this is the point at which the index is added
-                       gp = gpar(fill = col[i], col = border, lty = lty,
-                                 lwd = lwd, alpha = alpha))
-          popViewport()
-        }
-      }
-    }
-    invisible()
-  }
-
-
+x = log_fold
 
 x[,3] <- as.factor(x[,3])
+x[,3] = factor(x[,3], levels = c('Unscaled', 'seqOutBias', 'Rule Ensemble'))
 
+#Subset x to only include top 9
+supp_x = x[-c(which(x$Factor == 'CEBPB' | x$Factor == 'E2F1' | x$Factor == 'HOXC12' |
+                      x$Factor == 'HSF1' | x$Factor == 'MEF2A' | x$Factor == 'NFATC3' |
+                      x$Factor == 'POU3F1' | x$Factor == 'Six3' | x$Factor == 'TEAD1')),]
+x = x[c(which(x$Factor == 'CEBPB' | x$Factor == 'E2F1' | x$Factor == 'HOXC12' |
+                x$Factor == 'HSF1' | x$Factor == 'MEF2A' | x$Factor == 'NFATC3' |
+                x$Factor == 'POU3F1' | x$Factor == 'Six3' | x$Factor == 'TEAD1')),]
 
-pdf('DNase_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
+log2plot = bwplot(Difference ~ Treatment | Factor , data = x,
+                  between=list(y=0.5, x = 0.5),
+                  scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
+                  #xlab = '',
+                  ylim = c(-2.10, 2.10),
+                  ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
+                  horizontal =FALSE,  col= 'black',
+                  aspect = 2,
+                  par.settings=list(par.xlab.text=list(cex=1.2,font=1),
+                                    par.ylab.text=list(cex=1.2,font=1),
+                                    par.main.text=list(cex=1.2, font=1),
+                                    plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.4)),
+                  par.strip.text = list(cex = 1.2),
+                  strip = function(..., which.panel, bg) {
+                    bg.col = c("white")
+                    strip.default(..., which.panel = which.panel,
+                                  bg = rep(bg.col, length = which.panel)[which.panel])
+                  },
+                  panel = function(..., box.ratio, col) {
+                    panel.abline(h = 0, col = 'grey45', lty = 2)
+                    panel.violin.hack(..., col = c("#00000090", "#FF0000", "#0000FF"),
+                                      varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
+                    panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE, amount = 0.2, pch = 16)
+                    panel.bwplot(..., pch = '|', do.out = FALSE)
+                    
+                  })
 
-trellis.par.set(box.umbrella = list(lty = 1, col="#93939380", lwd=2),
-                box.rectangle = list(col = '#93939380', lwd=1.6),
-                plot.symbol = list(col='#93939380', lwd=1.6, pch ='.'))
+pdf('Figure5B_DNase_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
+
+trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
+                box.rectangle = list(col = '#93939300', lwd=1.6),
+                plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
 
 ################################################################################
-print(bwplot(Difference ~ Treatment | Factor , data = x,
-             between=list(y=0.5, x = 0.5),
-             scales=list(x=list(draw=TRUE),rot = 45,
-                         alternating=c(1,1,1,1),cex=1,font=1),
-             #xlab = '',
-             ylim = c(-4.5, 3.5),
-             #   main = "Pause Index (PI) Ratio",
-             ylab =expression("log"[2]~"(deviation from random cleavage)"),
-             horizontal =FALSE,  col= 'black',
-             aspect = 2,
-             par.settings=list(par.xlab.text=list(cex=1.2,font=1),
-                               par.ylab.text=list(cex=1.2,font=1),
-                               par.main.text=list(cex=1.2, font=1),
-                               plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.0)),
-             strip = function(..., which.panel, bg) {
-               bg.col = c("grey90")
-               strip.default(..., which.panel = which.panel,
-                             bg = rep(bg.col, length = which.panel)[which.panel])
-             },
-             panel = function(..., box.ratio, col) {
-               panel.abline(h = 0, col = 'grey45', lty = 2)
-               panel.violin.hack(..., col = c("#FF7E78", "#FF5FD2", "#50FFE6"),
-                                 varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
-               panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE,
-                               amount = 0.2, pch = 16)
-               panel.bwplot(..., pch = '|', do.out = FALSE)
-               
-             }))
+print(update(log2plot, layout=c(9,1)))
 dev.off()
+
+log2plot = bwplot(Difference ~ Treatment | Factor , data = supp_x,
+                  between=list(y=0.5, x = 0.5),
+                  scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
+                  #xlab = '',
+                  ylim = c(-2.10, 2.10),
+                  ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
+                  horizontal =FALSE,  col= 'black',
+                  aspect = 2,
+                  par.settings=list(par.xlab.text=list(cex=1.2,font=1),
+                                    par.ylab.text=list(cex=1.2,font=1),
+                                    par.main.text=list(cex=1.2, font=1),
+                                    plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.4)),
+                  par.strip.text = list(cex = 1.2),
+                  strip = function(..., which.panel, bg) {
+                    bg.col = c("white")
+                    strip.default(..., which.panel = which.panel,
+                                  bg = rep(bg.col, length = which.panel)[which.panel])
+                  },
+                  panel = function(..., box.ratio, col) {
+                    panel.abline(h = 0, col = 'grey45', lty = 2)
+                    panel.violin.hack(..., col = c("#00000090", "#FF0000", "#0000FF"),
+                                      varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
+                    panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE, amount = 0.2, pch = 16)
+                    panel.bwplot(..., pch = '|', do.out = FALSE)
+                    
+                  })
+
+pdf('Supplemental_Figure5B_DNase_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
+
+trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
+                box.rectangle = list(col = '#93939300', lwd=1.6),
+                plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
+
+################################################################################
+print(update(log2plot, layout=c(9,1)))
+dev.off()
+
+#Plot Improvement of rule ensemble over seqOutBias
+dot_frame = test_unscaled
+dot_frame = dot_frame[,-c(5)]
+colnames(dot_frame) = c('Unscaled_x', 'Unscaled_est', 'Unscaled_factor', 'Unscaled_group')
+
+dot_frame = cbind(dot_frame, test_DNase_RE[,1:4])
+colnames(dot_frame)[5:8] = c('RE_x', 'RE_est', 'RE_factor', 'RE_group')
+dot_frame = cbind(dot_frame, test_DNase_NNNCNN[,1:4])
+colnames(dot_frame)[9:12] = c('sOB_x', 'sOB_est', 'sOB_factor', 'sOB_group')
+identical(dot_frame$Unscaled_factor, dot_frame$RE_factor)
+
+dot_frame = dot_frame[,-c(4,5,7,8,9,11,12)]
+dot_frame$calc_avg = 0.006831447
+dot_frame$RE_absdiff = abs(dot_frame$RE_est - dot_frame$calc_avg)
+dot_frame$sOB_absdiff = abs(dot_frame$sOB_est - dot_frame$calc_avg)
+rownames(dot_frame) = 1:nrow(dot_frame)
+
+dot_frame$sOB_sub_RE = dot_frame$sOB_absdiff - dot_frame$RE_absdiff
+dot_frame$plot_col  = 'RE Improvement over sOB'
+
+length(which(dot_frame$sOB_absdiff > dot_frame$RE_absdiff))/ nrow(dot_frame)
+
+pdf('Figure5D_DNase_sOB_RE_improvement_BW.pdf', width=10, height=12)
+ggplot(dot_frame, aes(x=plot_col, y = sOB_sub_RE)) + 
+  geom_violin(trim = FALSE, color = 'black', fill = 'light blue') +
+  xlab("") + ylab("Rule Ensemble Improvement") + theme_classic() + 
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha = 0.4) +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(),
+        axis.text = element_text(size = 36),
+        axis.title = element_text(size = 42, family = 'sans', face = 'bold'),
+        axis.text.y = element_text(colour = "black", family = 'sans')) +
+        geom_abline(slope = 0, lwd = 2, color = 'red', linetype = "dashed")
+dev.off()
+
 ```
 
 ```{r DNase_singlenuc, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='DNase single nucleotide log2 comparison', out.width = "80%"}
-knitr::include_graphics("figs/DNase_log2_comparison.pdf")
+knitr::include_graphics("figs/Figure5B_DNase_log2_comparison.pdf")
 ```
 
 ```{r DNase_singlenuc_composites, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='DNase single nucleotide composite comparison', out.width = "80%"}
-knitr::include_graphics("figs/DNasePN_RE_NNNCNN_comparison.pdf")
+knitr::include_graphics("figs/Figure5C_DNasePN_PRE_NNNCNN_comparison.pdf")
 ```
 
-## Figure 3 Functions
-
-``` {R eval=FALSE}
-#Comput scalefactors from seqOutBias seqtable output
-scalefactor.func <- function(factortable){
-    require(data.table)
-    datatable = fread(factortable, skip = 1)
-    datatable[, pluscountpercent := datatable[,3]/sum(datatable[,3])]
-    datatable[, plusobspercent := datatable[,5]/sum(datatable[,5])]
-    datatable[, plusscalefact := round(datatable[,pluscountpercent]/datatable[,plusobspercent], 6)]
-    datatable[, minuscountpercent := datatable[,4]/sum(datatable[,4])]
-    datatable[, minusobspercent := datatable[,6]/sum(datatable[,6])]
-    datatable[, minusscalefact := round(datatable[,minuscountpercent]/datatable[,minusobspercent], 6)]
-}
-
-#FIMO.to.Bed takes input in FIMO format (1-based start and end) and converts 
-#it to BED format (0-based start, 1-based end), also increases window by amount specified.
-FIMO.to.BED <- function(fimofile, window = 0) {
-    require(data.table)
-    #load in FIMO file
-    FIMOdf <- fread(fimofile, sep = '\t', header = TRUE)
-    #shift start position by -1 to make it 0-based
-    FIMOdf[,4] = FIMOdf[,4] - 1
-    #make location column
-    FIMOdf[,location := paste(sequence_name, ':', start, '-', stop, sep = '')]
-    #Rearrange columns for BED format
-    beddf <- FIMOdf[, c(3,4,5,2,11,6)]
-    colnames(beddf) <- c('chr', 'start', 'end', 'gene', 'location', 'strand')
-    #CB (central base) determines the central base which the window is based on
-    #also used as the 0 position on x-axis
-    #even motifs will == 0, odd will == 1
-    if ((beddf[1,3] - beddf[1,2])%%2 == 0) {
-        CB = data.table(beddf)
-        #convert start positions to 1-base for calculating CB
-        CB[,start := start + 1]
-        #Calculate median ceiling for positive motifs, and median floor value
-        # for minus motifs then use this value to determine
-        #start and end using upstream/downstream
-        CB[,median := apply(CB[,2:3],1, median, na.rm = TRUE)][]
-        setkey(CB,strand)
-        CB[c("-"),median := floor(median)] 
-        CB[c("+"),median := ceiling(median)]
-        CB[,start := median - window]
-        CB[,end := median + window]
-        #Convert start position back to 0-base
-        CB[,start := start - 1]
-        CB[,median:=NULL]
-    } else {
-        CB = data.table(beddf)
-        #convert start positions to 1-base for calculating median
-        CB[,start := start + 1]
-        #Calculate median for each row, then use this value to determine
-        #start and end using upstream/downstream
-        CB[,median := apply(CB[,2:3],1, median, na.rm = TRUE)][]
-        CB[,start := median - window]
-        CB[,end := median + window]
-        #Convert start position back to 0-base
-        CB[,start := start - 1]
-        CB[,median:=NULL]
-    }
-
-    return(CB)
-}
-
-#Split up a list of sequences into mers = mermask for each mappable position in the sequence
-mer.positions <- function(input, mermask = 'NNNXXXXXNNN') {
-    seqdf_mer <- vector(mode = "list", length = nchar(input[1]))
-    if (grepl('X', mermask) == TRUE) {
-    mermask_spaces = unlist(strsplit(mermask, 'X'))
-    mer1 = nchar(mermask_spaces)[1]
-    unmasked = length(which(mermask_spaces == '')) + 1
-    mer2 = nchar(mermask_spaces)[length(mermask_spaces)]
-    for (i in 1:nchar(input[1])) {
-        seqdf_store = data.table()
-        seqdf_store[, alltogether := paste(substr(input[1:length(input)], i, i + mer1 - 1),
-                                           paste(rep('X', unmasked), collapse = ""),
-                                           substr(input[1:length(input)],
-                                           i + mer1 + unmasked, i + mer1 + unmasked + mer2 - 1), sep = '')]
-        seqdf_mer[[i]] <- seqdf_store$alltogether 
-    }
-    mersize = nchar(mermask)
-    names(seqdf_mer) <- paste0("Position_", seq_along(1:nchar(input[1])))
-    seqdf_mer <- seqdf_mer[1:(length(seqdf_mer)-mersize+1)]}
-    else {
-      seqdf_store <- NULL
-      mersize = nchar(mermask)
-      for (i in 1:nchar(input[1])) {
-        seqdf_store <- substr(input[1:length(input)], i, i+ (mersize-1))
-        seqdf_mer[[i]] <- seqdf_store 
-        names(seqdf_mer) <- paste0("Position_", seq_along(1:nchar(input[1])))
-      }
-      seqdf_mer <- seqdf_mer[1:(length(seqdf_mer)-mersize+1)]
-    }
-    return(seqdf_mer)
-}
-
-
-#Get mercounts for each possible mer from the output of mer.positions - only for 1 sequence
-mer.counts = function(sequence_mer_positions, mermask = 'NNNN') {
-  #Create all possible combinations of kmer
-  mermask = unlist(strsplit(mermask, split = ''))
-  mertable = expand.grid(rep(list(c('A','C','G','T')), length(which(mermask == 'N'))))
-  if (length(which(mermask == 'X')) > 0) {
-    Xrows = matrix(nrow = nrow(mertable), ncol = length(which(mermask == 'X')))
-    Xrows[,c(1:length(which(mermask == 'X')))] = rep('X', nrow(mertable))
-    mertable = cbind(mertable[,1:(which(mermask=='X')[1]-1)],
-                     Xrows, mertable[,(which(mermask=='X')[1]:ncol(mertable))])
-  } else {}
-  mertable = data.frame(apply(mertable, 1 , paste, collapse = ""))
-  mercount = as.character(sequence_mer_positions)
-  merstore = NULL
-  #
-  for (i in 1:nrow(mertable)) {
-    merstore = length(which(mercount %in% mertable[i,1]))
-    if (length(merstore) == 0) {
-      merstore = 0
-    } else {}
-    mertable[i,2] = merstore
-  }
-  colnames(mertable) = c('kmer', 'count')
-  return(mertable)
-}
-
-
-#Get position frequencies for each possible mer from the output of mer.positions
-position.frequencies = function(sequence_mer_positions, mermask = 'NNNNNNN') {
-  #Create all possible combinations of kmer
-  mermask = unlist(strsplit(mermask, split = ''))
-  mertable = expand.grid(rep(list(c('A','C','G','T')), length(which(mermask == 'N'))))
-  if (length(which(mermask == 'X')) > 0) {
-  Xrows = matrix(nrow = nrow(mertable), ncol = length(which(mermask == 'X')))
-  Xrows[,c(1:length(which(mermask == 'X')))] = rep('X', nrow(mertable))
-  mertable = cbind(mertable[,1:(which(mermask=='X')[1]-1)],
-                   Xrows, mertable[,(which(mermask=='X')[1]:ncol(mertable))])
-  } else {}
-  mertable = data.table(apply(mertable, 1 , paste, collapse = ""))
-  posfreq_poslist = vector(mode = "list", length = length(sequence_mer_positions))
-  #
-  for (p in 1:length(sequence_mer_positions)) {
-    posfreq_posstore = data.table(mertable$V1)
-    postable = table(sequence_mer_positions[[p]])
-    if (length(which(!names(postable) %in% mertable$V1)) > 0) {
-    postable = postable[-c(which(!names(postable) %in% mertable$V1))]
-    } else {}
-    missing_mers = as.character(mertable$V1[which(!mertable$V1 %in% names(postable))])
-    append_mers = rep(0, length(missing_mers))
-    names(append_mers) = missing_mers
-    postable = c(postable, append_mers)
-    postable = postable/length(sequence_mer_positions[[1]])
-    posfreq_poslist[[p]] <- postable
-    
-  }
-  names(posfreq_poslist) <- paste0("Position_", seq_along(1:length(posfreq_poslist)))
-  return(posfreq_poslist)
-}
-##Multiply 1/scale_factor by its corresponding kmer frequency for each position in
-##the composite
-scalefactor.by.kmerfrequency <- function(scalefactors, kmerfrequency, tfname) {
-    all_scalefactors = vector(mode = "list", length = length(scalefactors))
-    names(all_scalefactors) <- names(scalefactors)
-   for (j in 1:length(scalefactors)) {
-       scalefactor = scalefactors[[j]]
-       scalefactor = scalefactor[order(V2)]
-       scaledkfreq = vector(mode = "list", length = length(kmerfrequency))
-       names(scaledkfreq) = names(kmerfrequency)
-    for (i in 1:length(kmerfrequency)) {
-        scaledkfreq[[i]] = data.table(stack(kmerfrequency[[i]]))
-        colnames(scaledkfreq[[i]]) = c('kmerfreq', 'kmer')
-        scaledkfreq[[i]]$kmer = as.character(scaledkfreq[[i]]$kmer)
-        scaledkfreq[[i]] = scaledkfreq[[i]][order(kmer)]
-        scaledkfreq[[i]][, mask := scalefactor[,2]]  
-        scaledkfreq[[i]][, plusscalefreq := (1/(scalefactor[,9])) * kmerfreq ]
-        scaledkfreq[[i]][, minusscalefreq := (1/(scalefactor[,12])) * kmerfreq ]
-    
-        }
-       saveRDS(scaledkfreq, file = paste(tfname, '_',
-                        substr(names(scalefactors[j]), 1,
-                               nchar(names(scalefactors[j]))-27), '.rds', sep = ''))
-       all_scalefactors[[j]] = scaledkfreq 
-       }
-      return(all_scalefactors)
-}
-
-##Take sum of each position's scaledkmerfreq (1/scale_factor * kmer frequency) and use to create 
-##data.table of inputs for each mask for each TF motif
-scaledkmerfreq.sum.plus <- function(input) {
-    output = data.table(matrix(nrow = length(input)))
-    for (i in 1:length(input)) {
-
-            output[i, scaledkmerfreqsumplus := sum(input[[i]][,4])]
-
-    }
-    output[,1] <- NULL
-    rownames(output) = names(input)
-    return(output)
-}
-
-
-
-################################################################################
-################################################################################
-#Combine values from mask positions to plot redudant importance values for each position
-redundantpos = function(input, labelnum = 2, impnum = 3) {
-  input[,labelnum] = as.character(input[,labelnum])
-  input[,labelnum] = gsub('C', '', input[,labelnum])
-  posimp = vector(mode = 'list', length = nchar(input[1,labelnum]))
-  for (i in 1:nchar(input[1,labelnum])) {
-    for (p in 1:nrow(input)) {
-      posimp[[i]][p] = fifelse(substr(input[p,labelnum],i,i) == 'N', input[p,impnum],0)
-    }
-  }
-  output = data.table(matrix(nrow = length(posimp), ncol = 1))
-  for (i in 1:length(posimp)) {
-    output[i, possum := sum(posimp[[i]])]
-  }
-  output = output[,-c(1)]
-  output[, position := paste(rep('X',36,sep = ''), collapse = '')]
-  
-  for (i in 1:nrow(output)) {
-    output[i,]$position = paste(substr(output[i, position],1,i-1),'N', 
-                                substr(output[i, position],i+1,nchar(output[i, position])), sep = '')
-    output[i,]$position = paste(substr(output[i, position],1,(nchar(output[i, position])/2)), 'C', 
-                                paste(substr(output[i, position],
-                                (nchar(output[i, position])/2+1),nchar(output[i, position]))), sep = '')
-  }
-  return(output)
-}
-
-#BED.query.bigWig uses the bed coordinates produced by FIMO.to.BED to
-#query a supplied bigWig file for the read counts at the specified positions
-#In order to create a window around the base of interest, a central base (CB)
-#is determined based on whether or not the motif of interest is odd or even
-#additionally, if ATAC=FALSE, minus-aligned motifs are shifted +1 
-#relative to the plus strand to account for DNase etc. cutting between bases
-#finally, the mean of each position's read counts is calculated for plotting
-BED.query.bigWig <- function(beddf, bwPlus, bwMinus, upstream = 10,
-                           downstream = 10,
-                           factor = '', group = '', ATAC = TRUE) {
-    require(bigWig)
-    require(data.table)
-    require(matrixStats)
-    step = 1
-    #load bigWigs
-    bw.plus = load.bigWig(bwPlus)
-    bw.minus = load.bigWig(bwMinus)
-    #CB (central base) determines the central base which the window is based on
-    #also used as the 0 position on x-axis
-    #even motifs will == 0, odd will == 1
-    if ((beddf[1,3] - beddf[1,2])%%2 == 0) {
-        CB = data.table(beddf)
-        #convert start positions to 1-base for calculating CB
-        CB[,start := start + 1]
-        #Calculate median ceiling for positive motifs, and median floor value
-        # for minus motifs then use this value to determine
-        #start and end using upstream/downstream
-        CB[,median := apply(CB[,2:3],1, median, na.rm = TRUE)][]
-        setkey(CB,strand)
-        CB[c("-"),median := floor(median)] 
-        CB[c("+"),median := ceiling(median)]
-        CB[,start := median - upstream]
-        CB[,end := median + downstream]
-        #Convert start position back to 0-base
-        CB[,start := start - 1]
-        CB[,median:=NULL]
-    } else {
-        CB = data.table(beddf)
-        #convert start positions to 1-base for calculating median
-        CB[,start := start + 1]
-        #Calculate median for each row, then use this value to determine
-        #start and end using upstream/downstream
-        CB[,median := apply(CB[,2:3],1, median, na.rm = TRUE)][]
-        CB[,start := median - upstream]
-        CB[,end := median + downstream]
-        #Convert start position back to 0-base
-        CB[,start := start - 1]
-        CB[,median:=NULL]
-    }
-    #Shift minus-aligned motifs by +1 for DNase etc.
-    if (ATAC == FALSE) {
-        setkey(CB,strand)
-        CB[c("-"),start := start + 1] 
-        CB[c("-"),end := end + 1] 
-    } else {}
-    #extract read count information from bigWigs, using CB-derived
-    #window as coordinates
-    tss.matrix = bed6.step.bpQuery.bigWig(bw.plus, bw.minus , CB,
-                               step = 1, as.matrix=TRUE, follow.strand=TRUE)
-    tss_correction = sum(tss.matrix)/(nrow(tss.matrix)*ncol(tss.matrix))
-    #Determine beginning and end of plot
-    #if not ATAC, peaks are between bases, so offset by -1 and 
-    #add 0.5 to align 'cuts' on 0 at -0.5
-    if (ATAC == FALSE) {
-        coordin.start = (-upstream - 0.5 )
-        coordin.end = (downstream - 0.5 )
-    } else {
-        #For tn5, add negative upstream value and downstream value
-        coordin.start = (-upstream)
-        coordin.end = (downstream)
-    }
-    #create coordinates for aligning read counts on composite profile
-    #also take means of each column from tss.matrix and label each row with
-    #factor column
-    composite.lattice = data.table(seq(coordin.start, coordin.end, by = step),
-                                   colMeans(tss.matrix),
-                                   factor, group, tss_correction, 
-                                   stringsAsFactors = FALSE)
-    colnames(composite.lattice) = c('x', 'est', 'factor', 'group', 'correction')
-    composite.lattice$x = as.numeric(composite.lattice$x)
-    unload.bigWig(bw.plus)
-    unload.bigWig(bw.minus)
-    return(composite.lattice)
-}
-#
-
-##Plot.composites takes the composite.lattice object and creates a plot for 
-#this data, while also allowing a mapping of the original motif width onto the
-#plot by specifying a TFlen value (the default is 10). 
-plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
-                            xlabel = '', striplabel = TRUE, legend = TRUE,
-                            motifline = FALSE, Motiflen = 10,
-                            figwidth = 2.5, figheight=3,
-                            indexlist = NULL, layoutgrid = NULL,
-                    col.lines = c("#0000FF", "#FF0000", "#00000090", 
-                                  rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
-                                  rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
-                                  rgb(1/2,1/2,0,1/2)), 
-                                  fill.poly = c(rgb(0,0,1,1/4), 
-                                  rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
-                                  rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
-    require(lattice)
-    pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
-    print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
-                 type = 'l', as.table = TRUE,
-                 scales=list(x=list(cex=0.8,relation = "free", axs ="i"), 
-                             y =list(cex=0.8, relation="free", tick.number=4)),
-                 col = col.lines,
-                 auto.key = if (legend == TRUE) 
-                     {list(points=F, lines=T, cex=0.8)} else{},
-                 par.settings = list(strip.background=list(col="#00000000"),
-                                     strip.border = list(col = 'transparent'),
-                                     superpose.symbol = list(pch = c(16),
-                                                             col=col.lines, 
-                                                             cex =0.5), 
-                                     superpose.line = list(col = col.lines, 
-                                                           lwd=c(2), 
-                                                           lty = c(1))),
-                 cex.axis=1.0,
-                 par.strip.text=list(cex=0.9, font=1, col='black'),
-                 aspect=1.0,
-                 between=list(y=0.5, x=0.5),
-                 lwd=2,
-                 ylab = list(label = paste(ylabel), cex =0.8),
-                 xlab = list(label = paste(xlabel), cex =0.8),
-                 index.cond = indexlist,
-                 layout = layoutgrid,
-                 panel = function(x, y, ...) {
-                     panel.xyplot(x, y, ...)
-                     #panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')
-                     if (motifline == TRUE) 
-                        {panel.abline(v = Motiflen/2, lty = 2, col = "red")} else{}
-                     if (motifline == TRUE) 
-                        {panel.abline(v = -Motiflen/2, lty = 2, col = "red")} else{}
-                 }
-    ))
-    dev.off()
-}
-#
-##Plots seqlogos
-plot.seqlogo.func <- function(x, outfile = "PLEASE_SET_FILE_NAME.pdf") {
-    require(ggseqlogo)
-    w =  0.663 + (ncol(x) + 1)*0.018 + (ncol(x)+2)* .336
-    pdf(outfile, useDingbats=FALSE, width=w, height=2.695)
-    print(ggseqlogo(x,  facet = "wrap", font = 'helvetica_bold'))
-    dev.off()
-}
-
-
-
-
-```
 
 # Figure 6. Rule ensemble modeling corrects Tn5 transposon bias in ATAC-seq data
 
 ```{r Figure 5, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 5. Rule ensemble modeling corrects Tn5 transposon bias in ATAC-seq data', out.width = "80%"}
-knitr::include_graphics("figs/fig5_mk1.pdf")
+knitr::include_graphics("figs/fig6_OL_JBW_mk3.pdf")
 ```
 
-## Generate scale factors for Tn5 using all 5/6/7/spaced 3-mers in a 46bp window
-Using the previously downloaded and aligned deproteinized Tn5 data, we begin generating iterative masks. First, we run seqOutBias with no scale to generate all suffixerator and tallymer intermediate files. This allows us to then use these files in parallel runs of many masks.
+Make a directory for Figure 6:
+```{bash eval = FALSE}
+cd ../
+mkdir Figure6
+cd Figure6
+```
+
+
+## Generate k-mer counts for Tn5 using all 5/6/7/spaced 6-mers in a 46bp window
+Using the previously downloaded and aligned deproteinized Tn5 data, we begin generating iterative masks. First, copy sft and tal files from the Figure 1 run of seqOutBias with no scale, the reference genome and the aligned read file. This allows us to then use these files in parallel runs of many masks. While the workflow depicted in these scripts will yield results, it is recommended to adapt them to an HPC environment to save computational time and provide enough storage space for some steps which require over 10TB of disk space. 
+
 ``` {bash eval=FALSE}
 #Make a directory for Tn5 masks
-mkdir Tn5_data
-cd Tn5_data
+mkdir Tn5_kmercount
+cd Tn5_kmercount
 
-#Run seqOutBias with no scaling to generate intermediate files which will be used by parallel processors 
-seqOutBias ../hg38.fa ../C1_gDNA_rep1.bam --no-scale --strand-specific --custom-shift=4,-4 --bed=hg38_Tn5_C1gDNA_unscaled.bed --bw=hg38_Tn5_C1gDNA_unscaled.bigWig --read-size=76
+#Copy over previously generated hg38 sft and tal files 
+cp ../../Figure1/hg38.* ./
+cp ../../Figure1/C1_gDNA_rep1.bam ./
 ```
 
-Generate tbl files for all 5-mers within a 46bp window
+Generate tbl files for all 5-mers within a 46bp window. To change the number of parallel processes ran for each script, edit the 'mc.cores' field at the end. To generate these masks yourself, look here:     
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_5mer_tbl.R
+
 ``` {R eval = FALSE}
 library(parallel)
 library(bigWig)
@@ -3363,7 +3042,7 @@ neighbors <- function(vecmask) {
 #Create a list of all possible 5-mer positions
 nextlst = neighbors(mask.to.vec(start_mask))
 #seqOutBias arguments passed to each run
-seqOutBias.args = "../hg38.fa ../C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
+seqOutBias.args = "hg38.fa C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
 #Command to call seqOutBias
 sqcmd = "seqOutBias"
 #Prefix added to each output file
@@ -3371,15 +3050,16 @@ prefix = "Tn5_"
 #Apply run.cutmask to each possible 5-mer 
 scores = mclapply(nextlst, function(cutmask) {
         bw.paths = run.cutmask(cutmask, seqOutBias.args, sqcmd=sqcmd, prefix=prefix, cleanup = FALSE)
-}, mc.cores = 20)
+}, mc.cores = 1)
 ```
 
-Generate tbl files for all 6-mers within a 46bp window, for comments see 5-mer script above
+Generate tbl files for all 6-mers within a 46bp window. Visit this page to run this:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_6mer_tbl.R
+
 ``` {R eval=FALSE}
 library(parallel)
 library(bigWig)
 source("https://raw.githubusercontent.com/guertinlab/seqOutBias/master/docs/R/seqOutBias_hcsearch.R")
-setwd('../output')
 start_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 neighbors <- function(vecmask) {
     # generate list of neighboring masks that differ
@@ -3405,15 +3085,17 @@ neighbors <- function(vecmask) {
     result[1:zz]
 }
 nextlst = neighbors(mask.to.vec(start_mask))
-seqOutBias.args = "../hg38.fa ../C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
+seqOutBias.args = "hg38.fa C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
 sqcmd = "seqOutBias"
 prefix = "Tn5_"
 scores = mclapply(nextlst, function(cutmask) {
         bw.paths = run.cutmask(cutmask, seqOutBias.args, sqcmd=sqcmd, prefix=prefix, cleanup = FALSE)
-}, mc.cores = 20)
+}, mc.cores = 1)
 ```
 
-Generate tbl files for all 7-mers within a 46bp window, for comments see 5-mer script above
+Generate tbl files for all 7-mers within a 46bp window. To access the raw script, go here:     
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_7mer_tbl.R
+
 ``` {R eval = FALSE}
 library(parallel)
 library(bigWig)
@@ -3444,15 +3126,18 @@ neighbors <- function(vecmask) {
     result[1:zz]
 }
 nextlst = neighbors(mask.to.vec(start_mask))
-seqOutBias.args = "../hg38.fa ../C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
+seqOutBias.args = "hg38.fa C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
 sqcmd = "seqOutBias"
 prefix = "Tn5_"
 scores = mclapply(nextlst, function(cutmask) {
         bw.paths = run.cutmask(cutmask, seqOutBias.args, sqcmd=sqcmd, prefix=prefix, cleanup = FALSE)
-}, mc.cores = 20)
+}, mc.cores = 1)
 ```
 
-Make a text file of all possible combinations of two 3-mers in a 46bp span
+
+Make a text file of all possible permutations of spaced 6-mers in a 46bp span. To generate your own permutations, download the code here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_spaced6mer_combos.R
+
 ``` {R eval=FALSE}
 source("https://raw.githubusercontent.com/guertinlab/seqOutBias/master/docs/R/seqOutBias_hcsearch.R")
 #Input the span (46bp here) of the iterations
@@ -3499,23 +3184,24 @@ mask_col = mask_col[-grep('NNNN' ,mask_col)]
 mask_col = unique(mask_col)
 write.table(mask_col, file = 'all_possible_spaced_3mers_46bp.txt', quote = FALSE,
             sep = '\n', row.names = FALSE)
-system('mv all_possible_spaced_3mers_46bp.txt ../')
 ```
 
-Run seqOutBias with all possible spaced 3-mer masks to generate their .tbl files
+Run seqOutBias with all possible spaced 6-mer masks to generate their .tbl files. This code can be found here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_spaced6mer_tbl.R
+
 ``` {R eval = FALSE}
 library(parallel)
 library(bigWig)
 source("https://raw.githubusercontent.com/guertinlab/seqOutBias/master/docs/R/seqOutBias_hcsearch.R")
 #Load in all spaced 3-mer masks
-masks = read.table('../scripts/all_possible_spaced_3mers_46bp.txt', skip = 1)
+masks = read.table('all_possible_spaced_3mers_46bp.txt', skip = 1)
 #Assign each mask to a list object in nextlst
-nextlst = vector(mode = 'list', length = masks)
-for (i in 1:length(masks)) {
-  nextlst[[i]] = masks[i,1]
+nextlst = vector(mode = 'list', length = nrow(masks))
+for (i in 1:nrow(masks)) {
+  nextlst[[i]][1] = masks[i,1]
 }
 #Arguments for seqOutBias
-seqOutBias.args = "../hg38.fa ../C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
+seqOutBias.args = "hg38.fa C1_gDNA_rep1.bam --read-size=76 --strand-specific --custom-shift=4,-4"
 #Command to call seqOutBias
 sqcmd = "seqOutBias"
 #Prefix for output
@@ -3523,78 +3209,120 @@ prefix = "Tn5_"
 #Run seqOutBias for each mask and get their .tbl files
 scores = mclapply(nextlst, function(cutmask) {
   bw.paths = run.cutmask(cutmask, seqOutBias.args, sqcmd=sqcmd, prefix=prefix, cleanup = FALSE)
-}, mc.cores = 20)
+}, mc.cores = 1)
 ```
 
-Run seqOutBias table for each mask tbl file to determine scale factors for each mask.
+
+Run 'seqOutBias table' for each mask's tbl file to determine scale factors for each mask. Edit 'registerDoParallel(N)' to change the number of parallel runs. For the raw code, visit:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_mask_to_kmercount.R
+
 ``` {R eval = FALSE}
 library('doParallel')
 masks = list.files('./')
 masks = masks[grep('.tbl', masks)]
 #
-registerDoParallel(20)
+registerDoParallel(1)
 foreach (i = 1:length(masks)) %dopar% {system(paste('seqOutBias table ',
-         masks[i], ' ../C1_gDNA_rep1.bam > ', substr(masks[i], 1, 51),
-         '_fulldat_scale_factors.txt', sep = ''))}
+         masks[i], ' ../C1_gDNA_rep1.bam > ', substr(masks[i], 1, nchar(masks[i])-4),
+         '_scale_factors.txt', sep = ''))}
 ```
 
-## Determine k-mer frequency at each position for the plus and minus training motifs for 5/6/7 spaced 3-mers
 
-Calculate all 5-mer frequencies for each position in motif sequences
+## Plot plus and minus unscaled training motif composites
+
+First, leave the kmer count subdirectory now that the k-mer counts have been calculated
+```{bash eval=FALSE}
+cd ../
+```
+
+The rule ensemble model predicts the unscaled values of each transcription factor motif's composite profile. This will calculate these values in addition to plotting them for inspection and saving them for later use as input. The code to run this script can be accessed here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_unscaled_TF_plots.R
+
+```{R eval=FALSE}
+library(data.table)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+########################### For only plus unscaled composites
+#Load in plus coordinates for each TF Motif
+Motifs <- list.files('../Figure5')
+Motifs = Motifs[grep('plus_400k_fimo', Motifs)]
+Motiflist <- vector('list', length(Motifs))
+for (i in 1:length(Motifs)) {
+  Motiflist[[i]] <- FIMO.to.BED(paste('../Figure5/',Motifs[i], sep = ''))
+}
+names(Motiflist) = substr(Motifs, 1, nchar(Motifs)-14)
+Motifs = names(Motiflist)
+#Determine signal at each plus motif
+BWs <- c('../Figure1/C1_gDNA_rep1_plus.bigWig')
+Tn5_plus_unscaled_compositelist <- vector('list', length(Motifs))
+for (i in 1:length(Motiflist)) {
+  Tn5_plus_unscaled_compositelist[[i]] = BED.query.bigWig(Motiflist[[i]], paste(BWs), paste(BWs), 
+                                           upstream = 100, downstream = 100, factor = Motifs[i],
+                                           group = 'Unscaled', ATAC = TRUE)
+}
+names(Tn5_plus_unscaled_compositelist) <- Motifs
+
+#plot uncorrected values
+for (i in 1:length(Tn5_plus_unscaled_compositelist)) {
+  plot.composites(Tn5_plus_unscaled_compositelist[[i]], legend = FALSE, 
+                  pdf_name = paste('Tn5_plus_unscaled_400k_', 
+                  paste(names(Tn5_plus_unscaled_compositelist[i])), '_composite', sep = ''),
+                  ylabel = 'Cut Frequency',
+                  xlabel = 'Distance from Motif Center',
+                  motifline = FALSE, Motiflen = Motiflen[i],
+                  y_axis_range = c(0, max(Tn5_plus_unscaled_compositelist[[i]]$est)),
+                  x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50),
+                  figwidth = 4, figheight=4, nYticks = 2, nYaxisdigits = 2
+  )}
+#Save values
+save(Tn5_plus_unscaled_compositelist, file = 'Tn5_plus_unscaled_compositelist.Rdata')
+
+########################### For only minus unscaled composites
+#Load in minus coordinates for each TF Motif
+Motifs <- list.files('../Figure5')
+Motifs = Motifs[grep('minus_400k_fimo', Motifs)]
+Motiflist <- vector('list', length(Motifs))
+for (i in 1:length(Motifs)) {
+  Motiflist[[i]] <- FIMO.to.BED(paste('../Figure5/',Motifs[i], sep = ''))
+}
+names(Motiflist) = substr(Motifs, 1, nchar(Motifs)-14)
+Motifs = names(Motiflist)
+#Determine signal at each minus motif
+BWs <- c('../Figure1/C1_gDNA_rep1_minus.bigWig')
+Tn5_minus_unscaled_compositelist <- vector('list', length(Motifs))
+for (i in 1:length(Motiflist)) {
+  Tn5_minus_unscaled_compositelist[[i]] = BED.query.bigWig(Motiflist[[i]], paste(BWs), paste(BWs), 
+                                            upstream = 100, downstream = 100, factor = Motifs[i],
+                                            group = 'Unscaled', ATAC = TRUE)
+}
+names(Tn5_minus_unscaled_compositelist) <- Motifs
+
+#plot uncorrected values
+for (i in 1:length(Tn5_minus_unscaled_compositelist)) {
+  plot.composites(Tn5_minus_unscaled_compositelist[[i]], legend = FALSE, 
+                  pdf_name = paste('Tn5_minus_unscaled_400k_', 
+                  paste(names(Tn5_minus_unscaled_compositelist[i])), '_composite', sep = ''),
+                  ylabel = 'Cut Frequency',
+                  xlabel = 'Distance from Motif Center',
+                  motifline = FALSE, Motiflen = Motiflen[i],
+                  y_axis_range = c(0, max(Tn5_plus_unscaled_compositelist[[i]]$est)),
+                  x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50),
+                  figwidth = 4, figheight=4, nYticks = 2, nYaxisdigits = 2
+  )}
+#Save values
+save(Tn5_minus_unscaled_compositelist, file = 'Tn5_minus_unscaled_compositelist.Rdata')
+```
+
+## Determine k-mer frequency at each position for the plus and minus training motifs for 5/6/7 spaced 6-mers
+
+Calculate all 5-mer frequencies for each position in training motif sequences. For raw script, go here:     
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_5mer_frequency.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
-system('mkdir 5mer')
-setwd('../5mer')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
-system('mkdir plus')
-setwd('plus')
-train = c('AR', 'ASCL1', 'ATF3', 'CEBPB', 'CLOCK', 'CTCF', 'DLX2', 'DUX4', 'EGR1',
-          'ELF1', 'ESR1', 'FOXA1', 'FOXK2', 'GLIS1', 'HSF1', 'JUN', 'LEF1',
-          'MEIS2', 'MLX', 'MYC', 'NR2F2', 'SPIB', 'SRY', 'STAT1', 'TEAD1', 'TGIF1')
-#Import TF FIMO coordinates to extract the sequences from the FASTA...
-FIMOfiles_plus = list.files('../../FIMO_plus')
-FIMOfiles_plus = FIMOfiles_plus[grep(paste(train, collapse = '_|'), FIMOfiles_plus)]
-TFmotifs_plus = vector(mode = "list", length = length(FIMOfiles_plus))
-names(TFmotifs_plus) = substr(FIMOfiles_plus, 1, (nchar(FIMOfiles_plus)-14))
-#Import FIMO files for genomic coordinates and 
-#expand a 'window' around these sites (using a central base)
-for (i in 1:length(TFmotifs_plus)) {
-  TFmotifs_plus[[i]] <- FIMO.to.BED(paste('../../FIMO_plus/',
-                                          FIMOfiles_plus[i], sep = ''), window = 100)
-}
-#Make sure no positions are less than 0
-for (i in 1:length(TFmotifs_plus)) {
-  print(TFmotifs_plus[[i]][which.min(TFmotifs_plus[[i]]$start),])
-}
-#Write these coordinates into a bed file for use with 'getfasta' from bedtools
-for (i in 1:length(TFmotifs_plus)) {
-  write.table(TFmotifs_plus[[i]], file = paste(names(TFmotifs_plus[i]),
-                                               '_hg38coords.bed', sep = ''),
-              row.names=FALSE, sep="\t", quote = FALSE, col.names = FALSE)
-}
-#Run getfasta on genomic coordinates to get sequences for window
-for (i in 1:length(TFmotifs_plus)) {
-  system(paste('bedtools getfasta -bedOut -s -fi ../../data/hg38.fa -bed ',
-               names(TFmotifs_plus[i]), '_hg38coords.bed > ',
-               names(TFmotifs_plus[i]), '_hg38seq.bed', sep = ''))
-}
-#load in bed files with sequences
-TFseq_plus <- vector(mode = "list", length = length(TFmotifs_plus))
-names(TFseq_plus) <- names(TFmotifs_plus)
-for (i in 1:length(TFmotifs_plus)) {
-  TFseq_plus[[i]] <- fread(paste(names(TFmotifs_plus[i]),
-                                 '_hg38seq.bed', sep = ''))
-}
-
-#Make sure no sequences have been lost
-for (i in 1:length(TFseq_plus)) {
-  print(nrow(TFseq_plus[[i]]))
-}
-#Make all sequences upper case
-TFseq_plus = lapply(TFseq_plus, function(x) {toupper(x$V7)})
-save(TFseq_plus, file = 'TFseq_plus.Rdata')
-
+#Load in hg38 plus sequences from Figure 5
+load('../Figure5/hg38_Plus_motif_sequences.Rdata')
 #Break sequences into 5bp chunks (for 5mer)
 TFseq_plus = lapply(TFseq_plus, mer.positions, mermask = "NNNNN")
 #Find frequency of each possible 5mer for each position
@@ -3602,51 +3330,7 @@ TFseq_plus = lapply(TFseq_plus, position.frequencies, mermask = "NNNNN")
 save(TFseq_plus, file = 'Tn5_TF_position_frequencies_5mer_plus.Rdata')
 
 #Determine minus strand 5-mer frequencies
-setwd('../minus')
-#Import TF FIMO coordinates to extract the sequences from the FASTA...
-FIMOfiles_minus = list.files('../../FIMO_minus')
-FIMOfiles_minus = FIMOfiles_minus[grep(paste(train, collapse = '_|'), FIMOfiles_minus)]
-TFmotifs_minus = vector(mode = "list", length = length(FIMOfiles_minus))
-names(TFmotifs_minus) = substr(FIMOfiles_minus, 1, (nchar(FIMOfiles_minus)-14))
-#Import FIMO files for genomic coordinates and expand a 'window' around
-#these sites (using a central base)
-for (i in 1:length(TFmotifs_minus)) {
-  TFmotifs_minus[[i]] <- FIMO.to.BED(paste('../../FIMO_minus/',
-                                           FIMOfiles_minus[i], sep = ''), window = 100)
-}
-#CHECK TO SEE IF OFF CHROMOSOME -- SMALLEST START POSITION
-for (i in 1:length(TFmotifs_minus)) {
-  print(TFmotifs_minus[[i]][which.min(TFmotifs_minus[[i]]$start),])
-}
-#Write these coordinates into a bed file for use with 'getfasta' from bedtools
-for (i in 1:length(TFmotifs_minus)) {
-  write.table(TFmotifs_minus[[i]], file = paste(names(TFmotifs_minus[i]),
-                                                '_hg38coords.bed', sep = ''),
-              row.names=FALSE, sep="\t", quote = FALSE, col.names = FALSE)
-}
-#Run getfasta on genomic coordinates to get sequences for window
-for (i in 1:length(TFmotifs_minus)) {
-  system(paste('bedtools getfasta -bedOut -s -fi ../../data/hg38.fa -bed ',
-               names(TFmotifs_minus[i]), '_hg38coords.bed > ',
-               names(TFmotifs_minus[i]), '_hg38seq.bed', sep = ''))
-}
-
-
-#load in bed files with sequences
-TFseq_minus <- vector(mode = "list", length = length(TFmotifs_minus))
-names(TFseq_minus) <- names(TFmotifs_minus)
-for (i in 1:length(TFmotifs_minus)) {
-  TFseq_minus[[i]] <- fread(paste(names(TFmotifs_minus[i]), '_hg38seq.bed', sep = ''))
-}
-
-#Check to make sure no sequences have been lost
-for (i in 1:length(TFseq_minus)) {
-  print(nrow(TFseq_minus[[i]]))
-}
-
-#Make all sequences upper case
-TFseq_minus = lapply(TFseq_minus, function(x) {toupper(x$V7)})
-save(TFseq_minus, file = 'TFseq_minus.Rdata')
+load('../Figure5/hg38_Minus_motif_sequences.Rdata')
 #Break sequences into 5bp chunks (for 5mer)
 TFseq_minus = lapply(TFseq_minus, mer.positions, mermask = "NNNNN")
 #Find frequency of each possible 5mer for each position
@@ -3654,73 +3338,67 @@ TFseq_minus = lapply(TFseq_minus, position.frequencies, mermask = "NNNNN")
 save(TFseq_minus, file = 'Tn5_TF_position_frequencies_5mer_minus.Rdata')
 ```
 
-Calculate all 6-mer frequencies for each position in motif sequences
+Calculate all 6-mer frequencies for each position in motif sequences. Raw script is available here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_6mer_frequency.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
-system('mkdir 6mer')
-setwd('../6mer')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
-system('mkdir plus')
-setwd('plus')
-#Load in plus sequence data
-load('TFseq_plus.Rdata')
-#Break sequences into 5bp chunks (for 6mer)
+#Load in hg38 plus sequences from Figure 5
+load('../Figure5/hg38_Plus_motif_sequences.Rdata')
+#Break sequences into 6bp chunks (for 6-mer)
 TFseq_plus = lapply(TFseq_plus, mer.positions, mermask = "NNNNNN")
-#Find frequency of each possible 6mer for each position
+#Find frequency of each possible 6-mer for each position
 TFseq_plus = lapply(TFseq_plus, position.frequencies, mermask = "NNNNNN")
 save(TFseq_plus, file = 'Tn5_TF_position_frequencies_6mer_plus.Rdata')
 
-#Do this for minus strand sequences
-system('mkdir ../minus')
-load('TFseq_minus.Rdata')
-#Make all sequences upper case
-TFseq_minus = lapply(TFseq_minus, function(x) {toupper(x$V7)})
-#Break sequences into 5bp chunks (for 6mer)
+#Determine minus strand 6-mer frequencies
+load('../Figure5/hg38_Minus_motif_sequences.Rdata')
+#Break sequences into 6bp chunks (for 6-mer)
 TFseq_minus = lapply(TFseq_minus, mer.positions, mermask = "NNNNNN")
-#Find frequency of each possible 6mer for each position
+#Find frequency of each possible 6-mer for each position
 TFseq_minus = lapply(TFseq_minus, position.frequencies, mermask = "NNNNNN")
 save(TFseq_minus, file = 'Tn5_TF_position_frequencies_6mer_minus.Rdata')
 ```
 
-Calculate all 7-mer frequencies for each position in motif sequences
+Calculate all 7-mer frequencies for each position in motif sequences. View the raw script here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_7mer_frequency.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
-system('mkdir 7mer')
-setwd('../7mer')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
-system('mkdir plus')
-setwd('plus')
-#
-load('TFseq_plus.Rdata')
-#Break sequences into 5bp chunks (for 7mer)
+#Load in hg38 plus sequences from Figure 5
+load('../Figure5/hg38_Plus_motif_sequences.Rdata')
+#Break sequences into 7bp chunks (for 7-mer)
 TFseq_plus = lapply(TFseq_plus, mer.positions, mermask = "NNNNNNN")
-#Find frequency of each possible 7mer for each position
+#Find frequency of each possible 7-mer for each position
 TFseq_plus = lapply(TFseq_plus, position.frequencies, mermask = "NNNNNNN")
 save(TFseq_plus, file = 'Tn5_TF_position_frequencies_7mer_plus.Rdata')
 
-#Do this for minus strand sequences
-system('mkdir ../minus')
-load('TFseq_minus.Rdata')
-#Break sequences into 5bp chunks (for 7mer)
+#Determine minus strand 7-mer frequencies
+load('../Figure5/hg38_Minus_motif_sequences.Rdata')
+#Break sequences into 7bp chunks (for 7-mer)
 TFseq_minus = lapply(TFseq_minus, mer.positions, mermask = "NNNNNNN")
-#Find frequency of each possible 7mer for each position
+#Find frequency of each possible 7-mer for each position
 TFseq_minus = lapply(TFseq_minus, position.frequencies, mermask = "NNNNNNN")
 save(TFseq_minus, file = 'Tn5_TF_position_frequencies_7mer_minus.Rdata')
 ```
 
-Calculate all spaced 3-mer frequencies for each position in motif sequences
+Calculate all spaced 6-mer frequencies for each position in motif sequences. This script is available in raw form at:     
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_spaced6mer_frequency.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
-system('mkdir spaced_3mer')
-setwd('spaced_3mer')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+options(scipen = 100)
+system('mkdir spaced_6mer')
+setwd('spaced_6mer')
 system('mkdir plus')
 setwd('plus')
-options(scipen = 100)
 #Determine the unique spacings of 3mers in 46bp
-factorfiles <- read.table('../../all_possible_spaced_3mers_46bp.txt', skip = 1)
+factorfiles <- read.table('../../Tn5_kmercount/all_possible_spaced_6mers_46bp.txt', skip = 1)
 factorfiles = factorfiles[,1]
 unique_factorfiles_spacing = factorfiles
 unique_factorfiles_spacing = strsplit(unique_factorfiles_spacing, 'NNN')
@@ -3733,7 +3411,7 @@ unique_factorfiles_spacing = gsub('X$', 'XNNN', unique_factorfiles_spacing)
 unique_factorfiles_spacing = unique(unique_factorfiles_spacing)
 rm(unique_factorfiles)
 ###############################################################
-load('../../5mer/plus/TFseq_plus.Rdata')
+load('../../../Figure5/hg38_Plus_motif_sequences.Rdata')
 for (i in 1:length(unique_factorfiles_spacing)) {
   TFseq_plus_s = lapply(TFseq_plus, mer.positions,
                         mermask = unique_factorfiles_spacing[i])
@@ -3745,7 +3423,7 @@ for (i in 1:length(unique_factorfiles_spacing)) {
 ###############################################################
 system('mkdir ../minus')
 setwd('../minus')
-load('../../5mer/minus/TFseq_minus.Rdata')
+load('../../../Figure5/hg38_Minus_motif_sequences.Rdata')
 for (i in 1:length(unique_factorfiles_spacing)) {
   TFseq_minus_s = lapply(TFseq_minus, mer.positions,
                          mermask = unique_factorfiles_spacing[i])
@@ -3754,24 +3432,25 @@ for (i in 1:length(unique_factorfiles_spacing)) {
   save(TFseq_minus_s, file = paste(unique_factorfiles_spacing[i],
                                    '_TFseq_minus_posfreqs.Rdata', sep = ''))
 }
+setwd('../../')
 ```
 
 ## Multiply each k-mer frequency by the inverse of its scaling factors
 
-Multiply 5-mer frequencies by their scale factors, for each TF
+Multiply 5-mer frequencies by their scale factors, for each TF. Access the raw code here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_5mer_sfkf.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 library('parallel')
 library('doParallel')
-setwd('5mer')
 options(scipen = 100)
 
 #Import kmer counts and compute scale factors for each....
-factorfiles <- list.files('../Tn5_data')
-factorfiles = grep('_fulldat_scale_factors.txt', factorfiles)
-gsub_factorfiles = gsub('NC', 'N', factorfiles)
-gsub_factorfiles = gsub('CN', 'N', gsub_factorfiles)
+factorfiles <- list.files('Tn5_kmercount')
+factorfiles = factorfiles[grep('_scale_factors.txt', factorfiles)]
+gsub_factorfiles = gsub('C', '', factorfiles)
 factorfiles = factorfiles[grep('NNNNN', gsub_factorfiles)]
 gsub_factorfiles = gsub_factorfiles[grep('NNNNN', gsub_factorfiles)]
 factorfiles = factorfiles[-grep('NNNNNN', gsub_factorfiles)]
@@ -3780,12 +3459,11 @@ scalefactors <- vector(mode = "list", length = length(factorfiles))
 names(scalefactors) <- factorfiles
 
 for (i in 1:length(factorfiles)) {
-  scalefactors[[i]] <- scalefactor.func(paste('../Tn5_data',
+  scalefactors[[i]] <- scalefactor.func(paste('Tn5_kmercount/',
                                               factorfiles[i], sep = ''))
 }
 
 ##5mer Plus scale factor by k-mer frequency multiplication
-setwd('plus')
 load('Tn5_TF_position_frequencies_5mer_plus.Rdata')
 
 registerDoParallel(3)
@@ -3796,9 +3474,65 @@ foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar%
   {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors,
                                                                 kmerfrequency = TFseq_plus[[i]], 
                                                                 tfname = names(TFseq_plus[i]))}
+
+TF_sfkf_5mer_minus <- vector(mode = "list", length = length(TFseq_minus))
+names(TF_sfkf_5mer_minus) = names(TFseq_minus)
+rm(TFseq_minus)
+
+RDSlist = list.files('./')
+RDSlist = RDSlist[grep('.rds', RDSlist)]
+RDSlist = RDSlist[grep('plus', RDSlist)]
+RDSlist = RDSlist[grep(paste(substr(factorfiles,5,nchar(factorfiles)-18),
+                             collapse="|"),RDSlist)]
+
+for (i in 1:length(RDSlist)) {
+  TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    readRDS(paste(RDSlist[i], sep = ''))
+  
+  names(TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]])[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)] =
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+  
+  TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    scaledkmerfreq.sum.plus(TF_sfkf_5mer_plus[[which(names(TF_sfkf_5mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]])
+}
+
+#Shift the values so that all predictions are aligned
+input_correction = data.frame(matrix(nrow = 42, ncol = 2))
+input_correction[1:42,1] = 1:42
+input_correction[1:42,2] = 156:197
+
+plus_pred_input = vector(mode = 'list', length = length(TF_sfkf_5mer_plus))
+names(plus_pred_input) <- names(TF_sfkf_5mer_plus)
+for (i in 1:length(TF_sfkf_5mer_plus)) {
+  for (p in 1:length(TF_sfkf_5mer_plus[[i]])) {
+    plus_pred_input[[i]][[p]] = TF_sfkf_5mer_plus[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  plus_pred_input[[i]] = data.frame(plus_pred_input[[i]])
+  names(plus_pred_input[[i]]) = substr(names(TF_sfkf_5mer_plus[[i]]),
+  nchar(names(TF_sfkf_5mer_plus[[i]])) - 46, nchar(names(TF_sfkf_5mer_plus[[i]])))
+}
+
+###Add x axis to input for future alignment
+for (i in 1:length(plus_pred_input)) {
+  for (p in 1:length(plus_pred_input[[i]])) {
+    plus_pred_input[[i]][[p]] = as.data.frame(plus_pred_input[[i]][[p]])
+    plus_pred_input[[i]][[p]][,2] = seq(-73,82,1)
+    colnames(plus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(plus_pred_input, file = 'Tn5_TF_plus_pre_input_5mers.Rdata')
+
 ################################################################################
 ##5mer minus scale factor by k-mer frequency multiplication
-setwd('../minus')
 load('Tn5_TF_position_frequencies_5mer_minus.Rdata')
 
 
@@ -3810,38 +3544,92 @@ foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar%
   {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors,
                                                                 kmerfrequency = TFseq_minus[[i]],
                                                                 tfname = names(TFseq_minus[i]))}
+
+
+TF_sfkf_5mer_minus <- vector(mode = "list", length = length(TFseq_minus))
+names(TF_sfkf_5mer_minus) = names(TFseq_minus)
+rm(TFseq_minus)
+
+RDSlist = list.files('./')
+RDSlist = RDSlist[grep('.rds', RDSlist)]
+RDSlist = RDSlist[grep('minus', RDSlist)]
+RDSlist = RDSlist[grep(paste(substr(factorfiles,5,nchar(factorfiles)-18),
+                             collapse="|"),RDSlist)]
+
+for (i in 1:length(RDSlist)) {
+  TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    readRDS(paste(RDSlist[i], sep = ''))
+  
+  names(TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]])[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)] =
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+  
+  TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    scaledkmerfreq.sum.minus(TF_sfkf_5mer_minus[[which(names(TF_sfkf_5mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]])
+}
+
+#Shift the values so that all predictions are aligned
+input_correction = data.frame(matrix(nrow = 42, ncol = 2))
+input_correction[1:42,1] = 1:42
+input_correction[1:42,2] = 156:197
+
+minus_pred_input = vector(mode = 'list', length = length(TF_sfkf_5mer_minus))
+names(minus_pred_input) <- names(TF_sfkf_5mer_minus)
+for (i in 1:length(TF_sfkf_5mer_minus)) {
+  for (p in 1:length(TF_sfkf_5mer_minus[[i]])) {
+    minus_pred_input[[i]][[p]] = TF_sfkf_5mer_minus[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  minus_pred_input[[i]] = data.frame(minus_pred_input[[i]])
+  names(minus_pred_input[[i]]) = substr(names(TF_sfkf_5mer_minus[[i]]),
+        nchar(names(TF_sfkf_5mer_minus[[i]])) - 46, nchar(names(TF_sfkf_5mer_minus[[i]])))
+}
+
+###Add x axis to input for future alignment
+for (i in 1:length(minus_pred_input)) {
+  for (p in 1:length(minus_pred_input[[i]])) {
+    minus_pred_input[[i]][[p]] = as.data.frame(minus_pred_input[[i]][[p]])
+    minus_pred_input[[i]][[p]][,2] = seq(-73,82,1)
+    colnames(minus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(minus_pred_input, file = 'Tn5_TF_minus_pre_input_5mers.Rdata')
 ```
 
-Multiply 6-mer frequencies by their scale factors, for each TF
+Multiply 6-mer frequencies by their scale factors, for each TF. The raw code is available here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_6mer_sfkf.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 library('parallel')
 library('doParallel')
-setwd('6mer')
 options(scipen = 100)
 
 #Import kmer counts and compute scale factors for each....
-factorfiles <- list.files('../Tn5_data')
-factorfiles = grep('_fulldat_scale_factors.txt', factorfiles)
-gsub_factorfiles = gsub('NC', 'N', factorfiles)
-gsub_factorfiles = gsub('CN', 'N', gsub_factorfiles)
+factorfiles <- list.files('Tn5_kmercount')
+factorfiles = factorfiles[grep('_scale_factors.txt', factorfiles)]
+gsub_factorfiles = gsub('C', '', factorfiles)
 factorfiles = factorfiles[grep('NNNNNN', gsub_factorfiles)]
 gsub_factorfiles = gsub_factorfiles[grep('NNNNNN', gsub_factorfiles)]
 factorfiles = factorfiles[-grep('NNNNNNN', gsub_factorfiles)]
 rm(gsub_factorfiles)
-
-
 scalefactors <- vector(mode = "list", length = length(factorfiles))
 names(scalefactors) <- factorfiles
 
 for (i in 1:length(factorfiles)) {
-  scalefactors[[i]] <- scalefactor.func(paste('../Tn5_data',
+  scalefactors[[i]] <- scalefactor.func(paste('Tn5_kmercount/',
                                               factorfiles[i], sep = ''))
 }
 
 ##6mer Plus scale factor by k-mer frequency multiplication
-setwd('plus')
 load('Tn5_TF_position_frequencies_6mer_plus.Rdata')
 
 registerDoParallel(3)
@@ -3852,9 +3640,65 @@ foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar%
   {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors,
                                                                 kmerfrequency = TFseq_plus[[i]], 
                                                                 tfname = names(TFseq_plus[i]))}
+
+TF_sfkf_6mer_minus <- vector(mode = "list", length = length(TFseq_minus))
+names(TF_sfkf_6mer_minus) = names(TFseq_minus)
+rm(TFseq_minus)
+
+RDSlist = list.files('./')
+RDSlist = RDSlist[grep('.rds', RDSlist)]
+RDSlist = RDSlist[grep('plus', RDSlist)]
+RDSlist = RDSlist[grep(paste(substr(factorfiles,5,nchar(factorfiles)-18),
+                             collapse="|"),RDSlist)]
+
+for (i in 1:length(RDSlist)) {
+  TF_sfkf_6mer_plus[[which(names(TF_sfkf_6mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    readRDS(paste(RDSlist[i], sep = ''))
+  
+  names(TF_sfkf_6mer_plus[[which(names(TF_sfkf_6mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]])[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)] =
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+  
+  TF_sfkf_6mer_plus[[which(names(TF_sfkf_6mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    scaledkmerfreq.sum.plus(TF_sfkf_6mer_plus[[which(names(TF_sfkf_6mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]])
+}
+
+#Shift the values so that all predictions are aligned
+input_correction = data.frame(matrix(nrow = 41, ncol = 2))
+input_correction[1:41,1] = 1:41
+input_correction[1:41,2] = 156:196
+
+plus_pred_input = vector(mode = 'list', length = length(TF_sfkf_6mer_plus))
+names(plus_pred_input) <- names(TF_sfkf_6mer_plus)
+for (i in 1:length(TF_sfkf_6mer_plus)) {
+  for (p in 1:length(TF_sfkf_6mer_plus[[i]])) {
+    plus_pred_input[[i]][[p]] = TF_sfkf_6mer_plus[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  plus_pred_input[[i]] = data.frame(plus_pred_input[[i]])
+  names(plus_pred_input[[i]]) = substr(names(TF_sfkf_6mer_plus[[i]]),
+  nchar(names(TF_sfkf_6mer_plus[[i]])) - 46, nchar(names(TF_sfkf_6mer_plus[[i]])))
+}
+
+###Add x axis to input for future alignment
+for (i in 1:length(plus_pred_input)) {
+  for (p in 1:length(plus_pred_input[[i]])) {
+    plus_pred_input[[i]][[p]] = as.data.frame(plus_pred_input[[i]][[p]])
+    plus_pred_input[[i]][[p]][,2] = seq(-73,81,1)
+    colnames(plus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(plus_pred_input, file = 'Tn5_TF_plus_pre_input_6mers.Rdata')
+
 ################################################################################
 ##6mer minus scale factor by k-mer frequency multiplication
-setwd('../minus')
 load('Tn5_TF_position_frequencies_6mer_minus.Rdata')
 
 
@@ -3866,35 +3710,91 @@ foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar%
   {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors,
                                                                 kmerfrequency = TFseq_minus[[i]],
                                                                 tfname = names(TFseq_minus[i]))}
+
+
+TF_sfkf_6mer_minus <- vector(mode = "list", length = length(TFseq_minus))
+names(TF_sfkf_6mer_minus) = names(TFseq_minus)
+rm(TFseq_minus)
+
+RDSlist = list.files('./')
+RDSlist = RDSlist[grep('.rds', RDSlist)]
+RDSlist = RDSlist[grep('minus', RDSlist)]
+RDSlist = RDSlist[grep(paste(substr(factorfiles,5,nchar(factorfiles)-18),
+                             collapse="|"),RDSlist)]
+
+for (i in 1:length(RDSlist)) {
+  TF_sfkf_6mer_minus[[which(names(TF_sfkf_6mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    readRDS(paste(RDSlist[i], sep = ''))
+  
+  names(TF_sfkf_6mer_minus[[which(names(TF_sfkf_6mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]])[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)] =
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+  
+  TF_sfkf_6mer_minus[[which(names(TF_sfkf_6mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    scaledkmerfreq.sum.minus(TF_sfkf_6mer_minus[[which(names(TF_sfkf_6mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]])
+}
+
+#Shift the values so that all predictions are aligned
+input_correction = data.frame(matrix(nrow = 41, ncol = 2))
+input_correction[1:41,1] = 1:41
+input_correction[1:41,2] = 156:196
+
+minus_pred_input = vector(mode = 'list', length = length(TF_sfkf_6mer_minus))
+names(minus_pred_input) <- names(TF_sfkf_6mer_minus)
+for (i in 1:length(TF_sfkf_6mer_minus)) {
+  for (p in 1:length(TF_sfkf_6mer_minus[[i]])) {
+    minus_pred_input[[i]][[p]] = TF_sfkf_6mer_minus[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  minus_pred_input[[i]] = data.frame(minus_pred_input[[i]])
+  names(minus_pred_input[[i]]) = substr(names(TF_sfkf_6mer_minus[[i]]),
+        nchar(names(TF_sfkf_6mer_minus[[i]])) - 46, nchar(names(TF_sfkf_6mer_minus[[i]])))
+}
+
+###Add x axis to input for future alignment
+for (i in 1:length(minus_pred_input)) {
+  for (p in 1:length(minus_pred_input[[i]])) {
+    minus_pred_input[[i]][[p]] = as.data.frame(minus_pred_input[[i]][[p]])
+    minus_pred_input[[i]][[p]][,2] = seq(-73,81,1)
+    colnames(minus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(minus_pred_input, file = 'Tn5_TF_minus_pre_input_6mers.Rdata')
 ```
 
-Multiply 7-mer frequencies by their scale factors, for each TF
+Multiply 7-mer frequencies by their scale factors, for each TF. To see this in raw format, visit:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_7mer_sfkf.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 library('parallel')
 library('doParallel')
-setwd('7mer')
 options(scipen = 100)
 
 #Import kmer counts and compute scale factors for each....
-factorfiles <- list.files('../Tn5_data')
-factorfiles = grep('_fulldat_scale_factors.txt', factorfiles)
-gsub_factorfiles = gsub('NC', 'N', factorfiles)
-gsub_factorfiles = gsub('CN', 'N', gsub_factorfiles)
+factorfiles <- list.files('Tn5_kmercount')
+factorfiles = factorfiles[grep('_scale_factors.txt', factorfiles)]
+gsub_factorfiles = gsub('C', '', factorfiles)
 factorfiles = factorfiles[grep('NNNNNNN', gsub_factorfiles)]
+gsub_factorfiles = gsub_factorfiles[grep('NNNNNNN', gsub_factorfiles)]
 rm(gsub_factorfiles)
-
 scalefactors <- vector(mode = "list", length = length(factorfiles))
 names(scalefactors) <- factorfiles
 
 for (i in 1:length(factorfiles)) {
-  scalefactors[[i]] <- scalefactor.func(paste('../Tn5_data',
+  scalefactors[[i]] <- scalefactor.func(paste('Tn5_kmercount/',
                                               factorfiles[i], sep = ''))
 }
 
 ##7mer Plus scale factor by k-mer frequency multiplication
-setwd('plus')
 load('Tn5_TF_position_frequencies_7mer_plus.Rdata')
 
 registerDoParallel(3)
@@ -3905,10 +3805,67 @@ foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar%
   {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors,
                                                                 kmerfrequency = TFseq_plus[[i]], 
                                                                 tfname = names(TFseq_plus[i]))}
+
+TF_sfkf_7mer_minus <- vector(mode = "list", length = length(TFseq_minus))
+names(TF_sfkf_7mer_minus) = names(TFseq_minus)
+rm(TFseq_minus)
+
+RDSlist = list.files('./')
+RDSlist = RDSlist[grep('.rds', RDSlist)]
+RDSlist = RDSlist[grep('plus', RDSlist)]
+RDSlist = RDSlist[grep(paste(substr(factorfiles,5,nchar(factorfiles)-18),
+                             collapse="|"),RDSlist)]
+
+for (i in 1:length(RDSlist)) {
+  TF_sfkf_7mer_plus[[which(names(TF_sfkf_7mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    readRDS(paste(RDSlist[i], sep = ''))
+  
+  names(TF_sfkf_7mer_plus[[which(names(TF_sfkf_7mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]])[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)] =
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+  
+  TF_sfkf_7mer_plus[[which(names(TF_sfkf_7mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    scaledkmerfreq.sum.plus(TF_sfkf_7mer_plus[[which(names(TF_sfkf_7mer_plus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]])
+}
+
+#Shift the values so that all predictions are aligned
+input_correction = data.frame(matrix(nrow = 40, ncol = 2))
+input_correction[1:40,1] = 1:40
+input_correction[1:40,2] = 156:195
+
+plus_pred_input = vector(mode = 'list', length = length(TF_sfkf_7mer_plus))
+names(plus_pred_input) <- names(TF_sfkf_7mer_plus)
+for (i in 1:length(TF_sfkf_7mer_plus)) {
+  for (p in 1:length(TF_sfkf_7mer_plus[[i]])) {
+    plus_pred_input[[i]][[p]] = TF_sfkf_7mer_plus[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  plus_pred_input[[i]] = data.frame(plus_pred_input[[i]])
+  names(plus_pred_input[[i]]) = substr(names(TF_sfkf_7mer_plus[[i]]),
+  nchar(names(TF_sfkf_7mer_plus[[i]])) - 46, nchar(names(TF_sfkf_7mer_plus[[i]])))
+}
+
+###Add x axis to input for future alignment
+for (i in 1:length(plus_pred_input)) {
+  for (p in 1:length(plus_pred_input[[i]])) {
+    plus_pred_input[[i]][[p]] = as.data.frame(plus_pred_input[[i]][[p]])
+    plus_pred_input[[i]][[p]][,2] = seq(-73,80,1)
+    colnames(plus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(plus_pred_input, file = 'Tn5_TF_plus_pre_input_7mers.Rdata')
+
 ################################################################################
 ##7mer minus scale factor by k-mer frequency multiplication
-setwd('../minus')
 load('Tn5_TF_position_frequencies_7mer_minus.Rdata')
+
 
 registerDoParallel(3)
 TF_scalefactors_kmerfreq <- vector(mode = "list", length = length(TFseq_minus))
@@ -3918,19 +3875,81 @@ foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar%
   {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors,
                                                                 kmerfrequency = TFseq_minus[[i]],
                                                                 tfname = names(TFseq_minus[i]))}
+
+
+TF_sfkf_7mer_minus <- vector(mode = "list", length = length(TFseq_minus))
+names(TF_sfkf_7mer_minus) = names(TFseq_minus)
+rm(TFseq_minus)
+
+RDSlist = list.files('./')
+RDSlist = RDSlist[grep('.rds', RDSlist)]
+RDSlist = RDSlist[grep('minus', RDSlist)]
+RDSlist = RDSlist[grep(paste(substr(factorfiles,5,nchar(factorfiles)-18),
+                             collapse="|"),RDSlist)]
+
+for (i in 1:length(RDSlist)) {
+  TF_sfkf_7mer_minus[[which(names(TF_sfkf_7mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    readRDS(paste(RDSlist[i], sep = ''))
+  
+  names(TF_sfkf_7mer_minus[[which(names(TF_sfkf_7mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]])[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)] =
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 4)
+  
+  TF_sfkf_7mer_minus[[which(names(TF_sfkf_7mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]] =
+                    scaledkmerfreq.sum.minus(TF_sfkf_7mer_minus[[which(names(TF_sfkf_7mer_minus) ==
+                    substr(RDSlist[i], 1, nchar(RDSlist[i]) - 56))]][[grep(substr(RDSlist[i],
+                    nchar(RDSlist[i]) - 50, nchar(RDSlist[i])- 4), factorfiles)]])
+}
+
+#Shift the values so that all predictions are aligned
+input_correction = data.frame(matrix(nrow = 40, ncol = 2))
+input_correction[1:40,1] = 1:40
+input_correction[1:40,2] = 156:195
+
+minus_pred_input = vector(mode = 'list', length = length(TF_sfkf_7mer_minus))
+names(minus_pred_input) <- names(TF_sfkf_7mer_minus)
+for (i in 1:length(TF_sfkf_7mer_minus)) {
+  for (p in 1:length(TF_sfkf_7mer_minus[[i]])) {
+    minus_pred_input[[i]][[p]] = TF_sfkf_7mer_minus[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  minus_pred_input[[i]] = data.frame(minus_pred_input[[i]])
+  names(minus_pred_input[[i]]) = substr(names(TF_sfkf_7mer_minus[[i]]),
+        nchar(names(TF_sfkf_7mer_minus[[i]])) - 46, nchar(names(TF_sfkf_7mer_minus[[i]])))
+}
+
+###Add x axis to input for future alignment
+for (i in 1:length(minus_pred_input)) {
+  for (p in 1:length(minus_pred_input[[i]])) {
+    minus_pred_input[[i]][[p]] = as.data.frame(minus_pred_input[[i]][[p]])
+    minus_pred_input[[i]][[p]][,2] = seq(-73,80,1)
+    colnames(minus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(minus_pred_input, file = 'Tn5_TF_minus_pre_input_7mers.Rdata')
 ```
 
 
-Multiply spaced 3-mer frequencies by their scale factors, for each TF. As this will require generating close to 1000 masks, this script writes a script for each possible spacing of both 3-mers within the 46bp span. When ran, these scripts will multiply 1/scale factor by the k-mer frequencies for a given spacing. This means that spacings of the two 3-mers which are wider will have proportionally less runs. 
+Multiply spaced 6-mer frequencies by their scale factors, for each TF. As this will require generating thousands of permutations for each transcription factor and mask combination, this script writes a script for each possible spacing of both 3-mers within the 46bp span, using the SLURM system. When ran, these scripts will multiply 1/scale factor by the k-mer frequencies for a given spacing. A raw version of this script can be found at:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_spaced6mer_sfkf.R
+
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
-library('bigWig')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
 
 #Import kmer counts and compute scale factors for each....
-factorfiles <- list.files('/PATH/TO/spaced_3mer_scalefactors/')
-unique_factorfiles_spacing = substr(factorfiles, 5, nchar(factorfiles) -26)
+factorfiles = list.files('Tn5_kmercount/')
+factorfiles = factorfiles[grep('_scale_factors.txt', factorfiles)]
+gsub_factorfiles = gsub('C', '', factorfiles)
+factorfiles = factorfiles[-grep('NNNNN', gsub_factorfiles)]
+
+unique_factorfiles_spacing = substr(factorfiles, 5, nchar(factorfiles) -18)
 unique_factorfiles_spacing = gsub('C', '', unique_factorfiles_spacing)
 unique_factorfiles_spacing = strsplit(unique_factorfiles_spacing, 'NNN')
 unique_factorfiles = NULL
@@ -3940,180 +3959,311 @@ for (i in 1:length(unique_factorfiles_spacing)) {
 unique_factorfiles_spacing = gsub('^X', 'NNNX', unique_factorfiles)
 unique_factorfiles_spacing = gsub('X$', 'XNNN', unique_factorfiles_spacing)
 unique_factorfiles_spacing = unique(unique_factorfiles_spacing)
-rm(unique_factorfiles)
+rm(unique_factorfiles,gsub_factorfiles)
 
 scalefactors <- vector(mode = "list", length = length(factorfiles))
 names(scalefactors) <- factorfiles
 
 for (i in 1:length(factorfiles)) {
-  scalefactors[[i]] <- scalefactor.func(paste('/PATH/TO/spaced_3mer_scalefactors/',
+  scalefactors[[i]] <- scalefactor.func(paste('Tn5_kmercount/',
                                               factorfiles[i], sep = ''))
 }
-
 #Want scalefactor masks to have Xs instead of Ns
 for (i in 1:length(scalefactors)) {
   scalefactors[[i]]$V2  = gsub('N', 'X', scalefactors[[i]]$V2)
 }
-#Want to match scalefactor with its kmerfreq..
+#Match scalefactor with its kmerfreq
 scalefactor_names = substr(names(scalefactors), 5, 51)
 scalefactor_names = gsub('C', '', scalefactor_names)
 
-TFseq_files = list.files('/PATH/TO/spaced_3mer/plus')
-
-#Here we make a 'key' for each spacing of 3mers. Each key lists the spacings of k-mer frequency to be
+TFseq_files = list.files('spaced_6mer/plus')
+#Here we make a 'key' for each spacing of 6mers. 
+#Each key lists the spacings of k-mer frequency to be
 #multiplied by their respective scale factors
-setwd('../sfkf_keys')
+system('mkdir HPC_scripts')
+setwd('HPC_scripts')
 for (i in 1:length(TFseq_files)) {
   sfkf_key = names(scalefactors)[grep(substr(TFseq_files[i], 1,
                                              nchar(TFseq_files[i])-26), scalefactor_names)]
   save(sfkf_key, file = paste(substr(TFseq_files[i], 1,
                                      nchar(TFseq_files[i])-26), '_sfkf_key.Rdata', sep = ''))
 }
+#Save all scalefactors
+save(scalefactors, file = 'Tn5_spaced6mer_scalefactors.Rdata')
 #This section writes a script for each possible spacing of 3-mers within the window
-setwd('../Rivanna_scripts')
+system('mkdir HPC_scripts')
+setwd('HPC_scripts')
 for (i in 1:length(TFseq_files)) {
-writeLines(c("library(data.table)",
-             "source('../scripts/Tn5_Bias_Functions.R')", 
-             "library('parallel')",
-             "library('foreach')", 
-             "library('doParallel')",
-             paste("load('../posfreqs/plus/", TFseq_files[i], "')", sep = ''),
-             paste("load('../sfkf_keys/", paste(substr(TFseq_files[i], 
-                                                       1, nchar(TFseq_files[i])-26),
-                                                '_sfkf_key.Rdata', sep = ''), "')", sep = ''),
-             "load('../Tn5_spaced3mer_scalefactors.Rdata')",
-             "setwd('../plus_Rivanna_output')",
-             "options(scipen = 100)",
-             "registerDoParallel(20)",
-             "TF_scalefactors_kmerfreq <- vector(mode = 'list', length = length(TFseq_plus_s))",
-             "names(TF_scalefactors_kmerfreq) = names(TFseq_plus_s)",
-             "foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors[which(names(scalefactors) %in% sfkf_key)],
+  writeLines(c("library(data.table)",
+               "source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')", 
+               "library('parallel')",
+               "library('foreach')", 
+               "library('doParallel')",
+               paste("load('spaced_6mer/plus/", TFseq_files[i], "')", sep = ''),
+               paste("load('", paste(substr(TFseq_files[i], 
+                                                         1, nchar(TFseq_files[i])-26),
+                                                  '_sfkf_key.Rdata', sep = ''), "')", sep = ''),
+               "load('Tn5_spaced6mer_scalefactors.Rdata')",
+               "setwd('../plus_HPC_output')",
+               "options(scipen = 100)",
+               "registerDoParallel(20)",
+               "TF_scalefactors_kmerfreq <- vector(mode = 'list', length = length(TFseq_plus_s))",
+               "names(TF_scalefactors_kmerfreq) = names(TFseq_plus_s)",
+               "foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors[which(names(scalefactors) %in% sfkf_key)],
              kmerfrequency = TFseq_plus_s[[i]], tfname = names(TFseq_plus_s[i]))}",
-             "rm(TFseq_plus_s)",
-             "setwd('../minus_Rivanna_output')",
-             paste("load('../posfreqs/minus/", gsub('plus_', 'minus_', TFseq_files[i]), "')", sep = ''),
-             "TF_scalefactors_kmerfreq <- vector(mode = 'list', length = length(TFseq_minus_s))",
-             "names(TF_scalefactors_kmerfreq) = names(TFseq_minus_s)",
-             "foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors[which(names(scalefactors) %in% sfkf_key)],
+               "rm(TFseq_plus_s)",
+               "setwd('../minus_HPC_output')",
+               paste("load('spaced_6mer/minus/", gsub('plus_', 'minus_', TFseq_files[i]), "')", sep = ''),
+               "TF_scalefactors_kmerfreq <- vector(mode = 'list', length = length(TFseq_minus_s))",
+               "names(TF_scalefactors_kmerfreq) = names(TFseq_minus_s)",
+               "foreach (i = 1:length(TF_scalefactors_kmerfreq)) %dopar% {TF_scalefactors_kmerfreq[[i]] = scalefactor.by.kmerfrequency(scalefactors = scalefactors[which(names(scalefactors) %in% sfkf_key)],
              kmerfrequency = TFseq_minus_s[[i]], tfname = paste(names(TFseq_minus_s[i]), sep = ''))}"
-            ),
-           paste(substr(TFseq_files[i], 1, nchar(TFseq_files[i])-26), "_sfkf_Rivanna.R", sep = ''))
+  ),
+  paste(substr(TFseq_files[i], 1, nchar(TFseq_files[i])-26), "_sfkf_HPC.R", sep = ''))
 }
-#This section writes a slurm script to run each of the above scripts
+#This section writes a slurm script to run each of the above scripts using an HPC
 for (i in 1:length(TFseq_files)) {
   writeLines(c("#!/bin/bash",
                "#SBATCH --time=3:00:00",
-               "#SBATCH -A shefflab",
+               "#SBATCH -A yourlab",
                "#SBATCH -n 20",
                "#SBATCH -p standard",
                "#SBATCH --mem=9000",
                paste("#SBATCH -o Tn5_", substr(TFseq_files[i],
-               1, nchar(TFseq_files[i])-26), "_sfkf.out", sep = ''),
+                                               1, nchar(TFseq_files[i])-26), "_sfkf.out", sep = ''),
                "module load gcc/9.2.0",
                "module load intel/18.0",
                "module load intelmpi/18.0",
                "module load R/4.0.3",
                paste("Rscript ", substr(TFseq_files[i], 1,
-                        nchar(TFseq_files[i])-26), "_sfkf_Rivanna.R", sep = "")),
+                                        nchar(TFseq_files[i])-26), "_sfkf_HPC.R", sep = "")),
              paste(substr(TFseq_files[i], 1,
-                          nchar(TFseq_files[i])-26), "_sfkf_Rivanna.slurm", sep = ''))
+                          nchar(TFseq_files[i])-26), "_sfkf_HPC.slurm", sep = ''))
 }
 ```
 
-Sum the plus spaced 3-mer scale factor * k-mer frequency output for each position, for each TF
+Sum the spaced 6-mer scale factor * k-mer frequency output for each position, for each TF. To download this raw script, visit:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_spaced6mer_sfkf_sum.R
+
 ``` {R eval = FALSE}
 library(data.table)
 library('parallel')
 library('foreach')
 library('doParallel')
-source('../scripts/Tn5_Bias_Functions.R')
-load('../Tn5_spaced3mers_factorfiles.Rdata')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 registerDoParallel(20)
 setwd('../sfkf_sum')
 options(scipen = 100)
 
-RDSlist = list.files('../plus_Rivanna_output')
+RDSlist = list.files('../plus_HPC_output')
 TF_plus_scalefactors_kmerfreq <- vector(mode = "list", length = length(RDSlist))
 TF_plus_scalefactors_kmerfreq = foreach (i = 1:length(RDSlist)) %dopar% {
-  RDSstore = readRDS(paste( '../plus_Rivanna_output/', RDSlist[i], sep = ''))
+  RDSstore = readRDS(paste( '../plus_HPC_output/', RDSlist[i], sep = ''))
   RDSstore = scaledkmerfreq.sum.plus(RDSstore)
   return(RDSstore)}
 
 names(TF_plus_scalefactors_kmerfreq) = RDSlist
 
 save(TF_plus_scalefactors_kmerfreq, 
-     file = 'Tn5_TF_NEW_plus_pre_input_spaced3mers.Rdata')
-```
+     file = 'Tn5_TF_plus_pre_input_spaced6mers.Rdata')
 
-Sum the minus spaced 3-mer scale factor * k-mer frequency output for each position, for each TF
-``` {R eval = FALSE}
-library(data.table)
-library('parallel')
-library('foreach')
-library('doParallel')
-source('../scripts/Tn5_Bias_Functions.R')
-load('../Tn5_spaced3mers_factorfiles.Rdata')
-registerDoParallel(20)
-setwd('../sfkf_sum')
-options(scipen = 100)
 
-RDSlist = list.files('../minus_Rivanna_output')
+RDSlist = list.files('../minus_HPC_output')
 TF_minus_scalefactors_kmerfreq <- vector(mode = "list", length = length(RDSlist))
 TF_minus_scalefactors_kmerfreq = foreach (i = 1:length(RDSlist)) %dopar% {
-  RDSstore = readRDS(paste( '../minus_Rivanna_output/', RDSlist[i], sep = ''))
+  RDSstore = readRDS(paste( '../minus_HPC_output/', RDSlist[i], sep = ''))
   RDSstore = scaledkmerfreq.sum.minus(RDSstore)
   return(RDSstore)}
 
 names(TF_minus_scalefactors_kmerfreq) = RDSlist
 
 save(TF_minus_scalefactors_kmerfreq, 
-     file = 'Tn5_TF_NEW_minus_pre_input_spaced3mers.Rdata')
+     file = 'Tn5_TF_minus_pre_input_spaced6mers.Rdata')
 ```
 
+Load, trim and shift spaced 6-mer input. The raw script is found here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_spaced6mer_parse.R
 
-## Use 5/6/7/ spaced 3-mer inverse scale factor * k-mer frequency output to predict unbiased traces. Use this as input for a rule ensemble model
+```{R eval = FALSE}
+library(data.table)
+options(scipen = 100)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+
+#Load plus spaced 6-mer input 
+load('Tn5_TF_plus_pre_input_spaced6mers.Rdata')
+#Trim spaced 6-mer input to the lowest row number:
+kmerfreq_rows = NULL
+for (i in 1:length(TF_plus_scalefactors_kmerfreq)) {
+  kmerfreq_rows[i] = nrow(TF_plus_scalefactors_kmerfreq[[1]][[i]])
+}
+min(kmerfreq_rows)
+
+Plus_pre_input = TF_plus_scalefactors_kmerfreq
+for (i in 1:length(Plus_pre_input)) {
+  for (p in 1:length(Plus_pre_input[[i]])) {
+    Plus_pre_input[[i]][[p]] = Plus_pre_input[[i]][[p]][1:min(kmerfreq_rows)]
+  }
+}
+#Shift each mask by the farthest upstream 3-mer's offset:
+itnum = NULL
+for (i in 1:40) {
+  itnum[i] = 41-i
+}
+
+input_correction = data.frame(matrix(ncol = 2))
+correction_store = data.frame(matrix(ncol = 2))
+for (i in 1:length(itnum)) {
+  correction_store[1:itnum[i],1] = rep(1+(i-1), itnum[i]) 
+  correction_store[1:itnum[i],2] = rep(137+(i-1), itnum[i]) 
+  input_correction = rbind(input_correction, correction_store)
+  correction_store = data.frame(matrix(ncol = 2))
+}
+input_correction = input_correction[-c(1),]
+rownames(input_correction) = 1:nrow(input_correction)
+#Each mask shifts predictive output by the shift relative to the cut site
+#Correct this by assigning the values of each window for shifting
+Plus_pred_input = vector(mode = 'list', length = length(Plus_pre_input))
+names(Plus_pred_input) <- names(Plus_pre_input)
+for (i in 1:length(Plus_pre_input)) {
+  for (p in 1:length(Plus_pre_input[[i]])) {
+    Plus_pred_input[[i]][[p]] = 
+      Plus_pre_input[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  Plus_pred_input[[i]] = data.frame(Plus_pred_input[[i]])
+}
+#Assign names
+for (i in 1:length(Plus_pred_input)) {
+  names(Plus_pred_input[[i]]) = names(Plus_pre_input[[i]])  
+}
+
+for (i in 1:length(Plus_pred_input)) {
+  names(Plus_pred_input[[i]]) = substr(names(Plus_pred_input[[i]]),
+       nchar(names(Plus_pred_input[[i]])) - 54, nchar(names(Plus_pred_input[[i]]))-8)
+}
+
+###Add x axis to input for future alignment!
+for (i in 1:length(Plus_pred_input)) {
+  for (p in 1:length(Plus_pred_input[[i]])) {
+    Plus_pred_input[[i]][[p]] = as.data.frame(Plus_pred_input[[i]][[p]])
+    Plus_pred_input[[i]][[p]][,2] = seq(-73,min(kmerfreq_rows)-73,1)
+    colnames(Plus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(Plus_pred_input, file = 'Tn5_TF_plus_pre_input_spaced6mers.Rdata')
+
+#Load Minus spaced 6-mer input 
+load('Tn5_TF_Minus_pre_input_spaced6mers.Rdata')
+#Trim spaced 6-mer input to the lowest row number:
+kmerfreq_rows = NULL
+for (i in 1:length(TF_Minus_scalefactors_kmerfreq)) {
+  kmerfreq_rows[i] = nrow(TF_Minus_scalefactors_kmerfreq[[1]][[i]])
+}
+min(kmerfreq_rows)
+
+Minus_pre_input = TF_Minus_scalefactors_kmerfreq
+for (i in 1:length(Minus_pre_input)) {
+  for (p in 1:length(Minus_pre_input[[i]])) {
+    Minus_pre_input[[i]][[p]] = Minus_pre_input[[i]][[p]][1:min(kmerfreq_rows)]
+  }
+}
+#Shift each mask by the farthest upstream 3-mer's offset:
+itnum = NULL
+for (i in 1:40) {
+  itnum[i] = 41-i
+}
+
+input_correction = data.frame(matrix(ncol = 2))
+correction_store = data.frame(matrix(ncol = 2))
+for (i in 1:length(itnum)) {
+  correction_store[1:itnum[i],1] = rep(1+(i-1), itnum[i]) 
+  correction_store[1:itnum[i],2] = rep(137+(i-1), itnum[i]) 
+  input_correction = rbind(input_correction, correction_store)
+  correction_store = data.frame(matrix(ncol = 2))
+}
+input_correction = input_correction[-c(1),]
+rownames(input_correction) = 1:nrow(input_correction)
+#Each mask shifts predictive output by the shift relative to the cut site
+#Correct this by assigning the values of each window for shifting
+Minus_pred_input = vector(mode = 'list', length = length(Minus_pre_input))
+names(Minus_pred_input) <- names(Minus_pre_input)
+for (i in 1:length(Minus_pre_input)) {
+  for (p in 1:length(Minus_pre_input[[i]])) {
+    Minus_pred_input[[i]][[p]] = 
+      Minus_pre_input[[i]][[p]][input_correction[p,1]:input_correction[p,2]]
+  }
+  Minus_pred_input[[i]] = data.frame(Minus_pred_input[[i]])
+}
+#Assign names
+for (i in 1:length(Minus_pred_input)) {
+  names(Minus_pred_input[[i]]) = names(Minus_pre_input[[i]])  
+}
+
+for (i in 1:length(Minus_pred_input)) {
+  names(Minus_pred_input[[i]]) = substr(names(Minus_pred_input[[i]]),
+        nchar(names(Minus_pred_input[[i]])) - 54, nchar(names(Minus_pred_input[[i]]))-8)
+}
+
+###Add x axis to input for future alignment!
+for (i in 1:length(Minus_pred_input)) {
+  for (p in 1:length(Minus_pred_input[[i]])) {
+    Minus_pred_input[[i]][[p]] = as.data.frame(Minus_pred_input[[i]][[p]])
+    Minus_pred_input[[i]][[p]][,2] = seq(-73,min(kmerfreq_rows)-73,1)
+    colnames(Minus_pred_input[[i]][[p]]) = c('sfkf', 'x')
+  }
+}
+
+save(Minus_pred_input, file = 'Tn5_TF_Minus_pre_input_spaced6mers.Rdata')
+```
+
+## Use 5/6/7/spaced 6-mer inverse scale factor * k-mer frequency values as input for a rule ensemble model to predict unbiased traces
 
 ``` {R eval = FALSE}
 library(data.table)
-source('Tn5_Bias_Functions.R')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 library('pre')
-setwd('../output')
 options(scipen = 100)
-Sys.setenv(PATH=paste(Sys.getenv("PATH"), "/Users/guertinlab/opt/anaconda3/bin", sep=":"))
 ################################################################################
-train = c( 'ASCL1', 'CLOCK', 'CTCF', 'DLX2', 'EBF1', 'EGR1', 'ELF1', 'FOS',
-           'FOXA1', 'FOXK2', 'GATA2', 'GLIS1', 'HSF1', 'IRF1', 'JUN', 'LEF1',
-           'MEIS2', 'MLX', 'MYC', 'PPARG','RUNX1', 'SPIB', 'SRY', 'STAT1', 'TGIF1')
-test = c('AR', 'ATF3', 'CEBPB', 'E2F1', 'ESR1', 'FERD3L', 'HOXC12', 'MAX', 'MEF2A',
-         'MGA', 'NFATC3', 'NR2F2', 'POU3F1', 'REST', 'Six3', 'SP1', 'USF1', 'TEAD1')
+train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF',
+           'DLX2', 'EBF1', 'EGR1', 'ELF1',
+           'FOS', 'FOXA1', 'FOXK2', 'GATA2',
+           'GLIS1', 'IRF1', 'JUN', 'LEF1',
+           'MEIS2', 'MLX', 'MYC', 'PPARG', 
+           'RUNX1', 'SPIB', 'SRY', 'STAT1', 'TGIF1')
+test = c('AR', 'CEBPB', 'E2F1', 'ESR1',
+         'FERD3L', 'HOXC12', 'HSF1', 'MAX',
+         'MEF2A', 'MGA', 'NFATC3', 'NR2F2',
+         'POU3F1', 'REST', 'Six3', 'SP1',
+         'USF1', 'TEAD1')
 
 #Load in 5mer Rules Ensemble input and add other inputs from here:
-load('../RE_input/Tn5_TF_Plus_pre_input_5mers.Rdata')
+load('Tn5_TF_Plus_pre_input_5mers.Rdata')
 Plus_pred_input = Plus_pred_input[order(names(Plus_pred_input))]
 #Remove test data
 Plus_pred_input = Plus_pred_input[which(substr(names(Plus_pred_input),
-                                  1, nchar(names(Plus_pred_input))-8) %in% train)]
+                                               1, nchar(names(Plus_pred_input))-8) %in% train)]
 #Trim 5mer RE input to match smaller widths:
 Plus_pre_input = vector(mode = 'list', length = length(Plus_pred_input))
 for (i in 1:length(Plus_pred_input)) {
- for (p in 1:length(Plus_pred_input[[i]])) {
-   Plus_pre_input[[i]][[p]] = Plus_pred_input[[i]][[p]][c(which(Plus_pred_input[[i]][[p]]$x >= -73 &
-                                                                  Plus_pred_input[[i]][[p]]$x <= 57)),1]
-   names(Plus_pre_input)[i] = names(Plus_pred_input[i])
-   Plus_pre_input[[i]][[p]] = as.data.frame(Plus_pre_input[[i]][[p]])
-   
- }
+  for (p in 1:length(Plus_pred_input[[i]])) {
+    Plus_pre_input[[i]][[p]] = Plus_pred_input[[i]][[p]][c(which(Plus_pred_input[[i]][[p]]$x >= -73 &
+                                                                   Plus_pred_input[[i]][[p]]$x <= 57)),1]
+    names(Plus_pre_input)[i] = names(Plus_pred_input[i])
+    Plus_pre_input[[i]][[p]] = as.data.frame(Plus_pre_input[[i]][[p]])
+    
+  }
   Plus_pre_input[[i]] = as.data.frame(Plus_pre_input[[i]])
   names(Plus_pre_input[[i]]) = names(Plus_pred_input[[i]])
 }
 #load in unscaled composites and reduce the size to the predicted 
-#area (last 4 bases are unmappable because of 5mer)
+#area 
 load('../data/Tn5_plus_unscaled_RM_composites.Rdata')
 Tn5_unscaled_composites = 
   Tn5_unscaled_composites[which(substr(Tn5_unscaled_composites$factor,
-                                      1, nchar(Tn5_unscaled_composites$factor)-8) %in% train),]
+                                       1, nchar(Tn5_unscaled_composites$factor)-8) %in% train),]
 Tn5_unscaled_composites = 
   Tn5_unscaled_composites[-c(which(Tn5_unscaled_composites$x < - 73 |  Tn5_unscaled_composites$x > 57)),]
+Tn5_unscaled_composites$est = Tn5_unscaled_composites$est/0.00309736
 Tn5_pre_data_plus = cbind(Tn5_unscaled_composites, do.call(rbind, Plus_pre_input))
 rm(Plus_pre_input, Plus_pred_input)
 #Next, load in 6mers...
@@ -4204,7 +4354,7 @@ Tn5minus_unscaled_composites = do.call(rbind, Tn5minus_unscaled_compositelist)
 Tn5minus_unscaled_composites$est = Tn5minus_unscaled_composites$est/0.00309736
 
 Tn5minus_unscaled_composites = Tn5minus_unscaled_composites[which(substr(Tn5minus_unscaled_composites$factor,
-                                                1, nchar(Tn5minus_unscaled_composites$factor)-9) %in% train),]
+                                                                         1, nchar(Tn5minus_unscaled_composites$factor)-9) %in% train),]
 Tn5minus_unscaled_composites = Tn5minus_unscaled_composites[-c(which(Tn5minus_unscaled_composites$x < - 73 |
                                                                        Tn5minus_unscaled_composites$x > 57)),]
 
@@ -4273,8 +4423,18 @@ for (i in 1:length(minus_pred_input)) {
 #Append spaced 3mers:
 Tn5_pre_data_minus = cbind(Tn5_pre_data_minus, do.call(rbind, minus_pre_input))
 rm(minus_pre_input, minus_pred_input)
-###Combine minus and plus models together:
+###Combine minus and plus data together:
 Tn5_RE_input = rbind(Tn5_pre_data_plus, Tn5_pre_data_minus)
+##Trim off beginning 7 positions:
+RE_colnames = strsplit(colnames(Tn5_RE_input)[6:948], '')
+RE_colnames = as.data.frame(do.call(rbind, RE_colnames))
+REmoval_columns = which(RE_colnames[,1] == 'N' | RE_colnames[,2] == 'N' | RE_colnames[,3] == 'N' | RE_colnames[,4] == 'N'| RE_colnames[,5] == 'N' | RE_colnames[,6] == 'N' | RE_colnames[,7] == 'N') + 5
+Tn5_RE_input = as.data.frame(Tn5_RE_input)
+Tn5_RE_input = Tn5_RE_input[,-c(REmoval_columns)]
+Tn5_RE_input = as.data.table(Tn5_RE_input)
+
+
+
 #Remove columns 1,3,4,5
 Tn5_RE_input = Tn5_RE_input[,-c(1,3,4,5)]
 sapply(Tn5_RE_input, function(x) sum(is.na(x)))
@@ -4294,12 +4454,12 @@ imps = importance(Tn5_linear_model, penalty.par.val =
                     Tn5_linear_model$glmnet.fit$lambda.min, abbreviate = FALSE)
 base_imps = imps$baseimps
 ##Take top 10% of masks (94) for Rules Ensemble:
-RE_masks = base_imps$rule[1:94]
+RE_masks = base_imps$rule[1:66]
 write.table(RE_masks, file = 'RulesEnsemble_top10_masks.txt', row.names = FALSE,
             quote = FALSE, sep = '\n', col.names = FALSE)
 
 #Rm all of importance dfs
-rm(imps, base_imps, Tn5_pre_data_minus, Tn5_pre_data_plus)
+rm(imps, base_imps)
 ###Create data frame with only top 10%:
 Tn5_RE_input = as.data.frame(Tn5_RE_input)
 Tn5_RE_train = Tn5_RE_input[,c(1, which(colnames(Tn5_RE_input) %in% RE_masks))]
@@ -4308,26 +4468,26 @@ save(Tn5_RE_train, file = 'Tn5_RE_input_top10masks.Rdata')
 set.seed(42)
 Tn5_RE_model = pre(est ~  ., data = Tn5_RE_train, type = 'both',
                    sampfrac = 0.5, verbose = TRUE, ntrees = 100000,
-                       use.grad = FALSE, nfolds = 10, winsfrac = 0,
+                   use.grad = FALSE, nfolds = 10, winsfrac = 0,
                    maxdepth = 3L, learnrate = 0.1, intercept = FALSE)
 
 save(Tn5_RE_model, file = 'Tn5_RE_model.Rdata')
 load('Tn5_RE_model.Rdata')
 #Graph prediction
 pre_train_predict <- predict(Tn5_RE_model, type = "link",
-                       penalty.par.val = Tn5_RE_model$glmnet.fit$lambda.min)
+                             penalty.par.val = Tn5_RE_model$glmnet.fit$lambda.min)
 pdf(file = 'Tn5_pre_predict_min_TRAIN.pdf', width = 18, height = 8)
 plot(1:628, Tn5_RE_train$est[1:628], type = 'l', xlab = '', ylab = '')
-  lines(1:628,pre_train_predict[1:628], col = 'red')
-  legend('topleft', legend=c("Unscaled", "RE Prediction"),
-         col=c("black", "red"), lty=1, cex=0.8)
+lines(1:628,pre_train_predict[1:628], col = 'red')
+legend('topleft', legend=c("Unscaled", "RE Prediction"),
+       col=c("black", "red"), lty=1, cex=0.8)
 dev.off()
 #Graph FOXA1 Prediction
 pdf(file = 'Tn5_pre_predict_EGR1.pdf', width = 12, height = 8)
 plot(918:1045, Tn5_RE_train$est[918:1045], type = 'l', lwd=2.0, xlab = '', ylab = '') 
-  lines(918:1045,pre_train_predict[918:1045], col = 'red', lwd=2.0)
-  legend('topleft', legend=c("Unscaled", "RE Prediction"),
-         col=c("black", "red"), lty=1, cex=0.8)
+lines(918:1045,pre_train_predict[918:1045], col = 'red', lwd=2.0)
+legend('topleft', legend=c("Unscaled", "RE Prediction"),
+       col=c("black", "red"), lty=1, cex=0.8)
 dev.off()
 #Write tables for each desired model coefficients/rules
 print(Tn5_RE_model, penalty.par.val = Tn5_RE_model$glmnet.fit$lambda.min)
