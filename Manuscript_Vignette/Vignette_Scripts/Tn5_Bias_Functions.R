@@ -555,6 +555,37 @@ panel.violin.hack <-
       }
     }
     invisible()
+  }       
+#Combine values from mask positions to plot redudant importance values for each position
+#Normalize these to the number of times the mask is represented in the data
+redundantpos_nml = function(input, labelnum = 2, impnum = 3) {
+  input[,labelnum] = as.character(input[,labelnum])
+  input[,labelnum] = gsub('C', '', input[,labelnum])
+  posimp = vector(mode = 'list', length = nchar(input[1,labelnum]))
+  for (i in 1:nchar(input[1,labelnum])) {
+    for (p in 1:nrow(input)) {
+      posimp[[i]][p] = fifelse(substr(input[p,labelnum],i,i) == 'N', input[p,impnum],0)
+    }
   }
-                 
-            
+  output = data.table(matrix(nrow = length(posimp), ncol = 1))
+  pos_nml = 0
+  for (i in 1:length(posimp)) {
+    pos_nml = max(pos_nml, length(which(posimp[[i]] > 0)))
+  }
+  
+  for (i in 1:length(posimp)) {
+    output[i, possum := sum(posimp[[i]])*(length(which(posimp[[i]] > 0))/pos_nml)]
+    print((length(which(posimp[[i]] > 0))/pos_nml))
+  }
+  output = output[,-c(1)]
+  output[, position := paste(rep('X',46,sep = ''), collapse = '')]
+  
+  for (i in 1:nrow(output)) {
+    output[i,]$position = paste(substr(output[i, position],1,i-1),'N', 
+                                substr(output[i, position],i+1,nchar(output[i, position])), sep = '')
+    output[i,]$position = paste(substr(output[i, position],1,(nchar(output[i, position])/2)), 'C', 
+                                paste(substr(output[i, position],
+                                             (nchar(output[i, position])/2+1),nchar(output[i, position]))), sep = '')
+  }
+  return(output)
+}            
