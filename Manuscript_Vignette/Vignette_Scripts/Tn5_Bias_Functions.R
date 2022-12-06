@@ -333,7 +333,7 @@ plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = 
                             figwidth = 2.5, figheight=3, hline = FALSE, nYaxisdigits = 3,
                             indexlist = NULL, layoutgrid = NULL, y_axis = FALSE, linethick = 2,
                             X_axis_ticks = seq(-20,20,10), hline_val = 0, Y_axis_ticks = seq(0,0.02,0.01),
-                    col.lines = c("#0000FF", "#FF0000", "#00000090", 
+                    col.lines = c("#0000FF", "#FF0000", "#A1A3AB", 
                                   rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
                                   rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
                                   rgb(1/2,1/2,0,1/2)), 
