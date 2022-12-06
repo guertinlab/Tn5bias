@@ -110,7 +110,7 @@ rownames(mlen) <- levels(as.factor(figure5C_plot$factor))
 
 
 plot.composites(figure5C_plot, legend = TRUE, 
-                pdf_name = 'Figure5C_DNasePN_PRE_NNNCNN_comparison',
+                pdf_name = 'Figure5C_DNase_PRE_NNNCNN_comparison',
                 figwidth = 8, figheight = 4,
                 ylabel = '',
                 xlabel = '',
@@ -131,7 +131,7 @@ rownames(mlen) = levels(as.factor(supp_figure5C_plot$factor))
 
 
 plot.composites(supp_figure5C_plot, legend = TRUE, 
-                pdf_name = 'Supplemental5B_DNasePN_PRE_NNNCNN_comparison',
+                pdf_name = 'Supplemental5B_DNase_PRE_NNNCNN_comparison',
                 figwidth = 12, figheight = 10,
                 ylabel = '',
                 xlabel = '',
