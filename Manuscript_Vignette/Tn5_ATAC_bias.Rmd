@@ -28,7 +28,7 @@ vignette: >
 # Foreword
   Organization of this vignette assumes that each section contains all files in a folder specific to that section and that scripts are initiated within the original section folder. ie. Figure1, Figure2 are individual folders. Therefore, calls to data made in a previous section will usually involve accessing that folder. Additionally, because each figure has many dependencies, each new dependency is listed before each section in which it is used. Subsequent sections which use previously listed dependencies do not list them. 
 
-# Figure 1. Tn5 sequence bias is more complex than nuclease sequence bias.
+# Figure1. Tn5 sequence bias is more complex than nuclease sequence bias.
 
 ```{r Figure1, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=" Tn5 sequence bias is more complex than nuclease sequence bias. A) The seqLogo sequence bias motifs are corrected for background nucleotide content and they illustrate that Tn5 bias is wider and more complex than other commonly used chromatin accessibility enzymes. Nucleotide frequencies listed in the inset to the right correspond to the highest information content position; for instance, G is found at position -4 45\\% of the instances that Tn5 inserts into DNA. Nuclease cleavage sites are indicated by dashed red line. Total information content (IC) from positions -10 to 10 is listed in the inset to the upper left. B) We plotted the log$_2$(observed/expected 5-mer frequency) for all positions surrounding DNA cleavage sites or Tn5 recognition sites as box and whisker plots. C) We plotted read depth normalized composite signal from various molecular genomics assays for the top 400,000 sites that conform most stringently to the respective enzyme’s bias motif. ", out.width = "100%"}
 knitr::include_graphics("figs/fig1_OL_JBW.pdf")
@@ -1401,7 +1401,7 @@ knitr::include_graphics("Tn5_scale_factors_df_maskpositions.pdf")
 knitr::include_graphics("DNase_scale_factors_df_maskpositions.pdf")
 ```
 
-# Figure 2. Use of scaling factors to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions.
+# Figure2. Use of scaling factors to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions.
 
 ```{r Figure2, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 2. Use of direct k-mer scaling to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions. A) Barchart of observed divided by expected (from k-mer prevalence in the bias position probability matrix) k-mer frequency for specified 3-mers at a position -4 to -6bp upstream from the centrally recognized base. These values are corrected for background Tn5 3-mer frequency. B) Portions of the composite profile for the 3mer ‘CAG’ can be corrected by rationally designed masks, based on their position relative to the cutsite. Application of these corrections exacerbates the bias of nearby peaks within the composite. ', out.width = "80%"}
 knitr::include_graphics("figs/fig2_OL_JBW.pdf")
@@ -1847,7 +1847,7 @@ knitr::include_graphics("figs/Figure2B_CAG_direction_maskcompare.pdf")
 \pagebreak
 
 
-# Figure 4. Size constrained, followed by hierarchical clustering of transcription factor motifs based on information content and GC%
+# Figure4. Size constrained, followed by hierarchical clustering of transcription factor motifs based on information content and GC%
 
 ```{r Figure3, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=" Figure 4. Clustering of transcription factor motifs creates diverse test and training sets. A) We clustered transcription factor motifs into test and training sets based on motif information content and GC content. We indicate clusters with transparent ovals. Training and test sets are indicated as red or blue text that indicates the motif name. B) The seqLogos of training and test transcription factor motifs illustrate their diversity. ", out.width = "80%"}
 knitr::include_graphics("figs/fig3_OL_JBW.pdf")
@@ -2022,7 +2022,7 @@ knitr::include_graphics("figs/ICbyMotifGC_TestTrain_clust.pdf")
 
 
 
-# Figure 5. Application of a prediction rules ensemble to DNase data can slightly enhance k-mer scaling
+# Figure5. Application of a prediction rules ensemble to DNase data can slightly enhance k-mer scaling
 
 ```{r Figure5, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 5. Rule ensemble modeling effectively corrects DNase bias. A) Rule ensemble modeling provides information about the importance of variable in the model. The positions proximal to DNase cleavage are most important. B) Violin plots quantify the log2 ratio of unbiased signal to output for each transcription factor’s composite profile given the method of k-mer scaling. Regions measured in each plot are within 10 base pairs of each motif, as indicated by the graphic above the figure panel. C) We plotted composite profiles of transcription factors from rule ensemble output compared with direct k-mer scaling of the 5-mer that encompasses the five most influential positions in panel A. D) We visualized improvement of rule ensemble modeling over seqOutBias by using a violin plot of distance from calculated random cut frequency for rule ensemble output subtracted from seqOutBias. Positions which rule ensemble outperforms seqOutBias will be above 0 (dashed red line). 62\\% of positions in this plot were improved. ', out.width = "100%"}
 knitr::include_graphics("figs/fig5_OL_JBW_vig.pdf")
@@ -2979,9 +2979,9 @@ knitr::include_graphics("figs/Figure5C_DNasePN_PRE_NNNCNN_comparison.pdf")
 ```
 
 
-# Figure 6. Rule ensemble modeling corrects Tn5 transposon bias in ATAC-seq data
+# Figure6. Rule ensemble modeling corrects Tn5 transposon bias in ATAC-seq data
 
-```{r Figure 5, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 5. Rule ensemble modeling corrects Tn5 transposon bias in ATAC-seq data', out.width = "80%"}
+```{r Figure 6, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 6. Rule ensemble modeling corrects Tn5 transposon single nucleotide bias in ATAC-seq data. A) The importance values for each position relative to Tn5\'s recognition site mirror the information content values of positions in the seqLogo representation of Tn5 bias. B) We directly compare bias correction of Tn5 data by seqOutBias and rule ensemble modeling by visualizing the composite corrected signals and comparing to the unscaled composite traces. C) We quantify the single nucleotide correction for each transcription factor’s composite profile by measuring divergence from unbiased signal. Regions measured are within 10 base pairs of each motif, as indicated by the graphic above the figure panel. D) We visualized improvement of rule ensemble modeling over seqOutBias by using a violin plot of distance from calculated random cut frequency for rule ensemble output subtracted from seqOutBias. Positions which rule ensemble outperforms seqOutBias will be above 0 (dashed red line) of positions in this plot were improved and those that are not improved have lower magnitude deviations from the expectation of random cleavage. E) Composite profile overlays of test motifs highlight the improvement of rule ensemble modeling compared to seqOutBias correction. The red dashed line indicates the calculated random cleavage frequency. ', out.width = "80%"}
 knitr::include_graphics("figs/fig6_OL_JBW_mk3.pdf")
 ```
 
@@ -2994,7 +2994,7 @@ cd Figure6
 
 
 ## Generate k-mer counts for Tn5 using all 5/6/7/spaced 6-mers in a 46bp window
-Using the previously downloaded and aligned deproteinized Tn5 data, we begin generating iterative masks. First, copy sft and tal files from the Figure 1 run of seqOutBias with no scale, the reference genome and the aligned read file. This allows us to then use these files in parallel runs of many masks. While the workflow depicted in these scripts will yield results, it is recommended to adapt them to an HPC environment to save computational time and provide enough storage space for some steps which require over 10TB of disk space. 
+Using the previously downloaded and aligned deproteinized Tn5 data, we begin generating iterative masks. First, copy sft and tal files from the Figure 1 run of seqOutBias with no scale, the reference genome and the aligned read file. This allows us to then use these files in parallel runs of many masks. While the workflow depicted in these scripts will yield results, it is recommended to adapt them to an HPC environment to save computational time and provide enough storage space for the steps which require over 10TB of disk space. 
 
 ``` {bash eval=FALSE}
 #Make a directory for Tn5 masks
@@ -3213,7 +3213,7 @@ scores = mclapply(nextlst, function(cutmask) {
 ```
 
 
-Run 'seqOutBias table' for each mask's tbl file to determine scale factors for each mask. Edit 'registerDoParallel(N)' to change the number of parallel runs. For the raw code, visit:    
+Run 'seqOutBias table' for each mask's tbl file to tabulate genomic and data set k-mers for each mask. Edit 'registerDoParallel(N)' to change the number of parallel runs. For the raw code, visit:    
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_mask_to_kmercount.R
 
 ``` {R eval = FALSE}
@@ -4218,10 +4218,14 @@ save(Minus_pred_input, file = 'Tn5_TF_Minus_pre_input_spaced6mers.Rdata')
 
 ## Use 5/6/7/spaced 6-mer inverse scale factor * k-mer frequency values as input for a rule ensemble model to predict unbiased traces
 
+Using the prepared input data, we now train a rule ensemble model to predict the biased, unscaled traces. Once trained, we then plot the importance values for the model. Run the raw script by looking here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_RuleEnsemble_Train.R
+
 ``` {R eval = FALSE}
 library(data.table)
 source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 library('pre')
+library('ggplot2')
 options(scipen = 100)
 ################################################################################
 train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF',
@@ -4247,7 +4251,7 @@ Plus_pre_input = vector(mode = 'list', length = length(Plus_pred_input))
 for (i in 1:length(Plus_pred_input)) {
   for (p in 1:length(Plus_pred_input[[i]])) {
     Plus_pre_input[[i]][[p]] = Plus_pred_input[[i]][[p]][c(which(Plus_pred_input[[i]][[p]]$x >= -73 &
-                                                                   Plus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                                Plus_pred_input[[i]][[p]]$x <= 57)),1]
     names(Plus_pre_input)[i] = names(Plus_pred_input[i])
     Plus_pre_input[[i]][[p]] = as.data.frame(Plus_pre_input[[i]][[p]])
     
@@ -4262,8 +4266,8 @@ Tn5_unscaled_composites =
   Tn5_unscaled_composites[which(substr(Tn5_unscaled_composites$factor,
                                        1, nchar(Tn5_unscaled_composites$factor)-8) %in% train),]
 Tn5_unscaled_composites = 
-  Tn5_unscaled_composites[-c(which(Tn5_unscaled_composites$x < - 73 |  Tn5_unscaled_composites$x > 57)),]
-Tn5_unscaled_composites$est = Tn5_unscaled_composites$est/0.00309736
+  Tn5_unscaled_composites[-c(which(Tn5_unscaled_composites$x < - 73 |
+                                     Tn5_unscaled_composites$x > 57)),]
 Tn5_pre_data_plus = cbind(Tn5_unscaled_composites, do.call(rbind, Plus_pre_input))
 rm(Plus_pre_input, Plus_pred_input)
 #Next, load in 6mers...
@@ -4276,7 +4280,7 @@ Plus_pre_input = vector(mode = 'list', length = length(Plus_pred_input))
 for (i in 1:length(Plus_pred_input)) {
   for (p in 1:length(Plus_pred_input[[i]])) {
     Plus_pre_input[[i]][[p]] = Plus_pred_input[[i]][[p]][c(which(Plus_pred_input[[i]][[p]]$x >= -73 &
-                                                                   Plus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                                 Plus_pred_input[[i]][[p]]$x <= 57)),1]
     names(Plus_pre_input)[i] = names(Plus_pred_input[i])
     Plus_pre_input[[i]][[p]] = as.data.frame(Plus_pre_input[[i]][[p]])
   }
@@ -4296,7 +4300,7 @@ Plus_pre_input = vector(mode = 'list', length = length(Plus_pred_input))
 for (i in 1:length(Plus_pred_input)) {
   for (p in 1:length(Plus_pred_input[[i]])) {
     Plus_pre_input[[i]][[p]] = Plus_pred_input[[i]][[p]][c(which(Plus_pred_input[[i]][[p]]$x >= -73 &
-                                                                   Plus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                                 Plus_pred_input[[i]][[p]]$x <= 57)),1]
     names(Plus_pre_input)[i] = names(Plus_pred_input[i])
     Plus_pre_input[[i]][[p]] = as.data.frame(Plus_pre_input[[i]][[p]])
   }
@@ -4316,7 +4320,7 @@ Plus_pre_input = vector(mode = 'list', length = length(Plus_pred_input))
 for (i in 1:length(Plus_pred_input)) {
   for (p in 1:length(Plus_pred_input[[i]])) {
     Plus_pre_input[[i]][[p]] = Plus_pred_input[[i]][[p]][c(which(Plus_pred_input[[i]][[p]]$x >= -73 &
-                                                                   Plus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                                Plus_pred_input[[i]][[p]]$x <= 57)),1]
     names(Plus_pre_input)[i] = names(Plus_pred_input[i])
     Plus_pre_input[[i]][[p]] = as.data.frame(Plus_pre_input[[i]][[p]])
     
@@ -4339,7 +4343,7 @@ minus_pre_input = vector(mode = 'list', length = length(minus_pred_input))
 for (i in 1:length(minus_pred_input)) {
   for (p in 1:length(minus_pred_input[[i]])) {
     minus_pre_input[[i]][[p]] = minus_pred_input[[i]][[p]][c(which(minus_pred_input[[i]][[p]]$x >= -73 &
-                                                                     minus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                                 minus_pred_input[[i]][[p]]$x <= 57)),1]
     names(minus_pre_input)[i] = names(minus_pred_input[i])
     minus_pre_input[[i]][[p]] = as.data.frame(minus_pre_input[[i]][[p]])
   }
@@ -4353,10 +4357,12 @@ load('../data/Tn5minus_unscaled_compositelist.Rdata')
 Tn5minus_unscaled_composites = do.call(rbind, Tn5minus_unscaled_compositelist)
 Tn5minus_unscaled_composites$est = Tn5minus_unscaled_composites$est/0.00309736
 
-Tn5minus_unscaled_composites = Tn5minus_unscaled_composites[which(substr(Tn5minus_unscaled_composites$factor,
-                                                                         1, nchar(Tn5minus_unscaled_composites$factor)-9) %in% train),]
-Tn5minus_unscaled_composites = Tn5minus_unscaled_composites[-c(which(Tn5minus_unscaled_composites$x < - 73 |
-                                                                       Tn5minus_unscaled_composites$x > 57)),]
+Tn5minus_unscaled_composites = 
+  Tn5minus_unscaled_composites[which(substr(Tn5minus_unscaled_composites$factor,
+                                          1, nchar(Tn5minus_unscaled_composites$factor)-9) %in% train),]
+Tn5minus_unscaled_composites = 
+  Tn5minus_unscaled_composites[-c(which(Tn5minus_unscaled_composites$x < - 73 |
+                                                           Tn5minus_unscaled_composites$x > 57)),]
 
 Tn5_pre_data_minus = cbind(Tn5minus_unscaled_composites, do.call(rbind, minus_pre_input))
 rm(minus_pre_input, minus_pred_input, Tn5minus_unscaled_compositelist, Tn5minus_unscaled_composites)
@@ -4370,7 +4376,7 @@ minus_pre_input = vector(mode = 'list', length = length(minus_pred_input))
 for (i in 1:length(minus_pred_input)) {
   for (p in 1:length(minus_pred_input[[i]])) {
     minus_pre_input[[i]][[p]] = minus_pred_input[[i]][[p]][c(which(minus_pred_input[[i]][[p]]$x >= -73 &
-                                                                     minus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                               minus_pred_input[[i]][[p]]$x <= 57)),1]
     names(minus_pre_input)[i] = names(minus_pred_input[i])
     minus_pre_input[[i]][[p]] = as.data.frame(minus_pre_input[[i]][[p]])
     
@@ -4391,7 +4397,7 @@ minus_pre_input = vector(mode = 'list', length = length(minus_pred_input))
 for (i in 1:length(minus_pred_input)) {
   for (p in 1:length(minus_pred_input[[i]])) {
     minus_pre_input[[i]][[p]] = minus_pred_input[[i]][[p]][c(which(minus_pred_input[[i]][[p]]$x >= -73 &
-                                                                     minus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                                  minus_pred_input[[i]][[p]]$x <= 57)),1]
     names(minus_pre_input)[i] = names(minus_pred_input[i])
     minus_pre_input[[i]][[p]] = as.data.frame(minus_pre_input[[i]][[p]])
     
@@ -4412,7 +4418,7 @@ minus_pre_input = vector(mode = 'list', length = length(minus_pred_input))
 for (i in 1:length(minus_pred_input)) {
   for (p in 1:length(minus_pred_input[[i]])) {
     minus_pre_input[[i]][[p]] = minus_pred_input[[i]][[p]][c(which(minus_pred_input[[i]][[p]]$x >= -73 &
-                                                                     minus_pred_input[[i]][[p]]$x <= 57)),1]
+                                                                 minus_pred_input[[i]][[p]]$x <= 57)),1]
     names(minus_pre_input)[i] = names(minus_pred_input[i])
     minus_pre_input[[i]][[p]] = as.data.frame(minus_pre_input[[i]][[p]])
     
@@ -4428,7 +4434,10 @@ Tn5_RE_input = rbind(Tn5_pre_data_plus, Tn5_pre_data_minus)
 ##Trim off beginning 7 positions:
 RE_colnames = strsplit(colnames(Tn5_RE_input)[6:948], '')
 RE_colnames = as.data.frame(do.call(rbind, RE_colnames))
-REmoval_columns = which(RE_colnames[,1] == 'N' | RE_colnames[,2] == 'N' | RE_colnames[,3] == 'N' | RE_colnames[,4] == 'N'| RE_colnames[,5] == 'N' | RE_colnames[,6] == 'N' | RE_colnames[,7] == 'N') + 5
+REmoval_columns = which(RE_colnames[,1] == 'N' | RE_colnames[,2] == 'N' |
+                          RE_colnames[,3] == 'N' | RE_colnames[,4] == 'N'|
+                          RE_colnames[,5] == 'N' | RE_colnames[,6] == 'N' |
+                          RE_colnames[,7] == 'N') + 5
 Tn5_RE_input = as.data.frame(Tn5_RE_input)
 Tn5_RE_input = Tn5_RE_input[,-c(REmoval_columns)]
 Tn5_RE_input = as.data.table(Tn5_RE_input)
@@ -4473,113 +4482,189 @@ Tn5_RE_model = pre(est ~  ., data = Tn5_RE_train, type = 'both',
 
 save(Tn5_RE_model, file = 'Tn5_RE_model.Rdata')
 load('Tn5_RE_model.Rdata')
-#Graph prediction
-pre_train_predict <- predict(Tn5_RE_model, type = "link",
-                             penalty.par.val = Tn5_RE_model$glmnet.fit$lambda.min)
-pdf(file = 'Tn5_pre_predict_min_TRAIN.pdf', width = 18, height = 8)
-plot(1:628, Tn5_RE_train$est[1:628], type = 'l', xlab = '', ylab = '')
-lines(1:628,pre_train_predict[1:628], col = 'red')
-legend('topleft', legend=c("Unscaled", "RE Prediction"),
-       col=c("black", "red"), lty=1, cex=0.8)
-dev.off()
-#Graph FOXA1 Prediction
-pdf(file = 'Tn5_pre_predict_EGR1.pdf', width = 12, height = 8)
-plot(918:1045, Tn5_RE_train$est[918:1045], type = 'l', lwd=2.0, xlab = '', ylab = '') 
-lines(918:1045,pre_train_predict[918:1045], col = 'red', lwd=2.0)
-legend('topleft', legend=c("Unscaled", "RE Prediction"),
-       col=c("black", "red"), lty=1, cex=0.8)
-dev.off()
+
 #Write tables for each desired model coefficients/rules
 print(Tn5_RE_model, penalty.par.val = Tn5_RE_model$glmnet.fit$lambda.min)
 Tn5_RE_model_coef <- coef(Tn5_RE_model, penalty.par.val = Tn5_RE_model$glmnet.fit$lambda.min)
 Tn5_RE_model_coef = Tn5_RE_model_coef[which(Tn5_RE_model_coef$coefficient != 0),]
 write.table(Tn5_RE_model_coef[,2:3], file = 'Tn5_Rules_Ensemble_model.txt',
             quote = FALSE, sep = ',', row.names = FALSE)
+
+#Plot Importances
+imps = importance(Tn5_RE_model, penalty.par.val =
+                    Tn5_RE_model$glmnet.fit$lambda.min, abbreviate = FALSE)
+var_imps = imps$varimps
+var_imps$varname = as.factor(var_imps$varname)
+redundant_var_imps = redundantpos_nml(var_imps, labelnum = 1, impnum = 2)
+redundant_var_imps = redundant_var_imps[-c(1:7),]
+redundant_var_imps = as.data.frame(redundant_var_imps)
+
+##Shift positions by 4
+imppos = strsplit(redundant_var_imps$position, '')
+imppos = as.data.frame(do.call(rbind, imppos))
+Ccol = imppos[,which(imppos[1,] == 'C')]
+Ccolnum = which(imppos[1,] == 'C')
+
+imppos[,48:51] = 'X'
+imppos = imppos[,c(48:51,1:47)]
+colnames(imppos) = paste('V',1:ncol(imppos), sep = '')
+Ccol = imppos[,which(imppos[1,] == 'C')]
+Ccolnum = which(imppos[1,] == 'C')
+imppos = imppos[,-c(which(imppos[1,] == 'C'))]
+
+for (i in 1:nrow(imppos)) {
+  Npos = which(imppos[i,] == 'N')
+  imppos[i,Npos] = 'X'
+  imppos[i,(Npos-4)] = 'N'
+}
+
+imppos = cbind(imppos, Ccol)
+imppos = imppos[,c(1:(Ccolnum-1),ncol(imppos),(Ccolnum):(ncol(imppos)-1))]
+
+for (i in 1:nrow(imppos)) {
+  imppos[i,] = paste(imppos[i,], collapse = '')
+}
+imppos = imppos[,1]
+
+redundant_var_imps[,2] = imppos
+redundant_var_imps$position = seq(-19,19,1) 
+save(redundant_var_imps, file = 'Tn5_RE_redundant_var_imps.Rdata')
+
+#Plot redundant_var_imps
+pdf(file = 'Figure6A_Redundant_Tn5_RE_variable_importances.pdf', width = 12, height = 12)
+impbarplot <-ggplot(data=redundant_var_imps, aes(x=position, y=possum)) 
+impbarplot +
+  labs(x= 'Position Relative to Central Base', y= 'Importance') +
+  geom_bar(stat="identity", fill="black") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=52, colour = "black", face = 'bold'),
+        axis.title.y = element_text(size=52, colour = "black", face = 'bold'),
+        axis.text.x = element_text(size=38, colour = "black"),
+        axis.text.y = element_text(size=38, colour = "black"),
+        axis.line = element_line(colour = 'black', size = 1),
+        plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(vjust=1), plot.margin = margin(1,1,1.5,1.2, "cm"),
+        axis.ticks.length=unit(.75, "cm"), axis.ticks=element_line(size=2)) +
+  scale_x_continuous(breaks = c(-15,0,15))
+dev.off()
+
 ```
 
+```{r Figure 6A, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 6A. Rule ensemble model normalized importances', out.width = "80%"}
+knitr::include_graphics("figs/Figure6A_Redundant_Tn5_RE_variable_importances.pdf")
+```
+
+## Create a union bedgraph file of all input masks for combination by the rule ensemble model
+
+First, copy all bigWig files used in the model to a new subdirectory, then convert them into bedGraph format. Tally a list of these masks, in the order they are used in a .txt file. Finally, combine all masks using unionbedg. The raw script for this lurks at:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_bigWig_to_UnionBedGraph.sh
+
+```{bash eval=FALSE}
+#Make a new directory for rule ensemble masks
+mkdir RE_masks
+while IFS= read -r line; do
+    echo $line
+		cp 'Tn5_'$line'.bw' RE_masks
+done < RulesEnsemble_top10_masks.txt
+cd RE_masks
+#convert bigWigs into bedGraphs
+for bw in Tn5*.bw
+do
+	name=$(echo $bw | awk -F".bw" '{print $1}')
+  echo $name
+  bigWigToBedGraph $name'.bw' $name'.bedGraph'
+done
+#Make a text file with all bedgraph names and order
+for bw in *.bedGraph
+do
+	name=$(echo $bw | awk -F".bedGraph" '{print $1}')
+	echo $name
+	echo $name >> Tn5_top10_names.txt
+done
+#Combine all bedGraphs into a single file
+bedtools unionbedg -i *.bedGraph > Tn5_top10_union.bedGraph
+```
 
 ## Apply rule ensemble model to scale seqOutBias output
+
+Using the union bedgraph and the rule ensemble model, scale the data. Scale the rule ensemble output to the unscaled data read depth, then output a bigWig file. To view the raw script, look here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_RuleEnsemble_Implementation.R
+
 ``` {R eval = FALSE}
 library(data.table)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 options(scipen = 100)
-system('mkdir ../multiscale')
-setwd('../multiscale')
-#
-################################################################################
-#Function to import rule ensemble model into R script
-import.rules = function(input) {
-  rulesdf = data.table(read.table(input, sep = ',', header = TRUE))
-  intcoeff = NULL
-  lincoeff = NULL
-  rulescoeff = NULL
-  for (i in 1:nrow(rulesdf)) {
-    intcoeff[i] = fifelse(rulesdf[i,description] == 1, rulesdf[i,coefficient], 0)
-  }
-  intcoeff = intcoeff[!(intcoeff==0)]
-  for (i in 1:nrow(rulesdf)) {
-    lincoeff[i] = fifelse(!grepl(">|<|=",rulesdf[i, description]),
-                          paste('(',rulesdf[i, description], '*', 
-                                rulesdf[i, coefficient], ')', sep = ''),paste(''))}
-  lincoeff = lincoeff[!(lincoeff=='')]
-  linpaste = capture.output(cat(lincoeff, sep = ' + '))
-  for (i in 1:nrow(rulesdf)) {
-    rulescoeff[i] = fifelse(grepl(">|<|=",rulesdf[i, description]),
-                            paste('fifelse(', rulesdf[i, description],
-                                  ', ', rulesdf[i, coefficient], ', 0)', sep = ''), '')}
-  rulescoeff = rulescoeff[!(rulescoeff=='')]
-  rulespaste = capture.output(cat(rulescoeff, sep = ' + '))
-  output = paste(intcoeff, linpaste, rulespaste, sep = ' + ')
-  return(output)
-}
 ################################################################################
 #Load in unscaled bedgraph in order to get read depth
-unscaled_bed = fread('/PATH/TO/hg38_Tn5_C1gDNA_unscaled.bedGraph')
+system('bigWigtoBedGraph ../Figure1/C1_gDNA_rep1.bigWig C1_gDNA_rep1_unscaled.bedGraph')
+unscaled_bed = fread('C1_gDNA_rep1_unscaled.bedGraph')
 unscaled_read_depth = sum(unscaled_bed$V4)
 rm(unscaled_bed)
 #Load in bedgraph which contains all input mask bedgraphs
-x <- fread('../top10_bw/top10_Tn5_RulesEnsemble_union.bedGraph')
+x <- fread('RE_masks/Tn5_top10_union.bedGraph')
 #Load in column names for the above bedgraph
-masknames = fread('../top10_bw/Tn5_allmasks_names.txt', header = FALSE)
+masknames = fread('RE_masks/Tn5_top10_names.txt', header = FALSE)
 masknames = masknames$V1
 masknames = substr(masknames, 5, nchar(masknames))
 masknames = c('chr', 'start', 'stop', masknames)
 colnames(x) = masknames
-#Import rule ensemble model
-prerules = import.rules('../output/Tn5_Rules_Ensemble_model.txt')
-prerules
-x[, pre := (RULE ENSEMBLE MODEL HERE)]
-pre_read_depth = sum(x$pre)
-#Determine ratio of unscaled read depth to rule ensemble read depth
+#Import the formula from the rule ensemble 
+prerules = import.rules('Tn5_Rules_Ensemble_model.txt')
+prerules = gsub(' + ', ' + \n', prerules, fixed = TRUE)
+#Format the formula into a function and write a file containing this function
+write.table('', file = 'Tn5_RuleEnsemble_model.R')
+fileConn<-file("Tn5_RuleEnsemble_model.R")
+writeLines(c('RE_scale_Tn5 = function (input) { input[, RuleEnsemble :=', prerules, '] \nreturn(input)}'), fileConn)
+close(fileConn)
+source('Tn5_RuleEnsemble_model.R')
+#This function can also be called from GitHub:
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_RuleEnsemble_model.R')
+#Apply the model to Tn5 bedGraph
+x = RE_scale_Tn5(x)
+#Get model read depth
+pre_read_depth = sum(x$RuleEnsemble)
+#Create a ratio to scale Rule ensemble read depth to unscaled read depth
 RDS = unscaled_read_depth/pre_read_depth
-#Scale rule ensemble read depth to unscaled read depth
-x[, pre_RDS := pre*RDS ]
-colnames(x)[99]
-write.table(x[,c(1:3,99)], file = 'Tn5_RE.bedGraph', col.names = FALSE, row.names=FALSE, sep = '\t', quote=FALSE)
-#bedGraphToBigWig Tn5_RE.bedGraph hg38.fa.chrom.sizes Tn5_RE.bigWig
+x[, pre_RDS := RuleEnsemble*RDS ]
+#Write the scaled DNase data in bedGraph format
+write.table(x[,c(1:3,71)], file = 'Tn5_Rule_Ensemble_Scaled.bedGraph', col.names = FALSE, 
+            row.names=FALSE, sep = '\t', quote=FALSE)
+#Convert the bedGraph to bigWig format
+system('bedGraphToBigWig Tn5_Rule_Ensemble_Scaled.bedGraph ../Figure1/hg38.fa.chrom.sizes Tn5_Rule_Ensemble_Scaled.bigWig')
 ```
 
 
 ## Analyze scaled rule ensemble output
+
+First plot signal at all test motifs for rule ensemble, seqOutBias and unscaled. Then analyze the correction of both bias correction methods and compare. Raw scripts are located here:
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_RuleEnsemble_BiasCorrection_Analysis.R
+
 ``` {R eval = FALSE}
+library(data.table)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+options(scipen = 100)
 library(bigWig)
 library(lattice)
-library(data.table)
-library(ggplot2)
-source('../scripts/composite_functions_mk2.R')
+library(grid)
 ################################################################################
-train = c( 'ASCL1', 'CLOCK', 'CTCF', 'DLX2', 'EBF1', 'EGR1', 'ELF1', 'FOS', 'FOXA1',
-           'FOXK2', 'GATA2', 'GLIS1', 'HSF1', 'IRF1', 'JUN', 'LEF1', 'MEIS2', 'MLX',
-           'MYC', 'PPARG','RUNX1', 'SPIB', 'SRY', 'STAT1', 'TGIF1')
-test = c('AR', 'ATF3', 'CEBPB', 'E2F1', 'ESR1', 'FERD3L', 'HOXC12', 'MAX', 'MEF2A',
-         'MGA', 'NFATC3', 'NR2F2', 'POU3F1', 'REST', 'Six3', 'SP1', 'USF1', 'TEAD1')
-system('mkdir ../analysis')
-setwd('../analysis')
+train = c( 'ASCL1', 'ATF3', 'CLOCK', 'CTCF',
+           'DLX2', 'EBF1', 'EGR1', 'ELF1',
+           'FOS', 'FOXA1', 'FOXK2', 'GATA2',
+           'GLIS1', 'IRF1', 'JUN', 'LEF1',
+           'MEIS2', 'MLX', 'MYC', 'PPARG', 
+           'RUNX1', 'SPIB', 'SRY', 'STAT1', 'TGIF1')
+test = c('AR', 'CEBPB', 'E2F1', 'ESR1',
+         'FERD3L', 'HOXC12', 'HSF1', 'MAX',
+         'MEF2A', 'MGA', 'NFATC3', 'NR2F2',
+         'POU3F1', 'REST', 'Six3', 'SP1',
+         'USF1', 'TEAD1')
 ################################################################################
 #Load in genomic locations determined using FIMO
-Motifs <- list.files('../FIMO')
+Motifs <- list.files('../Figure5')
+Motifs = Motifs[grep('_fimo', Motifs)]
 Motiflist <- vector('list', length(Motifs))
 for (i in 1:length(Motifs)) {
-  Motiflist[[i]] <- FIMO.to.BED(paste('../FIMO/', Motifs[i], sep = ''))
+  Motiflist[[i]] <- FIMO.to.BED(paste('../Figure5/',Motifs[i], sep = ''))
 }
 names(Motiflist) = Motifs
 #Combine the minus and plus FIMO motifs
@@ -4591,28 +4676,33 @@ for (i in 1:length(plus_Motifs)) {
 }
 names(Motiflist) = substr(names(plus_Motifs), 1 , nchar(names(plus_Motifs))-22)
 rm(plus_Motifs, minus_Motifs)
+Motiflist = Motiflist[c(which(names(Motiflist) %in% test))]
 #Make a vector of each motif's length (for graphing)
+Motiflen_files = list.files('../Figure5')
+Motiflen_files = Motiflen_files[grep('_fimo', Motiflen_files)]
+Motiflen_files = Motiflen_files[grep('plus', Motiflen_files)]
+Motiflen_files = 
+  Motiflen_files[which(substr(Motiflen_files,1, nchar(Motiflen_files)-22) %in% test)]
 Motiflen = NULL
-for (i in 1:length(Motiflist)) {
-  Motiflen[i] = Motiflist[[i]]$end - Motiflist[[i]]$start
+Motif_len = NULL
+for (i in 1:length(Motiflen_files)) {
+  Motif_len = fread(paste( '../Figure5/',Motiflen_files[i], sep = ''))
+  Motiflen[i] = (Motif_len$stop[1] - Motif_len$start[1])+1
 }
 names(Motiflen) = names(Motiflist)
-rm(Motifs)
-save(Motiflen, file = 'Motif_lengths.Rdata')
+save(Motiflen, file = 'test_Motiflen.Rdata')
+rm(Motif_len)
 #################################################################################
 #Make composite plots of unscaled values 
-BWs <- c('../data/hg38_Tn5_C1gDNA_unscaled.bigWig')
+BWs <- c('../Figure1/C1_gDNA_rep1.bigWig')
 compositelist <- vector('list', length(Motiflist))
 for (i in 1:length(Motiflist)) {
   compositelist[[i]] = BED.query.bigWig(Motiflist[[i]], paste(BWs), paste(BWs), 
-                              upstream = 100, downstream = 100,
-                              factor = paste(substr(Motifs[i], 1, nchar(Motifs[i])-3)),
-                              group = 'unscaled', ATAC = TRUE)
+                                        upstream = 100, downstream = 100,
+                                        factor = names(Motiflist[i]),
+                                        group = 'Unscaled', ATAC = TRUE)
 }
 names(compositelist) = names(Motiflist)
-for (i in 1:length(compositelist)) {
-  compositelist[[i]]$factor <- names(compositelist)[[i]]
-}
 Tn5_unscaled_compositelist = compositelist
 save(Tn5_unscaled_compositelist, file = 'Tn5_unscaled_compositelist.Rdata')
 ########################################################################################
@@ -4627,14 +4717,11 @@ for (i in 1:length(Motiflist)) {
                                         group = 'NNNCNNNN', ATAC = TRUE)
 }
 names(compositelist) = names(Motiflist)
-for (i in 1:length(compositelist)) {
-  compositelist[[i]]$factor <- names(compositelist)[[i]]
-}
 Tn5_NNNCNNNN_compositelist = compositelist
 save(Tn5_NNNCNNNN_compositelist, file = 'Tn5_NNNCNNNN_compositelist.Rdata')
 ########################################################################################
 #Make composite plots of rule ensemble output
-BWs <- c('../multiscale/Tn5_RE.bigWig')
+BWs <- c('Tn5_Rule_Ensemble_Scaled.bigWig')
 #Reorder BWs to match Motifs:
 compositelist <- vector('list', length(Motiflist))
 for (i in 1:length(Motiflist)) {
@@ -4644,319 +4731,193 @@ for (i in 1:length(Motiflist)) {
                                         group = 'Rule Ensemble', ATAC = TRUE)
 }
 names(compositelist) <- names(Motiflist)
-for (i in 1:length(compositelist)) {
-  compositelist[[i]]$factor <- names(compositelist)[[i]]
-}
 Tn5_RE_compositelist = compositelist
 save(Tn5_RE_compositelist, file = 'Tn5_RE_compositelist.Rdata')
 #######################################################################################
-#Remove train data from output and unscaled
-test_Tn5_RE_RM_compositelist = 
-  Tn5_RE_compositelist[which(names(Tn5_RE_compositelist) %in% test)]
-test_unscaled_compositelist = 
-  Tn5_unscaled_compositelist[which(names(Tn5_unscaled_compositelist) %in% test)]
-test_Tn5_NNNCNNNN_compositelist = 
-  Tn5_NNNCNNNN_compositelist[which(names(Tn5_NNNCNNNN_compositelist) %in% test)]
 #Plot difference b/t avg baseline and corrected...
 #trim composites to 20bp around center
-test_Tn5_RE = do.call(rbind, test_Tn5_RE_RM_compositelist)
+test_Tn5_RE = do.call(rbind, Tn5_RE_compositelist)
 test_Tn5_RE$group = 'Rule Ensemble'
-test_unscaled = do.call(rbind, test_unscaled_compositelist)
+test_unscaled = do.call(rbind, Tn5_unscaled_compositelist)
 test_unscaled$group = 'Unscaled'
-test_NNNCNNNN = do.call(rbind, test_Tn5_NNNCNNNN_compositelist)
+test_NNNCNNNN = do.call(rbind, Tn5_NNNCNNNN_compositelist)
 test_NNNCNNNN$group = 'seqOutBias'
-####################################################################################
-#Violin Hack
-panel.violin.hack <-
-  function (x, y, box.ratio = 1, box.width = box.ratio/(1 + box.ratio),
-            horizontal = TRUE, alpha = plot.polygon$alpha, border =  
-              plot.polygon$border,
-            lty = plot.polygon$lty, lwd = plot.polygon$lwd, col = plot.polygon 
-            $col,
-            varwidth = FALSE, bw = NULL, adjust = NULL, kernel = NULL,
-            window = NULL, width = NULL, n = 50, from = NULL, to = NULL,
-            cut = NULL, na.rm = TRUE, ...){
-    if (all(is.na(x) | is.na(y)))
-      return()
-    x <- as.numeric(x)
-    y <- as.numeric(y)
-    plot.polygon <- trellis.par.get("plot.polygon")
-    darg <- list()
-    darg$bw <- bw
-    darg$adjust <- adjust
-    darg$kernel <- kernel
-    darg$window <- window
-    darg$width <- width
-    darg$n <- n
-    darg$from <- from
-    darg$to <- to
-    darg$cut <- cut
-    darg$na.rm <- na.rm
-    my.density <- function(x) {
-      ans <- try(do.call("density", c(list(x = x), darg)),
-                 silent = TRUE)
-      if (inherits(ans, "try-error"))
-        list(x = rep(x[1], 3), y = c(0, 1, 0))
-      else ans
-    }
-    numeric.list <- if (horizontal)
-      split(x, factor(y))
-    else split(y, factor(x))
-    levels.fos <- as.numeric(names(numeric.list))
-    d.list <- lapply(numeric.list, my.density)
-    dx.list <- lapply(d.list, "[[", "x")
-    dy.list <- lapply(d.list, "[[", "y")
-    max.d <- sapply(dy.list, max)
-    if (varwidth)
-      max.d[] <- max(max.d)
-    xscale <- current.panel.limits()$xlim
-    yscale <- current.panel.limits()$ylim
-    height <- box.width
-    if (horizontal) {
-      for (i in seq_along(levels.fos)) {
-        if (is.finite(max.d[i])) {
-          pushViewport(viewport(y = unit(levels.fos[i],
-                                         "native"), height = unit(height, "native"),
-                                yscale = c(max.d[i] * c(-1, 1)), xscale = xscale))
-          grid.polygon(x = c(dx.list[[i]], rev(dx.list[[i]])),
-                       y = c(dy.list[[i]], -rev(dy.list[[i]])),  
-                       default.units = "native",
-                       # this is the point at which the index is added
-                       gp = gpar(fill = col[i], col = border, lty = lty,
-                                 lwd = lwd, alpha = alpha))
-          popViewport()
-        }
-      }
-    }
-    else {
-      for (i in seq_along(levels.fos)) {
-        if (is.finite(max.d[i])) {
-          pushViewport(viewport(x = unit(levels.fos[i],
-                                         "native"), width = unit(height, "native"),
-                                xscale = c(max.d[i] * c(-1, 1)), yscale = yscale))
-          grid.polygon(y = c(dx.list[[i]], rev(dx.list[[i]])),
-                       x = c(dy.list[[i]], -rev(dy.list[[i]])),  
-                       default.units = "native",
-                       # this is the point at which the index is added
-                       gp = gpar(fill = col[i], col = border, lty = lty,
-                                 lwd = lwd, alpha = alpha))
-          popViewport()
-        }
-      }
-    }
-    invisible()
-  }
-
 ###Subset out baseline values (motif +/-10) and single nucleotide (motif)
 all_test_composites = rbind(test_Tn5_RE, test_unscaled, test_NNNCNNNN)
 
-baseline_frame = NULL
-baseline_store = NULL
 singlenuc_frame = NULL
 singlenuc_store = NULL
 for (i in 1:length(Motiflen)) {
-  baseline_store = all_test_composites[which(all_test_composites$factor == 
-            names(Motiflen)[i] & all_test_composites$x > ((Motiflen[i]/2)+10) | 
-            all_test_composites$factor == names(Motiflen)[i] & 
-              all_test_composites$x < -((Motiflen[i]/2)+10)),]
-  baseline_frame = rbind(baseline_frame, baseline_store)
   singlenuc_store = all_test_composites[which(all_test_composites$factor == 
-            names(Motiflen)[i] & all_test_composites$x < ((Motiflen[i]/2)+10) & 
-              all_test_composites$x > - ((Motiflen[i]/2)+10)),]
+                             names(Motiflen)[i] & all_test_composites$x < ((Motiflen[i]/2)+10) & 
+                             all_test_composites$x > - ((Motiflen[i]/2)+10)),]
   singlenuc_frame = rbind(singlenuc_frame, singlenuc_store)
 }
 #Compute baseline and single nucleotide log2 ratios
-baseline_log = NULL
 singlenuc_log = NULL
-for (i in 1:length(baseline_frame$x)) {
-  baseline_log[i] = log2(baseline_frame$est[i] / 0.006140407)
-}
 for (i in 1:length(singlenuc_frame$factor)) {
   singlenuc_log[i] = log2(singlenuc_frame$est[i] / 0.006140407)
 }
-
-baseline_log = data.frame(baseline_log)
-baseline_log[,2] = baseline_frame$group
-colnames(baseline_log) = c('Difference', 'Treatment')
-baseline_log$Treatment = factor(baseline_log$Treatment,
-                                levels = c('Unscaled', 'Rule Ensemble', 'seqOutBias'))
 singlenuc_log = data.frame(singlenuc_log)
 singlenuc_log[,2] = singlenuc_frame$factor
 singlenuc_log[,3] = singlenuc_frame$group
 colnames(singlenuc_log) = c('Difference', 'Factor', 'Treatment')
 singlenuc_log$Treatment = factor(singlenuc_log$Treatment,
                                  levels = c('Unscaled', 'Rule Ensemble', 'seqOutBias'))
-#plot baselines:
-pdf('Tn5_baseline_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
-trellis.par.set(box.umbrella = list(lty = 1, col="#93939380", lwd=2),
-                box.rectangle = list(col = '#93939380', lwd=1.6),
-                plot.symbol = list(col='#93939380', lwd=1.6, pch ='.'))
-################################################################################
-print(bwplot(Difference ~ Treatment , data = baseline_log,
-             between=list(y=0.5, x = 0.5),
-             scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1,font=1),
-             #xlab = '',
-             ylim = c(-2.5, 2.5),
-             #   main = "Pause Index (PI) Ratio",
-             ylab =expression("log"[2]~"(deviation from random cleavage)"),
-             horizontal =FALSE,  col= 'black',
-             aspect = 2,
-             par.settings=list(par.xlab.text=list(cex=1.2,font=1),
-                               par.ylab.text=list(cex=1.2,font=1),
-                               par.main.text=list(cex=1.2, font=1),
-                               plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.0)),
-             strip = function(..., which.panel, bg) {
-               bg.col = c("grey90")
-               strip.default(..., which.panel = which.panel,
-                             bg = rep(bg.col, length = which.panel)[which.panel])
-             },
-             panel = function(..., box.ratio, col) {
-               panel.abline(h = 0, col = 'grey45', lty = 2)
-               panel.violin.hack(..., col = c("#FF7E78", "#FF5FD2", "#50FFE6"),
-                                 varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
-               panel.stripplot(..., col='#54545380', do.out=FALSE,
-                               jitter.data=TRUE, amount = 0.2, pch = 16)
-               panel.bwplot(..., pch = '|', do.out = FALSE)
-               
-             }))
-dev.off()
-save(baseline_log, file = 'Figure5_Tn5_baseline_log2_comparison.Rdata')
-#Calculate baseline means
-baseline_means = NULL
-for (i in 1:length(unique(baseline_log$Treatment))) {
-  baseline_means[i] = mean(baseline_log[which(baseline_log$Treatment ==
-                                                unique(baseline_log$Treatment)[i]),1])
-}
-names(baseline_means) = unique(baseline_log$Treatment)
-baseline_means
-#Calculate baseline ranges
-baseline_range = data.frame()
-for (i in 1:length(unique(baseline_log$Treatment))) {
-  baseline_range[i,1] = max(baseline_log[which(baseline_log$Treatment ==
-                                                 unique(baseline_log$Treatment)[i]),1])
-  baseline_range[i,2] = min(baseline_log[which(baseline_log$Treatment ==
-                                                 unique(baseline_log$Treatment)[i]),1])
-}
-names(baseline_means) = unique(baseline_log$Treatment)
-baseline_means
-baseline_range[,3] = unique(baseline_log$Treatment)
-colnames(baseline_range) = c('max', 'min', 'Treatment')
-baseline_range
+#Split main figure and supplemental
+main_fig = c('AR', 'ESR1', 'MEF2A', 'MGA', 'NFATC3', 'NR2F2', 'REST', 'SP1', 'TEAD1')
+supp_singlenuc_log = singlenuc_log[-c(which(singlenuc_log$Factor %in% main_fig )),]
+supp_singlenuc_log$Treatment = factor(supp_singlenuc_log$Treatment,
+                                      levels = c('Unscaled', 'seqOutBias', 'Rule Ensemble'))
+singlenuc_log = singlenuc_log[which(singlenuc_log$Factor %in% main_fig ),]
+singlenuc_log$Treatment = factor(singlenuc_log$Treatment,
+                                 levels = c('Unscaled', 'seqOutBias', 'Rule Ensemble'))
 #Plot each TF (singlenuc)
-pdf('Tn5_singlenuc_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
-
-trellis.par.set(box.umbrella = list(lty = 1, col="#93939380", lwd=2),
-                box.rectangle = list(col = '#93939380', lwd=1.6),
-                plot.symbol = list(col='#93939380', lwd=1.6, pch ='.'))
+log2plot = bwplot(Difference ~ Treatment | Factor , data = singlenuc_log,
+                  between=list(y=0.5, x = 0.5),
+                  scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
+                  #xlab = '',
+                  ylim = c(-4.5, 3.5),
+                  ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
+                  horizontal =FALSE,  col= 'black',
+                  aspect = 2,
+                  par.settings=list(par.xlab.text=list(cex=1.2,font=1),
+                                    par.ylab.text=list(cex=1.2,font=1),
+                                    par.main.text=list(cex=1.2, font=1),
+                                    plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.4)),
+                  par.strip.text = list(cex = 1.2),
+                  strip = function(..., which.panel, bg) {
+                    bg.col = c("white")
+                    strip.default(..., which.panel = which.panel,
+                                  bg = rep(bg.col, length = which.panel)[which.panel])
+                  },
+                  panel = function(..., box.ratio, col) {
+                    panel.abline(h = 0, col = 'grey45', lty = 2)
+                    panel.violin.hack(..., col = c("#A1A3AB", "#FF0000", "#0000FF"),
+                                      varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
+                    panel.stripplot(..., col='#54545380', do.out=FALSE,
+                                    jitter.data=TRUE, amount = 0.2, pch = 16)
+                    panel.bwplot(..., pch = '|', do.out = FALSE)
+                    
+                  })
+pdf('Figure6C_Tn5_singlenuc_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
+trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
+                box.rectangle = list(col = '#93939300', lwd=1.6),
+                plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
 ################################################################################
-print(bwplot(Difference ~ Treatment | Factor , data = singlenuc_log,
-             between=list(y=0.5, x = 0.5),
-             scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1,font=1),
-             #xlab = '',
-             ylim = c(-4.5, 3.5),
-             #   main = "Pause Index (PI) Ratio",
-             ylab =expression("log"[2]~"(deviation from random cleavage)"),
-             horizontal =FALSE,  col= 'black',
-             aspect = 2,
-             par.settings=list(par.xlab.text=list(cex=1.2,font=1),
-                               par.ylab.text=list(cex=1.2,font=1),
-                               par.main.text=list(cex=1.2, font=1),
-                               plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.0)),
-             strip = function(..., which.panel, bg) {
-               bg.col = c("grey90")
-               strip.default(..., which.panel = which.panel,
-                             bg = rep(bg.col, length = which.panel)[which.panel])
-             },
-             panel = function(..., box.ratio, col) {
-               panel.abline(h = 0, col = 'grey45', lty = 2)
-               panel.violin.hack(..., col = c("#FF7E78", "#FF5FD2", "#50FFE6"),
-                                 varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
-               panel.stripplot(..., col='#54545380', do.out=FALSE,
-                               jitter.data=TRUE, amount = 0.2, pch = 16)
-               panel.bwplot(..., pch = '|', do.out = FALSE)
-             }))
+print(update(log2plot, layout=c(9,1)))
 dev.off()
+save(singlenuc_log, file = 'Figure6C_Tn5_singlenuc_log2_comparison.Rdata')
+################################################################################
+log2plot = bwplot(Difference ~ Treatment | Factor , data = supp_singlenuc_log,
+                  between=list(y=0.5, x = 0.5),
+                  scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
+                  #xlab = '',
+                  ylim = c(-4.5, 3.5),
+                  ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
+                  horizontal =FALSE,  col= 'black',
+                  aspect = 2,
+                  par.settings=list(par.xlab.text=list(cex=1.2,font=1),
+                                    par.ylab.text=list(cex=1.2,font=1),
+                                    par.main.text=list(cex=1.2, font=1),
+                                    plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.4)),
+                  par.strip.text = list(cex = 1.2),
+                  strip = function(..., which.panel, bg) {
+                    bg.col = c("white")
+                    strip.default(..., which.panel = which.panel,
+                                  bg = rep(bg.col, length = which.panel)[which.panel])
+                  },
+                  panel = function(..., box.ratio, col) {
+                    panel.abline(h = 0, col = 'grey45', lty = 2)
+                    panel.violin.hack(..., col = c("#A1A3AB", "#FF0000", "#0000FF"),
+                                      varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
+                    panel.stripplot(..., col='#54545380',
+                    do.out=FALSE, jitter.data=TRUE, amount = 0.2, pch = 16)
+                    panel.bwplot(..., pch = '|', do.out = FALSE)
+                    
+                  })
 
-save(singlenuc_log, file = 'Figure5_Tn5_singlenuc_log2_comparison.Rdata')
-#Calculate single nucleotide means
-singlenuc_means = NULL
-singlenuc_range = data.frame()
-for (i in 1:length(unique(singlenuc_log$Treatment))) {
-  singlenuc_means[i] = mean(singlenuc_log[which(singlenuc_log$Treatment ==
-                                                  unique(singlenuc_log$Treatment)[i]),1])
-  singlenuc_range[i,1] = max(singlenuc_log[which(singlenuc_log$Treatment ==
-                                                   unique(singlenuc_log$Treatment)[i]),1])
-  singlenuc_range[i,2] = min(singlenuc_log[which(singlenuc_log$Treatment ==
-                                                   unique(singlenuc_log$Treatment)[i]),1])
+pdf('Supplemental_Figure6A_Tn5_singlenuc_log2_comparison.pdf',
+    useDingbats = FALSE, width=10.83, height=6)
+
+trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
+                box.rectangle = list(col = '#93939300', lwd=1.6),
+                plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
+
+################################################################################
+print(update(log2plot, layout=c(9,1)))
+dev.off()
+save(supp_singlenuc_log, file = 'Supplemental_Figure6C_Tn5_singlenuc_log2_comparison.Rdata')
+##Combine rule ensemble, seqOutBias and unscaled compositelists for plotting
+combined_compositelist <- vector(mode = 'list', length = 1)
+for (i in 1:length(Tn5_unscaled_compositelist)) {
+  combined_compositelist[[i]] <- rbind(Tn5_RE_compositelist[[i]],
+                                       Tn5_unscaled_compositelist[[i]],
+                                       Tn5_NNNCNNNN_compositelist[[i]])
 }
-names(singlenuc_means) = unique(singlenuc_log$Treatment)
-singlenuc_means
-singlenuc_range[,3] = unique(singlenuc_log$Treatment)
-colnames(singlenuc_range) = c('max', 'min', 'Treatment')
+names(combined_compositelist) <- names(Tn5_unscaled_compositelist)
+#Separate out the TFs to be plotted (for 6C) and their motif lengths
+
+figure6B_plot = do.call(rbind, combined_compositelist[c(4, 11, 16)])
+figure6B_plot$group[which(figure6B_plot$group == 'NNNCNNNN')] = 'seqOutBias'
+figure6B_plot$group = factor(figure6B_plot$group,
+                                 levels = c('Rule Ensemble', 'seqOutBias', 'Unscaled'))
+mlen <- Motiflen[c(4, 11, 16)]
+mlen <- as.data.frame(mlen)
+rownames(mlen) <- levels(as.factor(figure6B_plot$factor))
+
+
+plot.composites(figure6B_plot, legend = TRUE, 
+                pdf_name = 'Figure6B_Tn5_PRE_NNNCNNNN_comparison',
+                figwidth = 8, figheight = 4,
+                ylabel = '',
+                xlabel = '',
+                motifline = TRUE, Motiflen = mlen, layoutgrid = c(3,1),
+                x_axis_range = -20:20, X_axis_ticks = seq(-20,20,10),
+                Y_axis_ticks = seq(0,0.05,0.01), nYaxisdigits = 2,
+                hline_val = 0.006140407, y_axis_range = seq(0,0.02,0.01),
+                y_axis = FALSE, hline = TRUE, Y_ticks = FALSE, labsize = 0.85)
+
+#Plot supplemental composites
+supp_figure6B_plot = do.call(rbind, combined_compositelist[-c(4, 11, 16)])
+supp_figure6B_plot$group[which(supp_figure6B_plot$group == 'NNNCNNNN')] = 'seqOutBias'
+supp_figure6B_plot$group = factor(supp_figure6B_plot$group,
+                             levels = c('Rule Ensemble', 'seqOutBias', 'Unscaled'))
+mlen = Motiflen[-c(4, 11, 16)]
+mlen = mlen[which(names(mlen) %in% test)]
+mlen = as.data.frame(mlen)
+rownames(mlen) = levels(as.factor(supp_figure6B_plot$factor))
+
+plot.composites(supp_figure6B_plot, legend = TRUE, 
+                pdf_name = 'Supplemental6B_DNasePN_PRE_NNNCNNNN_comparison',
+                figwidth = 12, figheight = 10,
+                ylabel = '',
+                xlabel = '',
+                motifline = TRUE, Motiflen = mlen, layoutgrid = c(5,3),
+                x_axis_range = -20:20, X_axis_ticks = seq(-20,20,10),
+                Y_ticks = FALSE,
+                hline_val = 0.006140407, y_axis_range = seq(0,0.02,0.01),
+                y_axis = FALSE, hline = TRUE, labsize = 0.85)
+
 #Plot overlays:
 ################################################################################
-plot.composites = function(dat, ylabel = '', x_axis_range = min(dat$x):max(dat$x),
-                           pdf_name = 'PLEASE_SET_FILE_NAME',
-                           xlabel = '', striplabel = TRUE, legend = TRUE,
-                           motifline = FALSE, Motiflen = 10,
-                           figwidth = 2.5, figheight=3,
-                           indexlist = NULL, layoutgrid = NULL,
-                           col.lines = c("#0000FF", "#FF0000", "#00000090", 
-                                         rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
-                                         rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
-                                         rgb(1/2,1/2,0,1/2)), 
-                           fill.poly = c(rgb(0,0,1,1/4), 
-                                         rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
-                                         rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
-  require(lattice)
-  dat = dat[which(dat$x %in% x_axis_range),]
-  pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
-  print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
-               type = 'l', as.table = TRUE,
-               scales=list(x=list(cex=1.5,relation = "free", axs ="i"), 
-                           y =list(cex=1.5, relation="free", tick.number=4)),
-               col = col.lines,
-               auto.key = if (legend == TRUE) 
-               {list(points=F, lines=T, cex=0.8)} else{},
-               par.settings = list(strip.background=list(col="#00000000"),
-                                   strip.border = list(col = 'transparent'),
-                                   superpose.symbol = list(pch = c(16),
-                                                           col=col.lines, 
-                                                           cex =0.5), 
-                                   superpose.line = list(col = col.lines, 
-                                                         lwd=c(2), 
-                                                         lty = c(1))),
-               cex.axis=1.0,
-               par.strip.text=list(cex=2, font=1, col='black'),
-               ylim = c(0, 0.05),
-               aspect=1.0,
-               between=list(y=0.5, x=0.5),
-               lwd=2,
-               ylab = list(label = paste(ylabel), cex =1.75),
-               xlab = list(label = paste(xlabel), cex =1.75),
-               index.cond = indexlist,
-               layout = layoutgrid,
-               panel = function(x, y, ...) {
-                 panel.xyplot(x, y, ...)
-                 panel.abline(h = 0.006140407, lty =3, lwd = 10.0, col = 'red')
-
-               }
-  ))
-  dev.off()
-}
 ################################################################################
 #Plot seqOutBias overlay
-OLD_Tn5_RE_overlay = Tn5_NNNCNNNN_compositelist[which(names(Tn5_NNNCNNNN_compositelist) %in% test)]
-OLD_Tn5_RE_overlay = do.call(rbind, OLD_Tn5_RE_overlay)
-OLD_Tn5_RE_overlay$correction = OLD_Tn5_RE_overlay$factor
-OLD_Tn5_RE_overlay$factor = OLD_Tn5_RE_overlay$group
-OLD_Tn5_RE_overlay$group = OLD_Tn5_RE_overlay$correction
-OLD_Tn5_RE_overlay$factor = 'seqOutBias'
-plot.composites(OLD_Tn5_RE_overlay, legend = FALSE, 
-                pdf_name = 'seqOutBias_NNNCNN_Tn5_RE_overlay',
-                ylabel = 'Cut Frequency',
+seqOutBias_Tn5_RE_overlay = Tn5_NNNCNNNN_compositelist[which(names(Tn5_NNNCNNNN_compositelist) %in% test)]
+seqOutBias_Tn5_RE_overlay = do.call(rbind, seqOutBias_Tn5_RE_overlay)
+seqOutBias_Tn5_RE_overlay$correction = seqOutBias_Tn5_RE_overlay$factor
+seqOutBias_Tn5_RE_overlay$factor = seqOutBias_Tn5_RE_overlay$group
+seqOutBias_Tn5_RE_overlay$group = seqOutBias_Tn5_RE_overlay$correction
+seqOutBias_Tn5_RE_overlay$factor = 'seqOutBias'
+plot.composites(seqOutBias_Tn5_RE_overlay, legend = FALSE, 
+                pdf_name = 'Figure6E_seqOutBias_Tn5_RE_overlay',
+                ylabel = 'Insertion Frequency',
                 xlabel = 'Distance from Motif Center',
-                motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8, x_axis_range = -100:100)  
+                motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8,
+                x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
+                hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
+                hline = TRUE, hlinelwd = 10, hlinelty = 3,
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
 #Plot rule ensemble overlay
 RE_Tn5_overlay = Tn5_RE_compositelist[which(names(Tn5_RE_compositelist) %in% test)]
 RE_Tn5_overlay = do.call(rbind, RE_Tn5_overlay)
@@ -4965,11 +4926,14 @@ RE_Tn5_overlay$factor = RE_Tn5_overlay$group
 RE_Tn5_overlay$group = RE_Tn5_overlay$correction
 RE_Tn5_overlay$factor = 'Rule Ensemble'
 plot.composites(RE_Tn5_overlay, legend = FALSE, 
-                pdf_name = '567mer_spaced3mer_Tn5_RE_overlay',
-                ylabel = 'Cut Frequency',
+                pdf_name = 'Figure6E_Tn5_RE_overlay',
+                ylabel = 'Insertion Frequency',
                 xlabel = 'Distance from Motif Center',
                 motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8,
-                x_axis_range = -100:100)  
+                x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
+                hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
+                hline = TRUE, hlinelwd = 10, hlinelty = 3,
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
 #Plot unscaled overlay
 unscaled_Tn5_overlay = Tn5_unscaled_compositelist[which(names(Tn5_unscaled_compositelist) %in% test)]
 unscaled_Tn5_overlay = do.call(rbind, unscaled_Tn5_overlay)
@@ -4978,12 +4942,64 @@ unscaled_Tn5_overlay$factor = unscaled_Tn5_overlay$group
 unscaled_Tn5_overlay$group = unscaled_Tn5_overlay$correction
 unscaled_Tn5_overlay$factor = 'Unscaled'
 plot.composites(unscaled_Tn5_overlay, legend = FALSE, 
-                pdf_name = 'unscaled_Tn5_overlay',
-                ylabel = 'Cut Frequency',
+                pdf_name = 'Figure6E_Tn5_unscaled_overlay',
+                ylabel = 'Insertion Frequency',
                 xlabel = 'Distance from Motif Center',
                 motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8,
-                x_axis_range = -100:100)  
+                x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
+                hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
+                hline = TRUE, hlinelwd = 10, hlinelty = 3,
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
+
+#Plot Improvement of rule ensemble over seqOutBias
+dot_frame = singlenuc_frame[which(singlenuc_frame$group == 'Unscaled')]
+dot_frame = dot_frame[,-c(5)]
+colnames(dot_frame) = c('Unscaled_x', 'Unscaled_est', 'Unscaled_factor', 'Unscaled_group')
+
+dot_frame = cbind(dot_frame, singlenuc_frame[which(singlenuc_frame$group == 'Rule Ensemble'),1:4])
+colnames(dot_frame)[5:8] = c('RE_x', 'RE_est', 'RE_factor', 'RE_group')
+dot_frame = cbind(dot_frame, singlenuc_frame[which(singlenuc_frame$group == 'seqOutBias'),1:4])
+colnames(dot_frame)[9:12] = c('sOB_x', 'sOB_est', 'sOB_factor', 'sOB_group')
+identical(dot_frame$Unscaled_factor, dot_frame$RE_factor)
+
+dot_frame = dot_frame[,-c(4,5,7,8,9,11,12)]
+dot_frame$calc_avg = 0.006140407
+dot_frame$RE_absdiff = abs(dot_frame$RE_est - dot_frame$calc_avg)
+dot_frame$sOB_absdiff = abs(dot_frame$sOB_est - dot_frame$calc_avg)
+rownames(dot_frame) = 1:nrow(dot_frame)
+
+dot_frame$sOB_sub_RE = dot_frame$sOB_absdiff - dot_frame$RE_absdiff
+dot_frame$plot_col  = 'RE Improvement over sOB'
+
+length(which(dot_frame$sOB_absdiff > dot_frame$RE_absdiff))/ nrow(dot_frame)
+
+pdf('Figure6D_Tn5_sOB_RE_improvement_BW.pdf', width=10, height=12)
+ggplot(dot_frame, aes(x=plot_col, y = sOB_sub_RE)) + 
+  geom_violin(trim = FALSE, color = 'black', fill = 'light blue') +
+  xlab("") + ylab("Rule Ensemble Improvement") + theme_classic() + 
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha = 0.4) +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(),
+        axis.text = element_text(size = 36), axis.title = element_text(size = 42,
+        family = 'sans', face = 'bold'),
+        axis.text.y = element_text(colour = "black", family = 'sans')) +
+        geom_abline(slope = 0, lwd = 2, color = 'red', linetype = "dashed")
+dev.off()
 ```
+
+```{r Tn5_singlenuc_composites, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 6B Tn5 single nucleotide composites ', out.width = "80%"}
+knitr::include_graphics("figs/Figure6B_Tn5_PRE_NNNCNNNN_comparison.pdf")
+```
+
+```{r Tn5_log2singlenuc, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 6C Tn5 single nucleotide log$_2$ improvement', out.width = "80%"}
+knitr::include_graphics("figs/Figure6C_Tn5_singlenuc_log2_comparison.pdf")
+```
+
+
+```{r Tn5_singlenuc_improvement, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 6D Tn5 single nucleotide improvement violin plot ', out.width = "80%"}
+knitr::include_graphics("figs/Figure6D_Tn5_sOB_RE_improvement_BW.pdf")
+```
+
+
 # Figure 7. Tn5 preference for high GC content regions creates a distinct bias from single nucleotide sequence
 
 ```{r Figure 4, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 4. Tn5 preference for high GC content regions creates a distinct bias from single nucleotide sequence', out.width = "80%"}
