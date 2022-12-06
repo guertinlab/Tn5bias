@@ -15,8 +15,6 @@ masknames = masknames$V1
 masknames = substr(masknames, 5, nchar(masknames))
 masknames = c('chr', 'start', 'stop', masknames)
 colnames(x) = masknames
-#Import rule ensemble model
-
 #Import the formula from the rule ensemble 
 prerules = import.rules('Tn5_Rules_Ensemble_model.txt')
 prerules = gsub(' + ', ' + \n', prerules, fixed = TRUE)
