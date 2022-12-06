@@ -101,7 +101,7 @@ for (i in 1:length(DNase_unscaled_compositelist)) {
 }
 names(combined_compositelist) <- names(DNase_unscaled_compositelist)
 
-#Separate out the TFs to be plotted (for 3C) and their motif lengths
+#Separate out the TFs to be plotted (for 5C) and their motif lengths
 figure5C_plot = do.call(rbind, combined_compositelist[c(4, 20, 41)])
 
 mlen <- Motiflen[c(4, 20, 41)]
