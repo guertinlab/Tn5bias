@@ -331,7 +331,7 @@ plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = 
                             xlabel = '', striplabel = TRUE, legend = TRUE, labsize = 1.1,
                             motifline = FALSE, Motiflen = 10, nYticks = 3, Y_ticks = TRUE,
                             figwidth = 2.5, figheight=3, hline = FALSE, nYaxisdigits = 3, hlinelwd = 2,
-                            indexlist = NULL, layoutgrid = NULL, y_axis = FALSE, linethick = 2,
+                            indexlist = NULL, layoutgrid = NULL, y_axis = FALSE, linethick = 2, hlinelty = 2,
                             X_axis_ticks = seq(-20,20,10), hline_val = 0, Y_axis_ticks = seq(0,0.02,0.01),
                     col.lines = c("#0000FF", "#FF0000", "#A1A3AB", 
                                   rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
@@ -375,7 +375,7 @@ plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = 
                  panel = function(x, y, ...) {
                    panel.xyplot(x, y, ...)
                    if (hline == TRUE)
-                   {panel.abline(h = hline_val, lty =2, lwd = hlinelwd, col = '#FF0000')}else{}
+                   {panel.abline(h = hline_val, lty =  hlinelty, lwd = hlinelwd, col = '#FF0000')}else{}
                    level = dimnames(trellis.last.object())[["factor"]][packet.number()]
                    if (motifline == TRUE) 
                    {panel.abline(v = ceiling(Motiflen[rownames(Motiflen)==level,]/2), lty = 2, col = "red")} else{}
