@@ -241,6 +241,7 @@ supp_figure6B_plot = do.call(rbind, combined_compositelist[-c(4, 11, 16)])
 supp_figure6B_plot$group[which(supp_figure6B_plot$group == 'NNNCNNNN')] = 'seqOutBias'
 supp_figure6B_plot$group = factor(supp_figure6B_plot$group,
                              levels = c('Rule Ensemble', 'seqOutBias', 'Unscaled'))
+names(Motiflen) = test
 mlen = Motiflen[-c(4, 11, 16)]
 mlen = mlen[which(names(mlen) %in% test)]
 mlen = as.data.frame(mlen)
@@ -275,7 +276,7 @@ plot.composites(seqOutBias_Tn5_RE_overlay, legend = FALSE,
                 x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
                 hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
                 hline = TRUE, hlinelwd = 10, hlinelty = 3,
-                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)  
 #Plot rule ensemble overlay
 RE_Tn5_overlay = Tn5_RE_compositelist[which(names(Tn5_RE_compositelist) %in% test)]
 RE_Tn5_overlay = do.call(rbind, RE_Tn5_overlay)
@@ -291,7 +292,7 @@ plot.composites(RE_Tn5_overlay, legend = FALSE,
                 x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
                 hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
                 hline = TRUE, hlinelwd = 10, hlinelty = 3,
-                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)  
 #Plot unscaled overlay
 unscaled_Tn5_overlay = Tn5_unscaled_compositelist[which(names(Tn5_unscaled_compositelist) %in% test)]
 unscaled_Tn5_overlay = do.call(rbind, unscaled_Tn5_overlay)
@@ -307,7 +308,7 @@ plot.composites(unscaled_Tn5_overlay, legend = FALSE,
                 x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
                 hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
                 hline = TRUE, hlinelwd = 10, hlinelty = 3,
-                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)  
 
 #Plot Improvement of rule ensemble over seqOutBias
 dot_frame = singlenuc_frame[which(singlenuc_frame$group == 'Unscaled')]
