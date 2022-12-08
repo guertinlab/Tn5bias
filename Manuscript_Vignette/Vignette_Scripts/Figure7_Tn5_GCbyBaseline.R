@@ -48,9 +48,9 @@ ggplot(baseline_mean, aes(x = BaselineAvg, y = GC, label = TF)) +
   ylim(0, 0.8) +
   theme_classic() + xlab('Baseline Signal') + ylab('Motif GC%') + 
 
-  theme(axis.text=element_text(size=22, color = 'black'),
+  theme(axis.text=element_text(size=20, color = 'black'),
         axis.title=element_text(size=30, color = 'black'),
-        axis.text.y=element_text(angle = 90, hjust = 0.4),
+        axis.text.y=element_text(hjust = 0.4),
         axis.text.x=element_text(hjust = 0.60)) 
 dev.off()
 
