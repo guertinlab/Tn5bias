@@ -17,7 +17,7 @@ output:
         - '--highlight-style=breezeDark'
 package: 
 abstract: |
-  This is a comprehensive vignette which reproduces all figures and computations in the paper "Correction of transposase sequence bias in ATAC-seq data with rule ensemble modeling". Each chapter focuses on the necessary code for a figure in the text. Functions used in each section are listed at the end of the vignette. Each code chunk listed in this vignette should have a raw version listed on GitHub, allowing for easy reproduction.
+  This is a comprehensive vignette which reproduces all computations necessary to create the figures in the paper "Correction of transposase sequence bias in ATAC-seq data with rule ensemble modeling". Each chapter presents the necessary code for a figure in the text. Functions used in each section are listed at the end of the vignette. Each code chunk listed in this vignette should have a raw version listed on GitHub, allowing for easy reproduction.
 
 vignette: >
   %\VignetteIndexEntry{ATAC Bias}
@@ -26,6 +26,7 @@ vignette: >
 ---
 \pagebreak
 # Foreword
+  This vignette was created for the purpose of allowing one to conduct the same analysis, and produce the same output as found in the paper "Correction of transposase sequence bias in ATAC-seq data with rule ensemble modeling". Because this vignette (and the paper) uses only publicly available data (retrieved from SRA) and reference genomes (retrieved from UCSC), all analyses and computations conducted can be reproduced by running the scripts contained within. Further, because most 'randomized' operations use the seed '42' they can also be reproduced as well. Sections which use a high-performance computing system can be reproduced locally, although this is not recommended, as computation times and RAM requirements can be very large.
   Organization of this vignette assumes that each section contains all files in a folder specific to that section and that scripts are initiated within the original section folder. ie. Figure1, Figure2 are individual folders. Therefore, calls to data made in a previous section will usually involve accessing that folder. Additionally, because each figure has many dependencies, each new dependency is listed before each section in which it is used. Subsequent sections which use previously listed dependencies do not list them. 
 
 # Figure1. Tn5 sequence bias is more complex than nuclease sequence bias.
@@ -44,7 +45,7 @@ cd Figure1
 
 ## Downloading genomic FASTA files
 
-This step will download all of the necessary genomic reference files for figure 1. The script can be found at:
+This step will download all of the necessary genomic reference files for figure 1. The script can be found at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ReferenceGenome_download.sh
 
 ```{bash eval=FALSE}
@@ -60,7 +61,7 @@ gunzip mm39.fa.gz
 
 ## Python script: bedToOneEntryBed.py
 
-The file is at https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/bedToOneEntryBed.py and it converts a bed to a bed with one entry per instance, so that a FASTA entry is present for each ATAC insertion event.
+The file is at https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/bedToOneEntryBed.py and it converts a bed to a bed with one entry per read, so that a FASTA entry is present for each enzymatic insertion or cleavage event.
 
 ```{bash eval=FALSE}
 #! /usr/bin/env
@@ -111,10 +112,10 @@ if __name__ == "__main__":
 
 ## Retrieving then processing FASTQ data files
 
-This step will download all of the data used in figure 1. These data sets will then be aligned to their respective genomes, plus and minus
-data will be separated, seqOutBias will be run on both separated and unseparated data, bed entries will be converted into an entry
+This step will download all of the read data used in figure 1. These data sets will then be aligned to their respective genomes, plus and minus
+data will be separated, seqOutBias will be run on both separated and unseparated data, bed files will be converted into a bed file with an entry
 for each read, minus strand sequences are reverse complemented, and finally concatenated with the plus strand. This will be done for DNase and Tn5 using human
-(hg38 reference genome) data while Cyanase, Benzonase and MNase use mouse (mm39 reference genome) data. This script can be found at:
+(hg38 reference genome) data while Cyanase, Benzonase and MNase use mouse (mm39 reference genome) data. This script can be found at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ReadAlignment.sh
 
 __Software installations:__
@@ -127,7 +128,7 @@ bowtie2: http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
 samtools: http://www.htslib.org
 
-seqOutBias: https://github.com/guertinlab/seqOutBias
+seqOutBias: https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip
 
 
 ``` {bash eval=FALSE}
@@ -365,7 +366,7 @@ done
 
 ## Counting nucleotides for sequence logos of each enzyme
 
-Each enzyme's data set (FASTA file) is used to count the occurrence of each nucleotide at each position within 15bp around the cutsite. This script can be found at:
+Each enzyme's data set (FASTA file) is used to count the occurrence of each nucleotide at each position within 15bp around the cutsite. This script can be found at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_Nucleotide_Count.R
 
 ``` {R eval=FALSE}
@@ -594,7 +595,7 @@ __Software installations:__
 
 pyfaidx: https://github.com/mdshw5/pyfaidx
 
-To determine background nucleotide frequency in the hg38 and mm39 reference genomes, a simple grep command may be used. To ensure that chromosome names aren't counted, a grep command using the chrom.sizes files for either genome may be used to correct these counts. This script may be found at:
+To determine background nucleotide frequency in the hg38 and mm39 reference genomes, a simple grep command may be used. To ensure that chromosome names aren't counted, a grep command using the chrom.sizes files for either genome may be used to correct these counts. This script may be found at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_refBackground_Nuc_Freq.sh
 
 ```{bash eval = FALSE}
@@ -677,7 +678,7 @@ grep -o "t\|T" ../data/mm39.fa.chrom.sizes | wc -l
 
 ## Plotting enzymatic sequence bias sequence logos for genomic background frequency and equiprobable background frequency (figure S1) using weblogo
 
-This will plot sequence logos for each enzyme's enzymatic sequence bias as seen in figure 1 and S1. These plots will also output information content files labeled with "_bitvals.txt" if the modifications to weblogo as previously outlined are implemented. Nucleases have their positions shifted by -0.5 to model cleavage between bases. This script can be found at:
+This will plot sequence logos for each enzyme's enzymatic sequence bias as seen in figure 1 and S1. These plots will also output information content files labeled with "_bitvals.txt" if the modifications to weblogo as previously outlined are implemented. Nucleases have their positions shifted by -0.5 to model cleavage between bases. This script can be found at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_weblogo_Enzyme_Bias.sh
 
 ``` {bash eval = FALSE}
@@ -791,12 +792,13 @@ knitr::include_graphics("figs/weblogo_manual_calculation.pdf")
 ```
 
 ## Converting transfac files into MEME file format for FIMO
+
+This script converts transfac format files into MEME format, it can be found at:     
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_transfac2meme.sh
+
 __Software installations:__
 
 transfac2meme: https://meme-suite.org/meme/doc/download.html
-
-This script converts transfac format files into MEME format, it can be found at:
-https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_transfac2meme.sh
 
 ```{bash eval=FALSE}
 #Add 'XX' to end of each transfac document
@@ -819,8 +821,7 @@ done
 
 ### Using the FIMO algorithm to identify sites of strongest enzymatic sequence bias
 
-This allows us to find the composite signal at sites for each enzyme corresponding to highest bias. Then we subset these coordinates for the top 400k scoring motifs.
-This script can be found at:
+This allows us to find the composite signal at sites for each enzyme corresponding to highest bias. Then we subset these coordinates for the top 400k scoring motifs. This script can be found at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_EnzymeBias_FIMO.sh
 
 ``` {bash eval = FALSE}
@@ -845,7 +846,7 @@ fimo --thresh 0.0001 --text MNase_sepcat_bias.meme \
 
 ### Subset the top 400,000 sites for each enzyme and strand
 
-We now subset these coordinates for the top 400,000 plus and minus positions and also remove any motifs on the mitochondrial or alternate chromosomes. You can find this script at:
+We now subset these coordinates for the top 400,000 plus and minus positions and also remove any motifs on the mitochondrial or alternate chromosomes. You can find this script at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_FIMO_subset.R
 
 __Software installations:__
@@ -1059,8 +1060,8 @@ knitr::include_graphics("figs/unscaled_enzymebias_composites.pdf")
 
 ## Generating iterative seqtables with seqOutBias
 
-Using a for loop, and parallel computing, we run many instances of seqOutBias in order to generate seqtable files, so we may calculate scale factors for each 5-mer position within a 15bp range of the cutsite.
-To download this file, please visit:
+Using a for loop, and parallel computing, we run many instances of seqOutBias in order to generate seqtable files, so we may calculate each enzyme's scale factors for each 5-mer position within a 15bp range of the cutsite.
+To download this file, please visit:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_seqOutBias_Masks.R
 
 ``` {R eval=FALSE}
@@ -1151,7 +1152,7 @@ masks = mclapply(nextlst, function(cutmask) {
 
 ## Output k-mer counts tables for each 5-mer position {#5merkcount}
 
-We now generate all k-mer counts for each 5-mer position using the .tbl files, data files and 'seqOutBias table' command, find this script here:
+We now generate all k-mer counts for each 5-mer position using the .tbl files, data files and 'seqOutBias table' command, find this script here:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_seqOutBias_kmercounts.sh
 
 
@@ -1198,11 +1199,11 @@ do
 done
 ```
 
-## Plotting scale factors for Enzyme masks
+## Plotting scale factors for enzyme masks
 
 ### Calculating scale factors from k-mer counts
 
-Using the scalefactor.func function, scale factors are calculated from k-mer counts for each enzyme. You can access this script at:
+Using the scalefactor.func function, scale factors are calculated from k-mer counts for each enzyme. You can access this script at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ScaleFactor_Calc.R
 
 ``` {R eval=FALSE}
@@ -1356,7 +1357,7 @@ save(Figure1B_list, file = 'Figure1B_scalefactor_list.Rdata')
 
 ### Plotting scale factors for each enzyme as box and whisker plots
 
-Scale factors for each enzyme are plotted in box-and-whisker plots. This is available in raw format here:
+Scale factors for each enzyme are plotted in box-and-whisker plots based on their distance from the cut site. This is available in raw format here:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure1_ScaleFactor_BW_Plot.R
 
 ```{R eval = FALSE}
@@ -1394,11 +1395,11 @@ for (i in 1:length(Figure1B_list)) {
 ```
 
 ```{r Tn5_Allscalingvalues_maskposition_balanced, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Tn5 Transposase Scaling Factor Distributions Output ', out.width = "100%"}
-knitr::include_graphics("Tn5_scale_factors_df_maskpositions.pdf")
+knitr::include_graphics("figs/Tn5_scale_factors_df_maskpositions.pdf")
 ```
 
 ```{r DNase_Allscalingvalues_maskposition_balanced, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' DNase Scaling Factor Distributions Output ', out.width = "100%"}
-knitr::include_graphics("DNase_scale_factors_df_maskpositions.pdf")
+knitr::include_graphics("figs/DNase_scale_factors_df_maskpositions.pdf")
 ```
 
 # Figure2. Use of scaling factors to correct Tn5 sequence bias is hindered by complex enzyme-DNA interactions.
@@ -1417,11 +1418,11 @@ cd Figure2
 ```
 
 ## Tn5 upstream observed 3-mers divided by sequence logo frequency expected 3-mers
-This experiment illustrates that Tn5 sequence bias violates the assumption of positional independence in PSWM models. This is done by counting the number of each k-mer at positions -4 to -6 in the sequence data and dividing by the expected number of k-mers based on the PSWM frequencies. Before this, we determine background 3-mer observed divided by expected frequency and correct the observed values by multiplying them by the inverse of the background frequencies.
+This experiment illustrates that Tn5 sequence bias violates the assumption of positional independence in PSWM models. This is done by counting the number of each k-mer at positions -4 to -6 in the sequence data and dividing by the expected number of k-mers based on the PSWM frequencies. Before this, we determine background 3-mer observed divided by expected frequency at both 50bp and 100bp from the centrally recognized base and correct the observed values by multiplying them by the inverse of the background frequencies.
 
 ### Background k-mer frequency in Tn5 data
 
-First, we retrieve fasta sequence files for all of the sequences 50bp and 100bp upstream of our reads. To run this yourself, visit:
+First, we retrieve fasta sequence files for all of the sequences 50bp and 100bp upstream of our reads. To run this yourself, visit:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_Background_kmercount.sh
 
 ```{bash eval=FALSE}
@@ -1463,7 +1464,7 @@ awk 'BEGIN{FS=" "}{if(!/>/){print toupper($0)}else{print $1}}' C1_gDNA_rep1_100b
 cat C1_gDNA_rep1_100bp_minus_RC.fasta C1_gDNA_rep1_100bp_plus.fasta > C1_gDNA_rep1_100bp_sepcat.fasta
 ```
 
-Next, we determine if background 50bp and 100bp k-mer frequencies are similar. First, we must determine nucleotide frequency for both in order to calculate the expected frequency, then we count k-mers in the desired positions and divide one by the other. We finally plot these values as a bar chart. To recapitulate these results, run the script at:
+Next, we determine if background 50bp and 100bp k-mer frequencies are similar. First, we must determine nucleotide frequency for both in order to calculate the expected frequency, then we count k-mers in the desired positions and divide one by the other. We finally plot these values as a bar chart. To recapitulate these results, run the script at:      
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_Background_kmerplot.R
 
 ```{R eval=FALSE}
@@ -1560,13 +1561,12 @@ knitr::include_graphics("figs/Tn5_100bpCorrectedby50bp_kmers.pdf")
 
 
 ### Upstream k-mer Observed divided by expected frequency
+We can now calculate the upstream divided by expected k-mer frequency at positions -6:-4, and correct these values by the 50bp upstream k-mer observed/expected values. To run this code, download it from:     
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_ObsExp_kmerFreq.R
+
 __Software installations:__
 
 stringr: https://stringr.tidyverse.org/
-
-We can now calculate the upstream divided by expected k-mer frequency at positions -6:-4, and correct these values by the 50bp upstream k-mer observed/expected values. To run this code, download it from:
-https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_ObsExp_kmerFreq.R
-
 
 ``` {R eval=FALSE}
 source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
@@ -1670,7 +1670,7 @@ knitr::include_graphics("figs/Figure2A_Tn5_upstream_OE_kmers.pdf")
 
 ### dump_to_kmer_bed.py
 
-This script uses seqOutBias dump output to output locations for a given k-mer, indicated by its position in an index (plus 19 and minus 31 is CAG). You may find the raw script here:
+This script uses seqOutBias dump output to output locations for a given k-mer, indicated by its position in an index (plus 19 and minus 31 is CAG). You may find the raw script here:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/dump_to_kmer_bed.py
 
 ```{python eval=FALSE}
@@ -1735,7 +1735,7 @@ if __name__ == "__main__":
 
 ### Generate 400,000 random CAG locations in the genome and 3, 3-mer masks to correct bias
 
-First use seqOutBias seqtable command to generate a .tbl file of all 3-mers in hg38. Next, use seqOutBias dump command to make list of all 3-mer locations in the hg38 genome. Then use the dump_to_kmer_bed.py script to output the locations of all CAGs in the genome, in bed format. We take random 400,000 instances of CAG for plotting. To find this script, visit:
+First use seqOutBias seqtable command to generate a .tbl file of all 3-mers in hg38. Next, use seqOutBias dump command to make list of all 3-mer locations in the hg38 genome. Then use the dump_to_kmer_bed.py script to output the locations of all CAGs in the genome, in bed format. We take random 400,000 instances of CAG for plotting. To find this script, visit:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_seqOutBias_dump.sh
 
 ``` {bash eval=FALSE}
@@ -1781,7 +1781,7 @@ seqOutBias ../Figure1/hg38.fa ../Figure1/C1_gDNA_rep1_minus.bam \
 
 ### Plot CAG peak direction composites
 
-Plot the composite profile of 400,000 CAG sites in the genome, then see how masks correct each peak. This script can be accessed at:
+Plot the composite profile of 400,000 CAG sites in the genome, then see how masks correct each peak. This script can be accessed at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure2_Tn5_CAG_composite_correction.R
 
 ``` {R eval=FALSE}
@@ -1864,12 +1864,12 @@ cd Figure4
 
 ## Download transcription factor motifs from JASPAR
 
+Because the motifs listed in the JASPAR database change with new experimental data, we archived the results which were used to cluster our data. These motifs can be downloaded using the following script:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure4_TF_Motif_download.sh
+
 __Software installations:__
 
 svn: http://subversion.apache.org/
-
-Because the motifs listed in the JASPAR database change with new experimental data, we archived the results which were used to cluster our data. These motifs can be downloaded using the following script:
-https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure4_TF_Motif_download.sh
 
 ``` {bash eval=FALSE}
 svn export https://github.com/guertinlab/Tn5bias/trunk/Manuscript_Vignette/Motifs/
@@ -1881,6 +1881,9 @@ rm -r Motifs
 
 ## Implement size-constrained, hierchical clustering to make groups of TFs based on IC and GC content then plot TFs along with cluster/group designation
 
+This splits the transcription factors downloaded from JASPAR into test and training sets. We first determine IC and GC for each motif, then cluster them by these values using size-constrained, followed by hierarchical clustering. This clustering was done including the transcription factor DUX4. We later excluded DUX4 due to overlap with repetitive regions. We manually made test/training determinations for each cluster in order to preserve an even distribution in both groups. Finally, the circles colored according to cluster number were added in a post-processing step. This script can be found at:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure4_TF_Motif_clustering.R
+
 __Software installations:__
 
 ggplot2: https://ggplot2.tidyverse.org/
@@ -1890,10 +1893,6 @@ RColorBrewer: https://cran.r-project.org/web/packages/RColorBrewer/index.html
 ggrepel: https://github.com/slowkow/ggrepel
 ggnewscale: https://eliocamp.github.io/ggnewscale/
 ggseqLogo: https://omarwagih.github.io/ggseqlogo/
-
-This splits the transcription factors downloaded from JASPAR into test and training sets. We first determine IC and GC for each motif, then cluster them by these values using size-constrained, followed by hierarchical clustering. This clustering was done including the transcription factor DUX4. We later excluded DUX4 due to overlap with repetitive regions and odd baseline k-mer frequencies. We manually made test/training determinations for each cluster in order to preserve an even distribution in both groups. Finally, the circles colored according to cluster number were added in a post-processing step. This script can be found at:
-https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure4_TF_Motif_clustering.R
-
 
 ```{R eval=FALSE}
 library(data.table)
@@ -2041,12 +2040,12 @@ These scaling factors based on mask positions within 30bp of the cutsite are gen
 
 ## Use the FIMO algorithm to find 400,000 plus and minus strand locations of the test and training motifs in the genome, with repetitive regions removed.
 
+Direct the FIMO algorithm to find region sets for the test and training motifs. Then use bedtools to remove all regions which are in repetitive elements, as indicated by the repeatmasker annotation file. The code to execute this can be found at:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_TF_motif_FIMO.sh
+
 __Software installations:__
 
 bedtools: https://bedtools.readthedocs.io/en/latest/
-
-Direct the FIMO algorithm to find region sets for the test and training motifs. Then use bedtools to remove all regions which are in repetitive elements, as indicated by repeatmasker. The code to execute this can be found at:    
-https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_TF_motif_FIMO.sh
 
 ``` {bash eval=FALSE}
 ####FIMO transcription factor motifs using hg38
@@ -2115,7 +2114,7 @@ for (z in 1:length(FIMO_files)) {
 
 ## Plot unscaled DNase composite values for FIMO motifs (values which rule ensemble predicts)
 
-The rule ensemble model predicts the unscaled values of each transcription factor motif's composite profile. This will calculate these values in addition to plotting them for inspection and saving them for later use as input. To run this script, use the raw version here:
+The rule ensemble model predicts the unscaled values of each transcription factor motif's composite profile. This will calculate these values in addition to plotting them for inspection and saving them for later use as input. To run this script, use the raw version here:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_unscaled_TF_plots.R
 
 ``` {R eval=FALSE}
@@ -2194,7 +2193,7 @@ save(DNase_minus_unscaled_compositelist, file = 'DNase_minus_unscaled_compositel
 
 ## Determine 5-mer frequency for rule ensemble modeling and multiply this by inverse scale factors for each mask
 
-Before a rule ensemble model can be generated, k-mer frequency of the predicted motif must be calculated. In this section we take all of the sequences from our motifs of interest and digest them into 5bp chunks. Next, we tally the number of each 5-mer found at each position in our composites. Once we have this data, we then multiply each k-mer frequency at a position by its inverse scale factor as input for each unscaled composite trace. The output is then summed for each position and finally shifted to align with unscaled DNase traces as input for rule ensemble training. This script can be found here:
+Before a rule ensemble model can be generated, we must calculate the input training data. In this section we take all of the sequences from our motifs of interest and digest them into 5bp chunks. Next, we tally the number of each 5-mer found at each position in our composites and determine its relative frequency. Once we have this data, we then multiply each k-mer frequency at a position by its inverse scale factor as input for each unscaled composite trace. The output is then summed for each position and finally shifted to align with unscaled DNase traces as input for rule ensemble training. This script can be found here:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_ScaleFactor_by_KmerFrequency.R
 
 ``` {R eval=FALSE}
@@ -2480,7 +2479,7 @@ save(minus_pred_input, file = 'DNase_TF_minus_pre_input.Rdata')
 
 ## Train a rule ensemble model using the prepared DNase data from above.
 
-Use the DNase input data prepared in the previous section to train a rule ensemble model to correct DNase bias. Once the model has been trained, use the importance values to plot a barchart. To run this script yourself, visit:
+Use the DNase input data prepared in the previous section to train a rule ensemble model to correct DNase bias. Once the model has been trained, use the importance values to plot a barchart. To run this script yourself, visit:    
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_RuleEnsemble_train.R
 
 ``` {R eval=FALSE}
@@ -2552,7 +2551,7 @@ knitr::include_graphics("figs/Figure5A_Redundant_DNase_PRE_variable_importances.
 
 ## Combine all relevant bigwig files into a single bedGraph for application of the rule ensemble model
 
-Convert the bigWig files created in Figure1 into bedGraph format. Then use unionbedg to combine all of these into a single file. This script can be found at:
+Convert the bigWig files created in Figure1 into bedGraph format. Then use unionbedg to combine all of these into a single file. This script can be found at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_bigWig_to_UnionBedGraph.sh
 
 ``` {bash eval=FALSE}
@@ -2578,12 +2577,12 @@ bedtools unionbedg -i *.bedGraph > DNase_5mer_union.bedGraph
 
 ## Apply rule ensemble model to DNase data and generate a scaled bigWig as output
 
+First, import the rule ensemble model previously written to a text file. Reformat the model so it can be used as a function to scale the combined bigWig and save this as an R script. Scale the rule ensemble model output to unscaled read depth. Finally, output a bedGraph and reformat this to a bigWig. You can run these commands yourself here:      
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_model_implementation.R
+
 __Software installations:__
 
 bedGraphToBigWig: http://hgdownload.soe.ucsc.edu/admin/exe/
-
-First, import the rule ensemble model previously written to a text file. Reformat the model so it can be used as a function to scale the combined bigWig and save this as an R script. Scale the rule ensemble model output to unscaled read depth. Finally, output a bedGraph and reformat this to a bigWig. You can run these commands yourself here:
-https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure5_DNase_model_implementation.R
 
 ``` {R eval=FALSE}
 library(data.table)
@@ -2970,19 +2969,23 @@ dev.off()
 
 ```
 
-```{r DNase_singlenuc, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='DNase single nucleotide log2 comparison', out.width = "80%"}
+```{r DNase_singlenuc, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure5B. DNase single nucleotide log2 comparison. ', out.width = "80%"}
 knitr::include_graphics("figs/Figure5B_DNase_log2_comparison.pdf")
 ```
 
-```{r DNase_singlenuc_composites, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='DNase single nucleotide composite comparison', out.width = "80%"}
+```{r DNase_singlenuc_composites, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure5C. DNase single nucleotide composite comparison. ', out.width = "80%"}
 knitr::include_graphics("figs/Figure5C_DNasePN_PRE_NNNCNN_comparison.pdf")
+```
+
+```{r DNase_improvement, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure5D. DNase single nucleotide improvement over seqOutBias alone.', out.width = "80%"}
+knitr::include_graphics("figs/Figure5D_DNase_sOB_RE_improvement_BW.pdf")
 ```
 
 
 # Figure6. Rule ensemble modeling corrects Tn5 transposon bias in ATAC-seq data
 
 ```{r Figure 6, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 6. Rule ensemble modeling corrects Tn5 transposon single nucleotide bias in ATAC-seq data. A) The importance values for each position relative to Tn5\'s recognition site mirror the information content values of positions in the seqLogo representation of Tn5 bias. B) We directly compare bias correction of Tn5 data by seqOutBias and rule ensemble modeling by visualizing the composite corrected signals and comparing to the unscaled composite traces. C) We quantify the single nucleotide correction for each transcription factor’s composite profile by measuring divergence from unbiased signal. Regions measured are within 10 base pairs of each motif, as indicated by the graphic above the figure panel. D) We visualized improvement of rule ensemble modeling over seqOutBias by using a violin plot of distance from calculated random cut frequency for rule ensemble output subtracted from seqOutBias. Positions which rule ensemble outperforms seqOutBias will be above 0 (dashed red line) of positions in this plot were improved and those that are not improved have lower magnitude deviations from the expectation of random cleavage. E) Composite profile overlays of test motifs highlight the improvement of rule ensemble modeling compared to seqOutBias correction. The red dashed line indicates the calculated random cleavage frequency. ', out.width = "80%"}
-knitr::include_graphics("figs/fig6_OL_JBW_mk3.pdf")
+knitr::include_graphics("figs/fig6_OL_JBW_vig.pdf")
 ```
 
 Make a directory for Figure 6:
@@ -3230,7 +3233,7 @@ foreach (i = 1:length(masks)) %dopar% {system(paste('seqOutBias table ',
 
 ## Plot plus and minus unscaled training motif composites
 
-First, leave the kmer count subdirectory now that the k-mer counts have been calculated
+First, leave the k-mer count subdirectory now that the k-mer counts have been calculated
 ```{bash eval=FALSE}
 cd ../
 ```
@@ -4556,7 +4559,7 @@ knitr::include_graphics("figs/Figure6A_Redundant_Tn5_RE_variable_importances.pdf
 
 ## Create a union bedgraph file of all input masks for combination by the rule ensemble model
 
-First, copy all bigWig files used in the model to a new subdirectory, then convert them into bedGraph format. Tally a list of these masks, in the order they are used in a .txt file. Finally, combine all masks using unionbedg. The raw script for this lurks at:
+First, copy all bigWig files used in the model to a new subdirectory, then convert them into bedGraph format. Tally a list of these masks, in the order they are used in a .txt file. Finally, combine all masks using unionbedg. The raw script for this lurks at:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_bigWig_to_UnionBedGraph.sh
 
 ```{bash eval=FALSE}
@@ -4587,7 +4590,7 @@ bedtools unionbedg -i *.bedGraph > Tn5_top10_union.bedGraph
 
 ## Apply rule ensemble model to scale seqOutBias output
 
-Using the union bedgraph and the rule ensemble model, scale the data. Scale the rule ensemble output to the unscaled data read depth, then output a bigWig file. To view the raw script, look here:
+Using the union bedgraph and the rule ensemble model, scale the data. Scale the rule ensemble output to the unscaled data read depth, then output a bigWig file. To view the raw script, look here:      
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_RuleEnsemble_Implementation.R
 
 ``` {R eval = FALSE}
@@ -4636,7 +4639,7 @@ system('bedGraphToBigWig Tn5_Rule_Ensemble_Scaled.bedGraph ../Figure1/hg38.fa.ch
 
 ## Analyze scaled rule ensemble output
 
-First plot signal at all test motifs for rule ensemble, seqOutBias and unscaled. Then analyze the correction of both bias correction methods and compare. Raw scripts are located here:
+First plot signal at all test motifs for rule ensemble, seqOutBias and unscaled. Then analyze the correction of both bias correction methods and compare. Raw scripts are located here:     
 https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure6_Tn5_RuleEnsemble_BiasCorrection_Analysis.R
 
 ``` {R eval = FALSE}
@@ -4917,7 +4920,7 @@ plot.composites(seqOutBias_Tn5_RE_overlay, legend = FALSE,
                 x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
                 hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
                 hline = TRUE, hlinelwd = 10, hlinelty = 3,
-                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)  
 #Plot rule ensemble overlay
 RE_Tn5_overlay = Tn5_RE_compositelist[which(names(Tn5_RE_compositelist) %in% test)]
 RE_Tn5_overlay = do.call(rbind, RE_Tn5_overlay)
@@ -4933,7 +4936,7 @@ plot.composites(RE_Tn5_overlay, legend = FALSE,
                 x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
                 hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
                 hline = TRUE, hlinelwd = 10, hlinelty = 3,
-                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)  
 #Plot unscaled overlay
 unscaled_Tn5_overlay = Tn5_unscaled_compositelist[which(names(Tn5_unscaled_compositelist) %in% test)]
 unscaled_Tn5_overlay = do.call(rbind, unscaled_Tn5_overlay)
@@ -4949,7 +4952,7 @@ plot.composites(unscaled_Tn5_overlay, legend = FALSE,
                 x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
                 hline_val = 0.006140407, Y_ticks = FALSE,col.lines = c("#8080804D"),
                 hline = TRUE, hlinelwd = 10, hlinelty = 3,
-                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE)  
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)  
 
 #Plot Improvement of rule ensemble over seqOutBias
 dot_frame = singlenuc_frame[which(singlenuc_frame$group == 'Unscaled')]
@@ -5002,173 +5005,167 @@ knitr::include_graphics("figs/Figure6D_Tn5_sOB_RE_improvement_BW.pdf")
 
 # Figure 7. Tn5 preference for high GC content regions creates a distinct bias from single nucleotide sequence
 
-```{r Figure 4, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap='Figure 4. Tn5 preference for high GC content regions creates a distinct bias from single nucleotide sequence', out.width = "80%"}
-knitr::include_graphics("figs/fig4_mk2.pdf")
+```{r Figure 4, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Rule ensemble modeling corrects regional sequence biases caused by GC-content. A) We illustrate the range of baselines for each enzyme by plotting unscaled overlays of DNase and Tn5 composite profiles for the 43 transcription factors surveyed. B) A plot of motif GC content vs. baseline signal indicates a linear and correlated relationship between the variables. C) The E2F1 and MEF2A motifs have very different GC content and this is reflected in their baseline signal within the composite traces. D) Baseline correction is measured by the ratio of unscaled, seqOutBias, and rule ensemble scaled reads to random cleavage. Regions plotted are within 10 base pairs outside of a given motif, as indicated by the position probability matrix to the right. ', out.width = "80%"}
+knitr::include_graphics("figs/fig7_OL_JBW_vig.pdf")
 ```
 
-## Plotting Tn5 unscaled composites of TF motifs
+
+Make a directory for Figure 7:
+```{bash eval = FALSE}
+cd ../
+mkdir Figure7
+cd Figure7
+```
+
+## Calculating Tn5 unscaled composites of TF motifs
+
+Plot both test and training motifs for Tn5. The raw script resides here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure7_Tn5_unscaled_composites.R
 
 ``` {R eval=FALSE}
-library(bigWig)
-library(zoo)
-library(lattice)
-library(ggseqlogo)
 library(data.table)
-library(matrixStats)
-library(gridExtra)
-source('Figure3_functions.R')
-setwd('../Tn5_unscaled_composites')
-########################### For only plus unscaled composites
-Motifs <- list.files('../FIMO')
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+options(scipen = 100)
+library(bigWig)
+library(lattice)
+library(grid)
+###########################
+#Load in genomic locations determined using FIMO
+Motifs <- list.files('../Figure5')
+Motifs = Motifs[grep('_fimo', Motifs)]
 Motiflist <- vector('list', length(Motifs))
 for (i in 1:length(Motifs)) {
-  Motiflist[[i]] <- FIMO.to.BED(paste('../FIMO/',Motifs[i], sep = ''))
+  Motiflist[[i]] <- FIMO.to.BED(paste('../Figure5/',Motifs[i], sep = ''))
 }
-names(Motiflist) = paste(substr(Motifs, 1, nchar(Motifs)-14), sep = '')
-Motifs = names(Motiflist)
+names(Motiflist) = Motifs
+#Combine the minus and plus FIMO motifs
+minus_Motifs = Motiflist[seq(1, 88, 2)]
+plus_Motifs = Motiflist[-c(seq(1, 88, 2))]
+Motiflist = vector('list', length(plus_Motifs))
+for (i in 1:length(plus_Motifs)) {
+  Motiflist[[i]] = rbind(plus_Motifs[[i]], minus_Motifs[[i]])
+}
+names(Motiflist) = substr(names(plus_Motifs), 1 , nchar(names(plus_Motifs))-22)
+rm(plus_Motifs, minus_Motifs)
 
-
-BWs <- c('path/to/Tn5_C1_gDNA_rep1_plus.bigWig')
-compositelist <- vector('list', length(Motifs))
+#Make composite plots of unscaled values 
+BWs <- c('../Figure1/C1_gDNA_rep1.bigWig')
+compositelist <- vector('list', length(Motiflist))
 for (i in 1:length(Motiflist)) {
   compositelist[[i]] = BED.query.bigWig(Motiflist[[i]], paste(BWs), paste(BWs), 
-                                         upstream = 100, downstream = 100, factor = paste(substr(Motifs[i],
-                                         1, nchar(Motifs[i])-3)), group = 'Unscaled', ATAC = FALSE)
+                                        upstream = 100, downstream = 100,
+                                        factor = names(Motiflist[i]),
+                                        group = 'Unscaled', ATAC = TRUE)
 }
-
-
-names(compositelist) <- Motifs
-
-for (i in 1:length(compositelist)) {
-  compositelist[[i]]$factor <- names(compositelist)[[i]]
-}
-
-
-#plot uncorrected values
-for (i in 1:length(compositelist)) {
-  plot.composites(compositelist[[i]], legend = FALSE, 
-                  pdf_name = paste('Tn5_unscaled_400k_', 
-                                   paste(names(compositelist[i])), '_composite', sep = ''),
-                  ylabel = 'Cut Frequency',
-                  xlabel = 'Distance from Motif Center',
-                  motifline = TRUE, Motiflen = Motiflen[i]
-  )}
-
-
+names(compositelist) = names(Motiflist)
 Tn5_unscaled_compositelist = compositelist
 save(Tn5_unscaled_compositelist, file = 'Tn5_unscaled_compositelist.Rdata')
 ```
 
 ## Plotting all unscaled DNase and Tn5 composites overlaid on the same plot
 
+Plot an overlay of Tn5 and DNase unscaled composite profiles. Then plot the composite profiles for Tn5 signal at E2F1 and MEF2A on the same plot. To run this, access the raw code here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure7_Tn5_DNase_overlay.R
+
 ``` {R eval=FALSE}
-
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+options(scipen = 100)
 library(lattice)
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-plot.composites = function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
-                           xlabel = '', striplabel = TRUE, legend = TRUE,
-                           motifline = FALSE, Motiflen = 10,
-                           figwidth = 2.5, figheight=3,
-                           indexlist = NULL, layoutgrid = NULL,
-                           col.lines = c('#8080804D'), 
-                           fill.poly = c(rgb(0,0,1,1/4), 
-                                         rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
-                                         rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
-  require(lattice)
-  pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
-  print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
-               type = 'l', as.table = TRUE,
-               scales=list(x=list(cex=1.5,relation = "free", axs ="i"), 
-                           y =list(cex=1.5, relation="free", tick.number=4)),
-               col = col.lines,
-               auto.key = if (legend == TRUE) 
-               {list(points=F, lines=T, cex=0.8)} else{},
-               par.settings = list(strip.background=list(col="#00000000"),
-                                   strip.border = list(col = 'transparent'),
-                                   superpose.symbol = list(pch = c(16),
-                                                           col=col.lines, 
-                                                           cex =0.5), 
-                                   superpose.line = list(col = col.lines, 
-                                                         lwd=c(2), 
-                                                         lty = c(1))),
-               cex.axis=1.0,
-               par.strip.text=list(cex=2, font=1, col='black'),
-               ylim = c(0, 0.025),
-               aspect=1.0,
-               between=list(y=0.5, x=0.5),
-               lwd=2,
-               ylab = list(label = paste(ylabel), cex =1.75),
-               xlab = list(label = paste(xlabel), cex =1.75),
-               index.cond = indexlist,
-               layout = layoutgrid,
-               panel = function(x, y, ...) {
-                 panel.xyplot(x, y, ...)
-                 #panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')
-                 if (motifline == TRUE) 
-                 {panel.abline(v = Motiflen/2, lty = 2, col = "red")} else{}
-                 if (motifline == TRUE) 
-                 {panel.abline(v = -Motiflen/2, lty = 2, col = "red")} else{}
-               }
-  ))
-  dev.off()
-}
-
+library(grid)
+###########################
 ################################################################################
 #Plot DNase unscaled composite overlay
 #Change DNase group to a given factor, then change the factor column to 'DNase' 
-load('/path/to/DNase_unscaled_compositelist.Rdata')
+load('../Figure5/DNase_unscaled_compositelist.Rdata')
 DNase_unscaled_composites_overlay = do.call(rbind, DNase_unscaled_compositelist)
 DNase_unscaled_composites_overlay$group = DNase_unscaled_composites_overlay$factor
 DNase_unscaled_composites_overlay$factor = 'DNase'
 
 plot.composites(DNase_unscaled_composites_overlay, legend = FALSE, 
-                  pdf_name = 'Figure4A_DNase_unscaled_overlay',
-                  ylabel = 'Cut Frequency',
-                  xlabel = 'Distance from Motif Center',
-                  motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8)
+                pdf_name = 'Figure7A_DNase_unscaled_overlay',
+                ylabel = 'Insertion Frequency',
+                xlabel = 'Distance from Motif Center',
+                motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8,
+                x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
+                Y_ticks = FALSE,col.lines = c("#8080804D"),
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)
 
 ################################################################################
 #Plot Tn5 unscaled composite overlay
 #Change Tn5 group to a given factor, then change the factor column to 'Tn5' 
-load('/path/to/Tn5_unscaled_compositelist.Rdata')  
+load('Tn5_unscaled_compositelist.Rdata')  
 Tn5_unscaled_composites_overlay = do.call(rbind, Tn5_unscaled_compositelist)
 Tn5_unscaled_composites_overlay$group = Tn5_unscaled_composites_overlay$factor
 Tn5_unscaled_composites_overlay$factor = 'Tn5'
 
 plot.composites(Tn5_unscaled_composites_overlay, legend = FALSE, 
-                  pdf_name = 'Figure4A_Tn5_unscaled_overlay',
-                  ylabel = 'Cut Frequency',
-                  xlabel = 'Distance from Motif Center',
-                  motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8)  
+                pdf_name = 'Figure7A_Tn5_unscaled_overlay',
+                ylabel = 'Insertion Frequency',
+                xlabel = 'Distance from Motif Center',
+                motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8,
+                x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
+                Y_ticks = FALSE,col.lines = c("#8080804D"),
+                y_axis_range = seq(0,0.05,0.02), y_axis = TRUE, labsize = 2.0)  
+################################################################################
+#Plot Tn5 unscaled E2F1 and Mef2A composites
+Tn5_unscaled_compare_composites_overlay = do.call(rbind, Tn5_unscaled_compositelist[c(8,25)])
+Tn5_unscaled_compare_composites_overlay$group = Tn5_unscaled_compare_composites_overlay$factor
+Tn5_unscaled_compare_composites_overlay$factor = 'Tn5'
 
+plot.composites(Tn5_unscaled_compare_composites_overlay, legend = FALSE, 
+                pdf_name = 'Figure7C_Tn5_E2F1_MEF2A_unscaled_overlay',
+                ylabel = '',
+                xlabel = '',
+                motifline = FALSE, Motiflen = 0, figwidth = 12, figheight = 8,
+                x_axis_range = -100:100, X_axis_ticks = seq(-100,100,50), 
+                Y_ticks = FALSE,col.lines = c("#415287", "#F84C1E"),
+                y_axis_range = seq(0,0.04,0.02), y_axis = TRUE,
+                striplabel = FALSE, labsize = 2.0, linethick = 3)  
+```
+
+```{r DNase_overlay, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 7A DNase composite profile overlay ', out.width = "80%"}
+knitr::include_graphics("figs/Figure7A_DNase_unscaled_overlay.pdf")
 ```
 
 ## Plotting Each TFs baseline signal vs GC content
 
+First, we calculate the average baseline percent. Then we calculate the percent GC of each motif. Finally, we plot these values. This script is available in raw form at:     
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure7_Tn5_GCbyBaseline.R
+
 ``` {R eval=FALSE}
-library(data.table)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+options(scipen = 100)
 library(ggplot2)
 ################################################################################
-load('path/to/Tn5_unscaled_compositelist.Rdata')
-#Remove middle 40bp
+load('Tn5_unscaled_compositelist.Rdata')
+load('../Figure5/Motiflen.Rdata')
+#Remove single nucleotide values
 unscaled_composites = do.call(rbind, Tn5_unscaled_compositelist)
-unscaled_composites = 
-  unscaled_composites[-which(unscaled_composites$x >= -20 & unscaled_composites$x <= 20)]
+
+baseline_frame = NULL
+baseline_store = NULL
+for (i in 1:length(Motiflen)) {
+  baseline_store = unscaled_composites[which(unscaled_composites$factor == names(Motiflen)[i] &
+                   unscaled_composites$x > ((Motiflen[i]/2)+10) | unscaled_composites$factor ==
+                   names(Motiflen)[i] & unscaled_composites$x < -((Motiflen[i]/2)+10)),]
+  baseline_frame = rbind(baseline_frame, baseline_store)
+}
+unscaled_composites = baseline_frame
+
 unscaled_composites$factor = as.factor(unscaled_composites$factor)
 
-#Plot motif GC content vs. baseline GC content
-baseline_mean = aggregate(unscaled_composites[, 6], list(unscaled_composites$factor), mean)
+#Determine baseline mean for each TF
+baseline_mean = aggregate(unscaled_composites[,2], list(unscaled_composites$factor), mean)
 
 #Plot unscaled and PRE output GC content
-Motifs <- list.files('/path/to/meme_files/')
+Motifs = list.files('../Figure4/')
+Motifs = Motifs[grep('meme',Motifs)]
+Motifs = Motifs[-c(8)]
 
-Motifs = substr(Motifs, 1, nchar(Motifs)-14)
+Motifs = substr(Motifs, 1, nchar(Motifs)-5)
 GCvec <- NULL
 for(i in 1:length(Motifs)) {
-  memefile <- paste0("/path/to/meme_files/",Motifs[i], ".meme")
+  memefile <- paste0("../Figure4/",Motifs[i], ".meme")
   minmeme <- read.csv(memefile, skip = 11, header = FALSE, sep = '')
   minmeme <- minmeme[1:nrow(minmeme)-1,]
   minmeme[,2] <- as.numeric(minmeme[,2])
@@ -5176,28 +5173,168 @@ for(i in 1:length(Motifs)) {
   GCcon <- sum(minmeme[,c(2,3)])/sum(minmeme)
   GCvec[i] <- GCcon
 }
-
-
 baseline_mean[,3] = GCvec
-
-
-pdf("Figure4_Tn5_unscaled_BaselineVsGCcon.pdf", width=9, height=6)
-ggplot(baseline_mean, aes(x = V1, y = V3, label = V4)) +
+colnames(baseline_mean) = c('TF', 'BaselineAvg', 'GC')
+pdf("Figure7B_Tn5_unscaled_BaselineVsGCcon.pdf", width=6, height=6)
+ggplot(baseline_mean, aes(x = BaselineAvg, y = GC, label = TF)) +
   geom_point(stat = 'identity') +
+  xlim(0, 0.016) +
+  ylim(0, 0.8) +
   theme_classic() + xlab('Baseline Signal') + ylab('Motif GC%') + 
-  geom_text_repel(size = 2, stat = 'identity', force_pull = 0.75, force = 20,
-                  max.overlaps = 20, seed = 42) + 
-  theme(axis.text=element_text(size=16, face = 'bold', color = 'black'),
-        axis.title=element_text(size=20,face="bold", color = 'black')) 
+
+  theme(axis.text=element_text(size=22, color = 'black'),
+        axis.title=element_text(size=30, color = 'black'),
+        axis.text.y=element_text(angle = 90, hjust = 0.4),
+        axis.text.x=element_text(hjust = 0.60)) 
 dev.off()
 ```
 
+```{r Tn5_GCbyBaseline, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 7B. Tn5 composite profile baselines plotted against their motif\'s GC content. ', out.width = "80%"}
+knitr::include_graphics("figs/Figure7B_Tn5_unscaled_BaselineVsGCcon.pdf")
+```
 
+
+## Plotting violin plots of baseline average
+
+Plot the upstream and downstream averages of baseline signal in a violin plot. The raw script can be found here:    
+https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Figure7_Tn5_Baseline_compare.R
+
+```{R eval = FALSE}
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+options(scipen = 100)
+library(lattice)
+library(grid)
+################################################################################
+load('../Figure6/Tn5_unscaled_compositelist.Rdata')
+load('../Figure6/Tn5_RE_compositelist.Rdata')
+load('../Figure6/Tn5_NNNCNNNN_compositelist.Rdata')
+load('../Figure6/test_Motiflen.Rdata')
+names(Motiflen) = names(Tn5_unscaled_compositelist)
+#Remove single nucleotide values
+unscaled_composites = rbind(do.call(rbind, Tn5_RE_compositelist), 
+                            do.call(rbind, Tn5_unscaled_compositelist), 
+                            do.call(rbind, Tn5_NNNCNNNN_compositelist))
+unscaled_composites$group[which(unscaled_composites$group == 'NNNCNNNN')] = 'seqOutBias'
+
+baseline_frame = NULL
+baseline_store = NULL
+for (i in 1:length(Motiflen)) {
+  baseline_store = unscaled_composites[which(unscaled_composites$factor == names(Motiflen)[i] &
+                   unscaled_composites$x > ((Motiflen[i]/2)+10) | unscaled_composites$factor ==
+                   names(Motiflen)[i] & unscaled_composites$x < -((Motiflen[i]/2)+10)),]
+  baseline_frame = rbind(baseline_frame, baseline_store)
+}
+unscaled_composites = baseline_frame
+
+unscaled_composites$factor = as.factor(unscaled_composites$factor)
+
+#Determine log2 of baseline values
+baseline_log = NULL
+for (i in 1:length(baseline_frame$x)) {
+  baseline_log[i] = log2(baseline_frame$est[i] / 0.006140407)
+}
+baseline_log = data.frame(baseline_log)
+baseline_log[,2:4] = baseline_frame[,c(1,3:4)]
+
+#Determine upstream and downstream averages for each group
+upstream_baseline_RE_avg = NULL
+downstream_baseline_RE_avg = NULL
+
+upstream_baseline_sOB_avg = NULL
+downstream_baseline_sOB_avg = NULL
+
+upstream_baseline_unscaled_avg = NULL
+downstream_baseline_unscaled_avg = NULL
+
+for (i in 1:length(unique(baseline_log$factor))) {
+  upstream_baseline_RE_avg[i] = mean(baseline_log$baseline_log[which(baseline_log$factor ==
+                                unique(baseline_log$factor)[i] & 
+                                baseline_log$group == 'Rule Ensemble' & baseline_log$x < 0)])
+  downstream_baseline_RE_avg[i] = mean(baseline_log$baseline_log[which(baseline_log$factor ==
+                                unique(baseline_log$factor)[i] & 
+                                baseline_log$group == 'Rule Ensemble' & baseline_log$x > 0)])
+  
+  
+  upstream_baseline_sOB_avg[i] = mean(baseline_log$baseline_log[which(baseline_log$factor ==
+                                unique(baseline_log$factor)[i] & 
+                                baseline_log$group == 'seqOutBias' & baseline_log$x < 0)])
+  downstream_baseline_sOB_avg[i] = mean(baseline_log$baseline_log[which(baseline_log$factor ==
+                                unique(baseline_log$factor)[i] & 
+                                baseline_log$group == 'seqOutBias' & baseline_log$x > 0)])
+  
+  upstream_baseline_unscaled_avg[i] = mean(baseline_log$baseline_log[which(baseline_log$factor ==
+                                unique(baseline_log$factor)[i] & 
+                                baseline_log$group == 'Unscaled' & baseline_log$x < 0)])
+  downstream_baseline_unscaled_avg[i] = mean(baseline_log$baseline_log[which(baseline_log$factor ==
+                                unique(baseline_log$factor)[i] & 
+                                baseline_log$group == 'Unscaled' & baseline_log$x > 0)])
+  
+}
+baseline_RE_avg = as.data.frame(c(upstream_baseline_RE_avg,
+                                  downstream_baseline_RE_avg))
+baseline_sOB_avg = as.data.frame(c(upstream_baseline_sOB_avg,
+                                   downstream_baseline_sOB_avg))
+baseline_unscaled_avg = as.data.frame(c(upstream_baseline_unscaled_avg,
+                                        downstream_baseline_unscaled_avg))
+
+baseline_unscaled_avg[,2] = 'Unscaled'
+baseline_sOB_avg[,2] = 'seqOutBias'
+baseline_RE_avg[,2] = 'Rule Ensemble'
+
+colnames(baseline_unscaled_avg) = c('baseline_log', 'group')
+colnames(baseline_sOB_avg) = c('baseline_log', 'group')
+colnames(baseline_RE_avg) = c('baseline_log', 'group')
+
+avg_baselines = rbind(baseline_unscaled_avg,baseline_sOB_avg,baseline_RE_avg)
+avg_baselines$group = factor(avg_baselines$group,
+                             levels = c('Unscaled', 'seqOutBias', 'Rule Ensemble'))
+
+#plot baselines:
+pdf('Figure7D_Tn5_baseline_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
+
+trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
+                box.rectangle = list(col = '#93939300', lwd=1.6),
+                plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
+
+################################################################################
+print(bwplot(baseline_log ~ group , data = avg_baselines,
+             between=list(y=0.5, x = 0.5),
+             scales=list(x=list(draw=TRUE),rot = 45, alternating=c(1,1,1,1),cex=1.2,font=1),
+             #xlab = '',
+             ylim = c(-2.5, 2.5),
+             ylab =expression("log"[2]~frac("Unbiased Signal","Model Signal Output")),
+             horizontal =FALSE,  col= 'black',
+             aspect = 2,
+             par.settings=list(par.xlab.text=list(cex=1.2,font=1),
+                               par.ylab.text=list(cex=1.5,font=1),
+                               par.main.text=list(cex=1.2, font=1),
+                               plot.symbol = list(col='black', lwd=0, pch =19, cex = 0.5)),
+             par.strip.text = list(cex = 1.2),
+             strip = function(..., which.panel, bg) {
+               bg.col = c("grey90")
+               strip.default(..., which.panel = which.panel,
+                             bg = rep(bg.col, length = which.panel)[which.panel])
+             },
+             panel = function(..., box.ratio, col) {
+               panel.abline(h = 0, col = 'grey45', lty = 2)
+               panel.violin.hack(..., col = c("#A1A3AB", "#FF0000", "#0000FF"),
+               varwidth = FALSE, box.ratio = box.ratio, outer = FALSE)
+               panel.stripplot(..., col='#54545380', do.out=FALSE,
+                               jitter.data=TRUE, amount = 0.2, pch = 16)
+               panel.bwplot(..., pch = '|', do.out = FALSE)
+               
+             }))
+dev.off()
+```
+
+```{r Tn5_Baseline_violin, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap=' Figure 7D. Tn5 composite profile baseline sequence bias is corrected by rule ensemble modeling. ', out.width = "80%"}
+knitr::include_graphics("figs/Figure7D_Tn5_baseline_log2_comparison.pdf")
+```
 
 # Functions
 Here are all functions used in this investigation, generally called as a single script.
 ``` {R eval=FALSE}
-#
+#Calculate scale factors from a seqOutBias table file
 scalefactor.func <- function(factortable){
     require(data.table)
     datatable = fread(factortable, skip = 1)
@@ -5272,7 +5409,8 @@ mer.positions <- function(input, mermask = 'NNNXXXXXNNN') {
         seqdf_store[, alltogether := paste(substr(input[1:length(input)], i, i + mer1 - 1),
                                            paste(rep('X', unmasked), collapse = ""),
                                            substr(input[1:length(input)],
-                                           i + mer1 + unmasked, i + mer1 + unmasked + mer2 - 1), sep = '')]
+                                           i + mer1 + unmasked,
+                                           i + mer1 + unmasked + mer2 - 1), sep = '')]
         seqdf_mer[[i]] <- seqdf_store$alltogether 
     }
     mersize = nchar(mermask)
@@ -5371,25 +5509,24 @@ scalefactor.by.kmerfrequency <- function(scalefactors, kmerfrequency, tfname) {
     
         }
        saveRDS(scaledkfreq, file = paste(tfname, '_',
-                        substr(names(scalefactors[j]), 1,
-                               nchar(names(scalefactors[j]))-17), '.rds', sep = ''))
-       all_scalefactors[[j]] = scaledkfreq 
+              gsub('_scale_factors.txt', '', names(scalefactors[j])), '.rds', sep = ''))
+       #all_scalefactors[[j]] = scaledkfreq 
        }
-      return(all_scalefactors)
+      #return(all_scalefactors)
 }
 
 ##Take sum of each position's scaledkmerfreq (1/scale_factor * kmer frequency) and use to create 
 ##data.table of inputs for each mask for each TF motif
 scaledkmerfreq.sum.plus <- function(input) {
-  output = data.table(matrix(nrow = length(input)))
-  for (i in 1:length(input)) {
-    
-    output[i, scaledkmerfreqsumplus := sum(input[[i]][,4])]
-    
-  }
-  output[,1] <- NULL
-  rownames(output) = names(input)
-  return(output)
+    output = data.table(matrix(nrow = length(input)))
+    for (i in 1:length(input)) {
+
+            output[i, scaledkmerfreqsumplus := sum(input[[i]][,4])]
+
+    }
+    output[,1] <- NULL
+    rownames(output) = names(input)
+    return(output)
 }
 
 scaledkmerfreq.sum.minus <- function(input) {
@@ -5403,8 +5540,6 @@ scaledkmerfreq.sum.minus <- function(input) {
   rownames(output) = names(input)
   return(output)
 }
-
-
 
 
 
@@ -5432,7 +5567,8 @@ redundantpos = function(input, labelnum = 2, impnum = 3) {
                                 substr(output[i, position],i+1,nchar(output[i, position])), sep = '')
     output[i,]$position = paste(substr(output[i, position],1,(nchar(output[i, position])/2)), 'C', 
                                 paste(substr(output[i, position],
-                                (nchar(output[i, position])/2+1),nchar(output[i, position]))), sep = '')
+                                (nchar(output[i, position])/2+1),
+                                nchar(output[i, position]))), sep = '')
   }
   return(output)
 }
@@ -5528,57 +5664,80 @@ BED.query.bigWig <- function(beddf, bwPlus, bwMinus, upstream = 10,
 ##Plot.composites takes the composite.lattice object and creates a plot for 
 #this data, while also allowing a mapping of the original motif width onto the
 #plot by specifying a TFlen value (the default is 10). 
-plot.composites <- function(dat, ylabel = '', pdf_name = 'PLEASE_SET_FILE_NAME',
+plot.composites <- function(dat, x_axis_range = min(dat$x):max(dat$x), ylabel = '',
+                            pdf_name = 'PLEASE_SET_FILE_NAME',
+                            y_axis_range = min(dat$est):max(dat$est),
                             xlabel = '', striplabel = TRUE, legend = TRUE,
-                            motifline = FALSE, Motiflen = 10,
-                            figwidth = 2.5, figheight=3,
-                            indexlist = NULL, layoutgrid = NULL,
-                            col.lines = c("#0000FF", "#FF0000", "#00000090", 
-                                          rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
-                                          rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
-                                          rgb(1/2,1/2,0,1/2)), 
-                            fill.poly = c(rgb(0,0,1,1/4), 
-                                          rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
-                                          rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
-  require(lattice)
-  pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
-  print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
-               type = 'l', as.table = TRUE,
-               scales=list(x=list(cex=0.8,relation = "free", axs ="i"), 
-                           y =list(cex=0.8, relation="free", tick.number=4)),
-               col = col.lines,
-               auto.key = if (legend == TRUE) 
-               {list(points=F, lines=T, cex=0.8)} else{},
-               par.settings = list(strip.background=list(col="#00000000"),
-                                   strip.border = list(col = 'transparent'),
-                                   superpose.symbol = list(pch = c(16),
-                                                           col=col.lines, 
-                                                           cex =0.5), 
-                                   superpose.line = list(col = col.lines, 
-                                                         lwd=c(2), 
-                                                         lty = c(1))),
-               cex.axis=1.0,
-               par.strip.text=list(cex=0.9, font=1, col='black'),
-               aspect=1.0,
-               between=list(y=0.5, x=0.5),
-               lwd=2,
-               ylab = list(label = paste(ylabel), cex =0.8),
-               xlab = list(label = paste(xlabel), cex =0.8),
-               index.cond = indexlist,
-               layout = layoutgrid,
-               panel = function(x, y, ...) {
-                 panel.xyplot(x, y, ...)
-                 #panel.abline(h = 0, lty =1, lwd = 1.0, col = '#A9A9A932')
-                 if (motifline == TRUE) 
-                 {panel.abline(v = Motiflen/2, lty = 2, col = "red")} else{}
-                 if (motifline == TRUE) 
-                 {panel.abline(v = -Motiflen/2, lty = 2, col = "red")} else{}
-               }
-  ))
-  dev.off()
+                            labsize = 1.1, xlabsize = 1.3,
+                            motifline = FALSE, Motiflen = 10, nYticks = 3,
+                            Y_ticks = TRUE, ylabsize = 1.3,
+                            figwidth = 2.5, figheight=3, hline = FALSE,
+                            nYaxisdigits = 3, hlinelwd = 2,
+                            indexlist = NULL, layoutgrid = NULL, y_axis = FALSE,
+                            linethick = 2, hlinelty = 2,
+                            X_axis_ticks = seq(-20,20,10), hline_val = 0,
+                            Y_axis_ticks = seq(0,0.02,0.01),
+                    col.lines = c("#0000FF", "#FF0000", "#A1A3AB", 
+                                  rgb(0.1,0.5,0.05,1/2), rgb(0,0,0,1/2),  
+                                  rgb(1/2,0,1/2,1/2), rgb(0,1/2,1/2,1/2), 
+                                  rgb(1/2,1/2,0,1/2)), 
+                                  fill.poly = c(rgb(0,0,1,1/4), 
+                                  rgb(1,0,0,1/4), rgb(0.1,0.5,0.05,1/4), 
+                                  rgb(0,0,0,1/4), rgb(1/2,0,1/2,1/4))) {
+    require(lattice)
+    dat = dat[which(dat$x <= max(x_axis_range)+0.5 & dat$x >= min(x_axis_range) -0.5),]
+    
+    pdf(paste(pdf_name, '.pdf', sep = ''), width= figwidth, height= figheight) 
+    print(xyplot(est ~ x|factor, group = group, data = dat, strip = striplabel,
+                 type = 'l', as.table = TRUE,
+                 scales=list(x=list(at= X_axis_ticks,cex=labsize,
+                                    relation = "free", axs ="i", rot = 45), 
+                             y = if (Y_ticks == TRUE) {list(at =
+                                       as.numeric(format(Y_axis_ticks, digits = nYaxisdigits)), 
+                                       tick.number=nYticks,
+                                       cex=labsize, relation = "free", rot = 0)}
+                                 else{list(tick.number=nYticks,
+                                           cex=labsize, relation = "free", rot = 0)}),
+                 col = col.lines,
+                 auto.key = if (legend == TRUE) 
+                     {list(points=F, lines=T, cex=0.8)} else{},
+                 par.settings = list(strip.background=list(col="#00000000"),
+                                     strip.border = list(col = 'transparent'),
+                                     superpose.symbol = list(pch = c(16),
+                                                             col=col.lines, 
+                                                             cex =0.5), 
+                                     superpose.line = list(col = col.lines, 
+                                                           lwd=c(2), 
+                                                           lty = c(1))),
+                 cex.axis=1.0,
+                 par.strip.text=list(cex=1.2, font=1, col='black'),
+                 aspect=1.0,
+                 between=list(y=0.5, x=0.5),
+                 lwd=linethick,
+                 ylim = if (y_axis == TRUE){c(min(y_axis_range), max(y_axis_range))} else{},
+                 xlim = c(min(x_axis_range), max(x_axis_range)),
+                 ylab = list(label = paste(ylabel), cex =ylabsize),
+                 xlab = list(label = paste(xlabel), cex =xlabsize),
+                 index.cond = indexlist,
+                 layout = layoutgrid,
+                 panel = function(x, y, ...) {
+                   panel.xyplot(x, y, ...)
+                   if (hline == TRUE)
+                   {panel.abline(h = hline_val, lty =
+                                   hlinelty, lwd = hlinelwd, col = '#FF0000')}else{}
+                   level = dimnames(trellis.last.object())[["factor"]][packet.number()]
+                   if (motifline == TRUE) 
+                   {panel.abline(v =
+                    ceiling(Motiflen[rownames(Motiflen)==level,]/2), lty = 2, col = "red")} else{}
+                   if (motifline == TRUE) 
+                   {panel.abline(v = 
+                    ceiling(-Motiflen[rownames(Motiflen)==level,]/2), lty = 2, col = "red")} else{}
+                 }
+    ))
+    dev.off()
 }
 #
-##Plots seqlogos from PSWMs
+##Plots seqlogos
 plot.seqlogo.func <- function(x, outfile = "PLEASE_SET_FILE_NAME.pdf") {
   require(ggseqlogo)
   w =  0.663 + (ncol(x) + 1)*0.018 + (ncol(x)+2)* .336
@@ -5588,8 +5747,9 @@ plot.seqlogo.func <- function(x, outfile = "PLEASE_SET_FILE_NAME.pdf") {
 }
 
 
-##Determines nucleotide frequency in a fasta file and writes a text file in meme format
-pswm.func.2 <- function(x.ligation, out = 'outfilename', posnum) {
+#Count all instances of each nucleotide at each position, data frame to be counted is
+#x.ligation, and posnum is the size of the window counted
+transfac.func.2 <- function(x.ligation, posnum) {
   col.matrix = matrix()
   for (g in 1:posnum){
     itnum = lapply(strsplit(as.character(x.ligation), ''), "[", g)
@@ -5605,20 +5765,23 @@ pswm.func.2 <- function(x.ligation, out = 'outfilename', posnum) {
   c.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "C"))
   g.nuc = sapply(1:posnum, function(x) sum(col.matrix[,x] == "G"))
   
-  pswm = cbind(a.nuc, c.nuc, g.nuc, t.nuc)
-  print(pswm)
-  outfile = file(paste0(out, '.txt'))
-  on.exit(close(outfile))
-  writeLines(c("MEME version 4", "ALPHABET= ACGT", "strands: + -", " ", 
-               "Background letter frequencies (from uniform background):", 
-               "A 0.29460 C 0.20450 G 0.20540 T 0.29550", paste("MOTIF", out), " ",
-               paste("letter-probability matrix: alength= 4 w= ", posnum)), outfile)
-  pswm = pswm/rowSums(pswm)
-  write.table(pswm, file = paste0(out, '.txt'), append = TRUE, quote=FALSE, row.names =FALSE, col.names = FALSE)
-  return(pswm)
+  transfac = cbind(a.nuc, c.nuc, g.nuc, t.nuc)
+  print(transfac)
+  return(transfac)
 }
 
-##Make a DF which contains characters into all uppercase characters
+#Split up data sets into groups of desired size to reduce RAM load
+seqlast <- function (from, to, by) 
+{
+  vec <- do.call(what = seq, args = list(from, to, by))
+  if ( tail(vec, 1) != to ) {
+    return(c(vec, to))
+  } else {
+    return(vec)
+  }
+}
+
+#Make all instaces in a table uppercase
 uppercase <- function(tableinput){ 
   upperdf <- read.table(tableinput, comment.char = '>')
   upperdf[,1] = as.character(upperdf[,1])
@@ -5626,4 +5789,158 @@ uppercase <- function(tableinput){
     if (is.character(v)) return(toupper(v))
     else return(v)}))
 }
+
+#Plots seqlogos of JASPAR PSWMs
+plot.seqlogo.meme <-function(infile, outfile = "memefunc_test.pdf") {
+  require(ggseqlogo)  
+  wd <- getwd()
+  memefile <- paste0(wd,"/",infile)
+  minmeme <- read.csv(memefile, skip = 11, header = FALSE, sep = '')
+  minmeme <- minmeme[1:nrow(minmeme)-1,]
+  meme.trans <- t(minmeme)
+  class(meme.trans) <- "numeric"
+  rownames(meme.trans) = c('A', 'C', 'G', 'T')
+  w =  0.663 + (ncol(meme.trans) + 1)*0.018 + (ncol(meme.trans)+2)* .336
+  pdf(outfile, useDingbats=FALSE, width=w, height=2.695)
+  print(ggseqlogo(meme.trans,  facet = "wrap", font = 'helvetica_bold'))
+  dev.off()
+}
+
+#Import rule ensemble formula in usable form from output .txt file                 
+import.rules = function(input) {
+  rulesdf = data.table(read.table(input, sep = ',', header = TRUE))
+  lincoeff = NULL
+  rulescoeff = NULL
+  for (i in 1:nrow(rulesdf)) {
+    lincoeff[i] = fifelse(!grepl(">|<|=",rulesdf[i, description]), 
+                          paste('(',rulesdf[i, description], '*',
+                                rulesdf[i, coefficient], ')', sep = ''),paste(''))}
+  lincoeff = lincoeff[!(lincoeff=='')]
+  linpaste = capture.output(cat(lincoeff, sep = ' + '))
+  for (i in 1:nrow(rulesdf)) {
+    rulescoeff[i] = fifelse(grepl(">|<|=",rulesdf[i, description]),
+                            paste('fifelse(', rulesdf[i, description], ', ', 
+                                  rulesdf[i, coefficient], ', 0)', sep = ''), '')}
+  rulescoeff = rulescoeff[!(rulescoeff=='')]
+  rulespaste = capture.output(cat(rulescoeff, sep = ' + '))
+  output = paste(linpaste, rulespaste, sep = ' + ')
+  return(output)
+}                 
+
+#Add violin plot on top of other lattice objects
+panel.violin.hack <-
+  function (x, y, box.ratio = 1, box.width = box.ratio/(1 + box.ratio),
+            horizontal = TRUE, alpha = plot.polygon$alpha, border =  
+              plot.polygon$border,
+            lty = plot.polygon$lty, lwd = plot.polygon$lwd, col = plot.polygon 
+            $col,
+            varwidth = FALSE, bw = NULL, adjust = NULL, kernel = NULL,
+            window = NULL, width = NULL, n = 50, from = NULL, to = NULL,
+            cut = NULL, na.rm = TRUE, ...){
+    if (all(is.na(x) | is.na(y)))
+      return()
+    x <- as.numeric(x)
+    y <- as.numeric(y)
+    plot.polygon <- trellis.par.get("plot.polygon")
+    darg <- list()
+    darg$bw <- bw
+    darg$adjust <- adjust
+    darg$kernel <- kernel
+    darg$window <- window
+    darg$width <- width
+    darg$n <- n
+    darg$from <- from
+    darg$to <- to
+    darg$cut <- cut
+    darg$na.rm <- na.rm
+    my.density <- function(x) {
+      ans <- try(do.call("density", c(list(x = x), darg)),
+                 silent = TRUE)
+      if (inherits(ans, "try-error"))
+        list(x = rep(x[1], 3), y = c(0, 1, 0))
+      else ans
+    }
+    numeric.list <- if (horizontal)
+      split(x, factor(y))
+    else split(y, factor(x))
+    levels.fos <- as.numeric(names(numeric.list))
+    d.list <- lapply(numeric.list, my.density)
+    dx.list <- lapply(d.list, "[[", "x")
+    dy.list <- lapply(d.list, "[[", "y")
+    max.d <- sapply(dy.list, max)
+    if (varwidth)
+      max.d[] <- max(max.d)
+    xscale <- current.panel.limits()$xlim
+    yscale <- current.panel.limits()$ylim
+    height <- box.width
+    if (horizontal) {
+      for (i in seq_along(levels.fos)) {
+        if (is.finite(max.d[i])) {
+          pushViewport(viewport(y = unit(levels.fos[i],
+                                         "native"), height = unit(height, "native"),
+                                yscale = c(max.d[i] * c(-1, 1)), xscale = xscale))
+          grid.polygon(x = c(dx.list[[i]], rev(dx.list[[i]])),
+                       y = c(dy.list[[i]], -rev(dy.list[[i]])),  
+                       default.units = "native",
+                       # this is the point at which the index is added
+                       gp = gpar(fill = col[i], col = border, lty = lty,
+                                 lwd = lwd, alpha = alpha))
+          popViewport()
+        }
+      }
+    }
+    else {
+      for (i in seq_along(levels.fos)) {
+        if (is.finite(max.d[i])) {
+          pushViewport(viewport(x = unit(levels.fos[i],
+                                         "native"), width = unit(height, "native"),
+                                xscale = c(max.d[i] * c(-1, 1)), yscale = yscale))
+          grid.polygon(y = c(dx.list[[i]], rev(dx.list[[i]])),
+                       x = c(dy.list[[i]], -rev(dy.list[[i]])),  
+                       default.units = "native",
+                       # this is the point at which the index is added
+                       gp = gpar(fill = col[i], col = border, lty = lty,
+                                 lwd = lwd, alpha = alpha))
+          popViewport()
+        }
+      }
+    }
+    invisible()
+  }       
+#Combine values from mask positions to plot redudant importance values for each position
+#Normalize these to the number of times the mask is represented in the data
+redundantpos_nml = function(input, labelnum = 2, impnum = 3) {
+  input[,labelnum] = as.character(input[,labelnum])
+  input[,labelnum] = gsub('C', '', input[,labelnum])
+  posimp = vector(mode = 'list', length = nchar(input[1,labelnum]))
+  for (i in 1:nchar(input[1,labelnum])) {
+    for (p in 1:nrow(input)) {
+      posimp[[i]][p] = fifelse(substr(input[p,labelnum],i,i) == 'N', input[p,impnum],0)
+    }
+  }
+  output = data.table(matrix(nrow = length(posimp), ncol = 1))
+  pos_nml = 0
+  for (i in 1:length(posimp)) {
+    pos_nml = max(pos_nml, length(which(posimp[[i]] > 0)))
+  }
+  
+  for (i in 1:length(posimp)) {
+    output[i, possum := sum(posimp[[i]])*(length(which(posimp[[i]] > 0))/pos_nml)]
+    print((length(which(posimp[[i]] > 0))/pos_nml))
+  }
+  output = output[,-c(1)]
+  output[, position := paste(rep('X',46,sep = ''), collapse = '')]
+  
+  for (i in 1:nrow(output)) {
+    output[i,]$position = paste(substr(output[i, position],1,i-1),'N', 
+                                substr(output[i, position],
+                                       i+1,nchar(output[i, position])), sep = '')
+    output[i,]$position = paste(substr(output[i, position],
+                                       1,(nchar(output[i, position])/2)), 'C', 
+                                paste(substr(output[i, position],
+                                (nchar(output[i, position])/2+1),
+                                nchar(output[i, position]))), sep = '')
+  }
+  return(output)
+}            
 ```
