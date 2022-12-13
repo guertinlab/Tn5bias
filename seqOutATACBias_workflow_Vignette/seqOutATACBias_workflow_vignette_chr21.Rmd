@@ -17,7 +17,7 @@ output:
         - '--highlight-style=breezeDark'
 package: 
 abstract: |
-  This vignette shows an example workflow which applies a rule ensemble model to correct Tn5 insertion sequence bias in ATAC-seq data. To start, example reads and reference genome are downloaded from cyverse. seqOutBias is next ran 13 times to generate unscaled read depth and input for the modeling. The rule ensemble model is then applied to the input data. Finally, the signal at ESR1 motifs in the test chromosome (chromosome 21) are plotted and compared with unscaled and seqOutBias output.
+  This vignette shows an example workflow which applies a 12 input mask rule ensemble model to correct Tn5 insertion sequence bias in ATAC-seq data. To start, example reads and reference genome are downloaded from cyverse. seqOutBias is next ran 13 times to generate unscaled read depth and input for the modeling. The rule ensemble model is then applied to the input data. Finally, the signal at ESR1 motifs in the test chromosome (chromosome 21) are plotted and compared with unscaled and seqOutBias output.
 vignette: >
   %\VignetteIndexEntry{ATAC Bias Scaling}
   %\VignetteEncoding{UTF-8}
@@ -28,7 +28,7 @@ vignette: >
 
 The analysis should take about 15 minutes to complete using chromosome 21 and require about 650 Mb of disk space.
 
-  This workflow shows the method of correcting ATAC-seq bias using a rule ensemble model. Input is a pre-aligned BAM file containing reads mapping to chromosome 21 from the SRR5123141 data set and hg38 reference genome chromosome 21. We recommend a fresh install of seqOutBias if it has not been installed since 07/02/22. This model was trained and created using the methods in the accompanying paper. Because this is a workflow, it requires several prerequisites to be in PATH or installed as a package in R.
+  This workflow shows the method of correcting ATAC-seq bias using a 12 input mask rule ensemble model. Input is a pre-aligned BAM file containing reads mapping to chromosome 21 from the SRR5123141 data set and hg38 reference genome chromosome 21. We recommend a fresh install of seqOutBias if it has not been installed since 07/02/22. This model was trained and created using the methods in the accompanying paper. Because this is a workflow, it requires several prerequisites to be in PATH or installed as a package in R.
 
 # Installations
 
