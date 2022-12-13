@@ -8,5 +8,5 @@ Finally, the rule ensemble and seqOutBias output is plotted using the coordinate
 
 Please check that your local system has all necessary dependencies before running the RMD file.
 
-**Estimated run time: 15 minutes**
-**Size on disk: less than 650Mb**
+**Estimated run time: 15 minutes**       
+**Size on disk: less than 650Mb**      
