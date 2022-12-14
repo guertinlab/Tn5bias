@@ -14,7 +14,7 @@ Output from seqOutATACBias is scaled read values in bigWig and bedGraph format.
 seqOutATACBias uses several dependencies when installing and when processing data. Please ensure that the following
 software is installed on your machine and in the PATH variable:
 
-seqOutBias       
+seqOutBias https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip       
 Rust >= 1.32.0    
 genometools >= 1.6.1     
 python >= 3.9.12   
