@@ -1646,7 +1646,7 @@ load('Tn5_100bp_observedexpected_kmercounts.Rdata')
 mertable$CorrupOE = mertable$upOE*(1/Tn5_kmer_count_correction$OE50bp)
 mertable$CorrupOE = log2(mertable$CorrupOE)
 mertable$kmer = factor(mertable$kmer, levels = mertable$kmer)
-
+save(mertable, file = 'Figure2A_Tn5_upstream_OE_kmers.Rdata')
 #Plot corrected upstream observed/expected k-mer counts
 pdf(file = 'Figure2A_Tn5_upstream_OE_kmers.pdf', width=20, height=5)
 barchart(CorrupOE~kmer, mertable,
