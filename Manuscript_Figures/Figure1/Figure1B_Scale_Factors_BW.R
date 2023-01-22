@@ -1,10 +1,9 @@
 library(lattice)
-setwd('../output')
 #Load in  scale factor files
-load('../data/Figure1B_scalefactor_list.Rdata')
+load('Figure1B_scalefactor_list.Rdata')
 
-for (i in 1:length(Figure1C_list)) {
-  Figure1C_list[[i]][,14] = as.factor(Figure1C_list[[i]][,14])
+for (i in 1:length(Figure1B_list)) {
+  Figure1B_list[[i]][,2] = as.factor(Figure1B_list[[i]][,2])
 }
 ############################################################################################################
 
@@ -17,18 +16,16 @@ bw_theme$box.umbrella$col <- "black"
 bw_theme$box.rectangle$col <- "black"
 bw_theme$box.rectangle$lwd <- 3
 
-
-for (i in 1:length(Figure1C_list)) {
-pdf(paste(names(Figure1C_list)[i], '_maskpositions.pdf', sep = ''), width=26, height=7)
-print(bwplot(log2(1/plusscalefact)~xaxis, Figure1C_list[[i]],
-       scales=list(x=list(rot=90), y=list(rot=0), relation="free", cex=3.5, font=1),
-       ylab="",
-       main="",
-       do.out=FALSE,
-       par.settings = bw_theme,
-       panel=function(...){
-         panel.bwplot(...)
-         panel.stripplot(..., col='#54545380', do.out=FALSE, jitter.data=TRUE, cex = 0.33, pch = 16, alpha = 0.5)
-       }))
-dev.off()
+for (i in 1:length(Figure1B_list)) {
+  pdf(paste(names(Figure1B_list)[i], '_maskpositions.pdf', sep = ''), width=26, height=7)
+  print(bwplot(log2(1/minusscalefact)~xaxis, Figure1B_list[[i]],
+               scales=list(x=list(rot=90), y=list(rot=0), relation="free", cex=3.5, font=1),
+               ylab="",
+               main="",
+               do.out=FALSE,
+               par.settings = bw_theme,
+               panel=function(...){
+                 panel.bwplot(...)
+               }))
+  dev.off()
 }
