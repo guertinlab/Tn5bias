@@ -2851,6 +2851,24 @@ x = log_fold
 x[,3] <- as.factor(x[,3])
 x[,3] = factor(x[,3], levels = c('Unscaled', 'seqOutBias', 'Rule Ensemble'))
 
+#Welch t-test to see if treatments' outputs are different
+t.test(x[which(x$Treatment=='seqOutBias'),1], x[which(x$Treatment=='Rule Ensemble'),1])
+t.test(x[which(x$Treatment=='Unscaled'),1], x[which(x$Treatment=='Rule Ensemble'),1])
+t.test(x[which(x$Treatment=='Unscaled'),1], x[which(x$Treatment=='seqOutBias'),1])
+
+#F-test to see if treatments' variances are different for each TF
+vartests = data.frame()
+for (i in 1:length(unique(x$Factor))) {
+  vartests[i,1] = as.numeric(var.test(x[which(x$Treatment=='seqOutBias' & x$Factor==unique(x$Factor)[i]),1],
+                         x[which(x$Treatment=='Unscaled' & x$Factor==unique(x$Factor)[i]),1])[3])
+  vartests[i,2] = as.numeric(var.test(x[which(x$Treatment=='Rule Ensemble' & x$Factor==unique(x$Factor)[i]),1],
+                         x[which(x$Treatment=='Unscaled' & x$Factor==unique(x$Factor)[i]),1])[3])
+  vartests[i,3] = as.numeric(var.test(x[which(x$Treatment=='Rule Ensemble' & x$Factor==unique(x$Factor)[i]),1],
+                         x[which(x$Treatment=='seqOutBias' & x$Factor==unique(x$Factor)[i]),1])[3])
+}
+colnames(vartests) = c('seqOutBias Unscaled', 'Rule Ensemble Unscaled', 'Rule Ensemble seqOutBias')
+rownames(vartests)  = unique(x$Factor)
+
 #Subset x to only include top 9
 supp_x = x[-c(which(x$Factor == 'CEBPB' | x$Factor == 'E2F1' | x$Factor == 'HOXC12' |
                       x$Factor == 'HSF1' | x$Factor == 'MEF2A' | x$Factor == 'NFATC3' |
