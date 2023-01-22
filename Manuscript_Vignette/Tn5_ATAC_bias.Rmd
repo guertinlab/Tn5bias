@@ -1050,7 +1050,7 @@ enzymebiasplot = plot.composites(unscaled_composite_agg, x_axis_range=-15:15,
                           pdf_name = 'unscaled_enzymebias_composites',
                           indexlist = list(c(5,3,2,1,4)),
                           layoutgrid = c(1,5),
-                          y_axis_range = 0:1, y_axis = TRUE
+                          y_axis_range = 0:1, y_axis = TRUE, Y_axis_ticks = seq(0,1,0.5),
 )
 ```
 
