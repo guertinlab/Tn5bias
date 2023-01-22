@@ -136,7 +136,7 @@ unscaled_composite_agg$est[which(unscaled_composite_agg$factor == 'Tn5')] =
 unscaled_composite_agg$est = unscaled_composite_agg$est/max(unscaled_composite_agg$est)
 
 ###Plot these all together
-enzymebiasplot <- plot.composites(unscaled_composite_agg, x_axis_range=-15:15,
+enzymebiasplot = plot.composites(unscaled_composite_agg, x_axis_range=-15:15,
                           legend = FALSE, 
                           ylabel = 'Cut Frequency',
                           xlabel = 'Distance from Motif Center',
@@ -147,6 +147,6 @@ enzymebiasplot <- plot.composites(unscaled_composite_agg, x_axis_range=-15:15,
                           pdf_name = 'unscaled_enzymebias_composites',
                           indexlist = list(c(5,3,2,1,4)),
                           layoutgrid = c(1,5),
-                          y_axis_range = 0:1, y_axis = TRUE
+                          y_axis_range = 0:1, y_axis = TRUE, Y_axis_ticks = seq(0,1,0.5),
 )
 
