@@ -109,7 +109,7 @@ Read Length (-r): The length of reads in input data. Necessary for computing map
 <br />    
 <br />    
 <br />    
-Once the "masks" command has finished running, an output "union" bedGraph file will be in the directory.
+Once the "masks" command has finished running, an output union bedGraph file will be written into the directory with a "\_union" tag added onto the input file name.
 
 To apply the seqOutATACBias rule ensemble correction, the "scale" command is used with the union bedGraph file as input:
 ```sh
