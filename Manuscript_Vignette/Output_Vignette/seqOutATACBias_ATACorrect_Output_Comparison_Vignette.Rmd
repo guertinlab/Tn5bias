@@ -1,0 +1,403 @@
+---
+title: "Comparison of seqOutATACBias and ATACorrect bias correction output"
+header-includes:
+- \usepackage{color}
+- \usepackage{float}
+- \usepackage{amsmath}
+author:
+- Jacob B. Wolpe^[Department of Biochemistry and Molecular Genetics, University of Virginia, Charlottesville, Virginia, United States of America]
+- Michael J. Guertin^[Department of Genetics and Genome Sciences, University of Connecticut, Farmington, Connecticut, United States of America]
+geometry: margin=0.75cm 
+output:
+  bookdown::pdf_document2: default
+package: 
+abstract: |
+  This vignette outlines an analysis which compares output from ATACorrect and seqOutATACBias. We find that ATACorrect does not scale individual reads, but instead removes all reads outside of input peak regions, optimizing data for later footprinting and downstream analysis of a narrowly defined region set. ATACorrect also creates simulated read data within input peak regions to further offset Tn5 bias within these defined genomic locations. Because ATACorrect requires these input peak regions, it is a tool highly optimized for footprinting analysis, but does not broadly correct observed Tn5 sequence bias in a data set. In contrast, seqOutATACBias operates by scaling all individual reads of a data set to correct Tn5 local and regional bias. This bias correction is useful for any application of the input data set going forward, including identification of open genomic regions for further investigation. 
+vignette: >
+  %\VignetteIndexEntry{ATAC Bias Scaling Comparison}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+\pagebreak
+# Foreword
+
+  This vignette examines the differences between seqOutATACBias and ATACorrect (a TOBIAS tool) output from a test set of read data on chromosome 21. It requires that seqOutATACBias and its dependencies are in path. Because seqOutATACBias and TOBIAS are written in different python versions, a conda virtual environment (python 3.7, named 'TOBIAS_venv') is used to install and run TOBIAS, which must also be in path using this method. If you wish to reproduce this analysis, you __must__ have a conda virtual environment named 'TOBIAS_venv' with TOBIAS installed. This vignette is split into 3 sections: a check to make sure software dependencies are installed, running seqOutATACBias and ATACorrect on identical input reads and reference genome, and finally analysis of their output files. Results from this analysis reveal that while both tools operate on similar input, their output is drastically different, as is their intended use. 
+
+# Installations
+
+In order to run this vignette, you must have the following installed and added to PATH:    
+seqOutBias (https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip)     
+Rust >= 1.32.0    
+genometools >= 1.6.1     
+pyfaidx >= 0.7.1   
+GNU parallel >= 20220722   
+GNU wget >= 1.21.3   
+bedtools >= 2.30.0   
+bigWigToBedGraph >= 438   
+bedGraphToBigWig >= 2.9   
+wigToBigWig >= 2.8
+Pandoc >= 2.19.2    
+conda 22.11.1    
+TOBIAS 0.15.1   
+R >= 4.2.1   
+  R Packages:    
+  -  R data.table package >= 1.14.2   
+  -  bigWig R package   
+
+
+Check to see if you have the required dependencies in PATH. The following will print a message if a dependency cannot be called:
+
+```{bash eval=TRUE}
+  if ! command -v wget &> /dev/null
+  then
+      echo "wget could not be found"
+  elif ! command -v faidx &> /dev/null
+  then
+      echo "faidx could not be found"
+  elif ! command -v parallel &> /dev/null
+  then
+      echo "GNU parallel could not be found"
+  elif ! command -v bigWigToBedGraph &> /dev/null
+  then
+      echo "bigWigToBedGraph could not be found"
+  elif ! command -v bedGraphToBigWig &> /dev/null
+  then
+      echo "bedGraphToBigWig could not be found"
+  elif ! command -v gt &> /dev/null
+  then
+      echo "Genome tools could not be found"
+  elif ! command -v rustc &> /dev/null
+  then
+      echo "Rust could not be found"
+  elif ! command -v seqOutBias &> /dev/null
+  then
+      echo "seqOutBias could not be found"
+  elif ! command -v wigToBigWig &> /dev/null
+  then
+      echo "wigToBigWig could not be found"
+  elif ! command -v seqOutATACBias &> /dev/null
+  then
+      echo "seqOutATACBias could not be found"    
+  elif ! command -v conda &> /dev/null
+  then
+      echo "conda could not be found"     
+  else
+      source activate TOBIAS_venv
+  fi    
+  if ! command -v TOBIAS &> /dev/null
+  then
+      echo "TOBIAS could not be found"    
+  else    
+      echo "Checked dependencies installed"
+  fi
+```
+
+
+If you find that any of these dependencies are not in PATH, you may install them from the following:
+
+seqOutBias: https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip
+seqOutATACBias: https://github.com/guertinlab/Tn5bias/tree/master/seqOutATACBias_setup    
+Rust: https://www.rust-lang.org/     
+genometools: http://genometools.org/     
+R: https://rstudio-education.github.io/hopr/starting.html     
+pyfaidx: https://pypi.org/project/pyfaidx/     
+GNU parallel: https://www.gnu.org/software/parallel/       
+bedtools: https://bedtools.readthedocs.io/en/latest/     
+bigWigToBedGraph: http://hgdownload.soe.ucsc.edu/admin/exe/      
+bedGraphToBigWig: http://hgdownload.soe.ucsc.edu/admin/exe/       
+bigWig R package: https://github.com/guertinlab/bigWig     
+wigToBigWig: https://anaconda.org/bioconda/ucsc-wigtobigwig    
+GNU wget: https://www.gnu.org/software/wget/      
+conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html    
+TOBIAS: https://github.com/loosolab/TOBIAS    
+
+## Auto-install R packages
+
+Install the `data.table`, `bigWig`, `devtools`, and `eulerr` R packages, if necessary:
+
+```{R eval = TRUE}
+tabletest = require(data.table)
+if(tabletest==FALSE){
+  install.packages('data.table')
+}
+bigWigtest = require(bigWig)
+if(bigWigtest==FALSE){
+  install.packages('devtools')
+  devtools::install_github("andrelmartins/bigWig", subdir="bigWig")
+}
+eulertest = require(eulerr)
+if(eulertest==FALSE){
+  install.packages('eulerr')
+}
+```
+
+# Generating output from seqOutATACBias and ATACorrect
+
+This section prepares the data to compare the output from seqOutATACBias and ATACorrect.  The first section downloads the chromosome 21 reference genome (hg38), aligned unscaled chromosome 21 read files in BAM format, FIMO results for ESR1 on chromosome 21 and combined ESR1/REST FIMO results for chromosome 21, from cyverse. Next, we use each model to generate the output that will be analyzed and compared.
+
+## Downloading reference genome and read data.
+
+Download the reference genome for chromosome 21 (hg38_chr21.fa), aligned deproteinized ATAC-seq read file from cyverse (C1_gDNA_rep1_chr21.bam), ESR1 motifs for chromosome 21 (ESR1_rm_chr21_fimo.txt), and combined ESR1/REST motifs for chromosome 21 (ESR1_REST_chr21_fimo.txt).
+
+```{bash eval=TRUE}
+#To test this vignette with a subset (chr 21) genome and reads:
+wget -nv https://data.cyverse.org/dav-anon/iplant/home/jacobwolpe/C1_gDNA_rep1_chr21.bam
+wget -nv https://data.cyverse.org/dav-anon/iplant/home/jacobwolpe/hg38_chr21.fa
+wget -nv https://data.cyverse.org/dav-anon/iplant/home/jacobwolpe/ESR1_rm_chr21_fimo.txt
+wget -nv https://data.cyverse.org/dav-anon/iplant/home/jacobwolpe/ESR1_REST_chr21_fimo.txt
+```
+
+## Run seqOutATACBias to generate output
+
+Here we run seqOutATACBias to scale ATAC-seq reads using our rule ensemble model.
+
+```{bash eval=TRUE}
+seqOutATACBias masks -i=C1_gDNA_rep1_chr21.bam -g=hg38_chr21.fa -p=3 -r=72
+#            
+seqOutATACBias scale -i=C1_gDNA_rep1_chr21_union.bedGraph -g=hg38_chr21.fa        
+```
+
+## Run ATACorrect to generate output
+
+We now use ATACorrect to generate output for later comparison. Because ATACorrect requires the genomic coordinates of interest as an input field ('peaks' file), we first convert the downloaded coordinates from FIMO format to bed.
+
+```{R eval=TRUE}
+options(scipen = 100)
+source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
+library(data.table)
+
+bed_peaks = FIMO.to.BED('ESR1_rm_chr21_fimo.txt')
+write.table(bed_peaks[,1:4],file= 'ESR1_chr21.bed',
+              sep = '\t', quote = FALSE, row.names = FALSE, col.names = FALSE)
+
+bed_peaks = FIMO.to.BED('ESR1_REST_chr21_fimo.txt')
+write.table(bed_peaks[,1:4],file= 'ESR1_REST_chr21.bed',
+              sep = '\t', quote = FALSE, row.names = FALSE, col.names = FALSE)
+```
+
+Next, we run ATACorrect using the newly generated bed files and previously downloaded data. The first run of ATACorrect uses all identified ESR1 motifs on chromosome 21. The second run includes REST motifs in the peak file, in addition to the ESR1 motifs. Once ATACorrect has finished running, we convert the bigwig output into bedgraph format for comparison.
+
+```{bash eval=TRUE}
+source activate TOBIAS_venv
+TOBIAS ATACorrect --bam C1_gDNA_rep1_chr21.bam --genome hg38_chr21.fa --peaks ESR1_chr21.bed --outdir ATACorrect_ESR1_output --cores 3 --norm-off
+bigWigToBedGraph ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_corrected.bw ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_corrected.bedgraph
+bigWigToBedGraph ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_uncorrected.bw ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph
+
+TOBIAS ATACorrect --bam C1_gDNA_rep1_chr21.bam --genome hg38_chr21.fa --peaks ESR1_REST_chr21.bed --outdir ATACorrect_ESR1_REST_output --cores 3 --norm-off
+bigWigToBedGraph ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_corrected.bw ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_corrected.bedgraph
+bigWigToBedGraph ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_uncorrected.bw ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph
+```
+
+# Output analysis
+
+This section compares the output and potential uses of both seqOutATACBias and ATACorrect.
+
+## Read depth
+
+First, we compare the read depth output of both methods using a bar chart.
+
+```{R eval=TRUE}
+sOAB_read_depth = fread('C1_gDNA_rep1_chr21_RE_scaled.bedGraph')
+sOAB_read_depth = sum(sOAB_read_depth$V4)
+
+sOAB_unscaled_read_depth = fread('C1_gDNA_rep1_chr21_not_scaled.bed')
+sOAB_unscaled_read_depth = sum(sOAB_unscaled_read_depth$V5)
+
+ATACorrect_ESR1_read_depth = 
+  fread('ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_corrected.bedgraph')
+ATACorrect_ESR1_read_depth = 
+  sum(ATACorrect_ESR1_read_depth$V4)
+
+ATACorrect_uncorrected_ESR1_read_depth = 
+  fread('ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph')
+ATACorrect_uncorrected_ESR1_read_depth = 
+  sum(ATACorrect_uncorrected_ESR1_read_depth$V4)
+
+ATACorrect_ESR1_REST_read_depth = 
+  fread('ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_corrected.bedgraph')
+ATACorrect_ESR1_REST_read_depth = 
+  sum(ATACorrect_ESR1_REST_read_depth$V4)
+
+ATACorrect_uncorrected_ESR1_REST_read_depth = 
+  fread('ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph')
+ATACorrect_uncorrected_ESR1_REST_read_depth = 
+  sum(ATACorrect_uncorrected_ESR1_REST_read_depth$V4)
+
+barchart_comparison = c(sOAB_read_depth, sOAB_unscaled_read_depth,
+                        ATACorrect_ESR1_read_depth, ATACorrect_uncorrected_ESR1_read_depth,
+                        ATACorrect_ESR1_REST_read_depth, ATACorrect_uncorrected_ESR1_REST_read_depth)
+names(barchart_comparison) = c('seqOutATACBias', 'seqOutBias unscaled',
+                               'ATACorrect ESR1', 'ATACorrect ESR1 uncorrected',
+                               'ATACorrect ESR1/REST', 'ATACorrect ESR1/REST uncorrected')
+
+pdf(file = 'sOAB_ATACorrect_RD_comparison.pdf')
+par(mar=c(16, 5, 3, 1))
+barplot_comparison= barplot(barchart_comparison,
+                            ylim = c(min(barchart_comparison),max(barchart_comparison)+40000), las = 2)
+text(x = barplot_comparison, y = barchart_comparison + 20000,
+     labels = as.integer(unname(barchart_comparison)))
+title(ylab = 'Read depth', line = 4)
+dev.off()
+```
+
+```{r sOABATACorrectRDcomparison, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="Bias correction method read depth comparison after analysis", out.width = "100%"}
+knitr::include_graphics("sOAB_ATACorrect_RD_comparison.pdf")
+```
+
+As seen in Figure \@ref(fig:sOABATACorrectRDcomparison), read depth between seqOutATACBias and ATACorrect is very different. Where seqOutATACBias maintains the same read depth between scaled and unscaled output, ATACorrect read depth changes based on the number of peak regions in the input bed file. In many tested scenarios, we find that ATACorrect corrected output has a negative read depth, which is a preclusion to effective bias correction comparison with seqOutATACBias. An important feature of seqOutATACBias is that output reads have the same depth (signal) as the input, meaning that no signal is lost by correction. This is a central aspect of the seqOutATACBias correction method: reads are scaled based on Tn5 preference for or against the sequence environment of the read. Therefore, theoretically perfect bias correction could be determined by the number of reads divided by mappable positions in the genome. To better understand the output from these two methods, we next look at number of reads in both outputs.
+
+## Read number
+
+To calculate the number of reads, or Tn5 insertion locations, in each data set we simply count the number of rows for each output file.
+
+```{R eval=TRUE}
+sOAB_read_number = 
+  fread('C1_gDNA_rep1_chr21_RE_scaled.bedGraph')
+sOAB_read_number = 
+  nrow(sOAB_read_number)
+
+sOAB_unscaled_read_number = 
+  fread('C1_gDNA_rep1_chr21_not_scaled.bed')
+sOAB_unscaled_read_number = 
+  nrow(sOAB_unscaled_read_number)
+
+ATACorrect_ESR1_read_number = 
+  fread('ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_corrected.bedgraph')
+ATACorrect_ESR1_read_number = 
+  nrow(ATACorrect_ESR1_read_number)
+
+ATACorrect_ESR1_uncorrected_read_number = 
+  fread('ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph')
+ATACorrect_ESR1_uncorrected_read_number = 
+  nrow(ATACorrect_ESR1_uncorrected_read_number)
+
+ATACorrect_ESR1_REST_read_number = 
+  fread('ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_corrected.bedgraph')
+ATACorrect_ESR1_REST_read_number = 
+  nrow(ATACorrect_ESR1_REST_read_number)
+
+ATACorrect_ESR1_REST_uncorrected_read_number = 
+  fread('ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph')
+ATACorrect_ESR1_REST_uncorrected_read_number = 
+  nrow(ATACorrect_ESR1_REST_uncorrected_read_number)
+
+barchart_comparison = c(sOAB_read_number, sOAB_unscaled_read_number,
+                        ATACorrect_ESR1_read_number, ATACorrect_ESR1_uncorrected_read_number,
+                        ATACorrect_ESR1_REST_read_number, ATACorrect_ESR1_REST_uncorrected_read_number)
+names(barchart_comparison) = c('seqOutATACBias', 'seqOutBias unscaled',
+                               'ATACorrect ESR1', 'ATACorrect ESR1 uncorrected',
+                               'ATACorrect ESR1/REST', 'ATACorrect ESR1/REST uncorrected')
+
+pdf(file = 'sOAB_ATACorrect_ReadNumber_comparison.pdf')
+par(mar=c(16, 5, 3, 1))
+barplot_comparison= barplot(barchart_comparison, ylim = c(0,max(barchart_comparison)+55000), las = 2)
+text(x = barplot_comparison, y = barchart_comparison + 35000, labels = as.integer(unname(barchart_comparison)))
+title(ylab = 'Number of reads', line = 4)
+dev.off()
+```
+
+```{r sOABATACorrectReadNumbercomparison, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="Comparison between number of reads in seqOutATACBias and ATACorrect output", out.width = "100%"}
+knitr::include_graphics("sOAB_ATACorrect_ReadNumber_comparison.pdf")
+```
+
+Figure \@ref(fig:sOABATACorrectReadNumbercomparison) clearly shows that seqOutATACBias scaled output has many fewer reads than corrected ATACorrect output, and many more reads than uncorrected ATACorrect output. Based on the publication accompanying TOBIAS (https://doi.org/10.1038/s41467-020-18035-1), we postulate that these additional reads in the ATACorrect corrected output are simulated data based on the modeled Tn5 bias within the peaks input region set. Additionally, we see in both Figure \@ref(fig:sOABATACorrectRDcomparison) and Figure \@ref(fig:sOABATACorrectReadNumbercomparison) that ATACorrect read depth and read number are dependent on the number of peak motifs input. To understand how these sets of reads are different, we next explore their genomic coordinates. 
+
+
+## Interval set coordinate comparison
+
+Because we know that the read count and depth are very different between the two methods, we aim to compare the coordinates of the reads from each method. We compare these populations using an Euler diagram, to show which reads are the same in both methods and which are different. 
+
+```{R eval=TRUE}
+sOAB_unscaled_reads = fread('C1_gDNA_rep1_chr21_not_scaled.bed')
+
+ATACorrect_ESR1_uncorrected_reads = fread('ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph')
+
+ATACorrect_ESR1_REST_uncorrected_reads = fread('ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph')
+
+x = list(sOAB_unscaled_reads$V2,
+         ATACorrect_ESR1_uncorrected_reads$V2,
+         ATACorrect_ESR1_REST_uncorrected_reads$V2)
+names(x) = c('seqOutATACBias', 'ATACorrect ESR1', 'ATACorrect ESR1/REST')
+
+pdf(file = 'seqOutATACBias_ATACorrect_Uncorrected_overlap.pdf', width = 12,
+    height = 12)
+plot(euler(x, shape = "ellipse"), quantities = list(cex = 0.75, lineheight=10), legend = TRUE,
+     main = 'Unscaled read coordinate comparison')
+dev.off()
+```
+
+```{r seqOutATACBiasATACorrectUncorrectedoverlap, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="Read identity overlap between seqOutATACBias unscaled and ATACorrect uncorrected output", out.width = "100%"}
+knitr::include_graphics("seqOutATACBias_ATACorrect_Uncorrected_overlap.pdf")
+```
+
+In Figure \@ref(fig:seqOutATACBiasATACorrectUncorrectedoverlap) we observe that most uncorrected ATACorrect reads are found in seqOutATACBias unscaled reads. The small number of ATACorrect uncorrected reads which are not present in seqOutATACBias unscaled output are likely aligned to regions determined to be unmappable by seqOutBias. This could be determined by using ATACorrect's `blacklist` input, but was not included for brevity. Additionally, the population of ATACorrect uncorrected reads is much smaller than the population found in seqOutATACBias, and the size of this population is based on the number of input `peak` motifs. Next, we visualize how the seqOutATACBias population fits into the larger corrected ATACorrect population.
+
+```{R eval=TRUE}
+sOAB_reads = fread('C1_gDNA_rep1_chr21_RE_scaled.bedGraph')
+
+ATACorrect_ESR1_corrected_reads = fread('ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_corrected.bedgraph')
+
+ATACorrect_ESR1_REST_corrected_reads = fread('ATACorrect_ESR1_REST_output/C1_gDNA_rep1_chr21_corrected.bedgraph')
+
+x = list(sOAB_unscaled_reads$V2,
+         ATACorrect_ESR1_corrected_reads$V2,
+         ATACorrect_ESR1_REST_corrected_reads$V2)
+names(x) = c('seqOutATACBias', 'ATACorrect ESR1', 'ATACorrect ESR1/REST')
+
+pdf(file = 'seqOutATACBias_ATACorrect_Corrected_overlap.pdf', width = 12,
+    height = 10)
+plot(euler(x, shape = "ellipse"), quantities = list(cex = 0.75, lineheight=10), legend = TRUE,
+     main = 'Scaled read coordinate comparison')
+dev.off()
+```
+
+
+```{r seqOutATACBiasATACorrectoverlap, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="Genomic coordinate overlap between seqOutATACBias and ATACorrect scaled output", out.width = "100%"}
+knitr::include_graphics("seqOutATACBias_ATACorrect_Corrected_overlap.pdf")
+```
+
+Figure \@ref(fig:seqOutATACBiasATACorrectoverlap) shows that bias corrected seqOutATACBias and ATACorrect output share a small fraction of the same reads, given identical input. This means that a comparison of bias correction between the two methods would rely on functionally examining the difference of bias between two separate populations of reads, with as little as 4% overlap in some tested conditions. 
+
+## ATACorrect scaling and read depth is only applied to supplied peak regions
+
+To illustrate the differences between seqOutATACBias scaling and ATACorrect footprinting correction, we first download an illustrative browser snapshot from the following UCSC browser session:    
+https://genome.ucsc.edu/s/JacobWolpe/sOAB%20ATACorrect%20Comparison
+
+```{bash eval=TRUE}
+wget -nv https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Vignette/figs/sOAB_ATACorrect_comparison.png
+```
+
+```{r seqOutATACBiasATACorrectbrowsershot, echo = FALSE, message=FALSE, fig.align='center', fig.pos = "H", fig.cap="Browser snapshot of seqOutATACBias output, uncorrected ATACorrect output, corrected ATACorrect output, and the `peaks` file (ESR1\\_chr21) used as input for the two ATACorrect output files", out.width = "100%"}
+knitr::include_graphics("sOAB_ATACorrect_comparison.png")
+```
+
+The browser snap shot seen in Figure \@ref(fig:seqOutATACBiasATACorrectbrowsershot) exemplifies the incompatibility between seqOutATACBias and ATACorrect outputs. In this image, we see that ATACorrect corrected and uncorrected output is only present at genomic locations contained in the input `peaks` file (ESR1_chr21). This is in contrast to seqOutATACBias scaled output, which is present at all read locations in the original input `BAM` file. seqOutATACBias was designed as a general method used to scale individual reads of a given data set to reduce the Tn5 sequence bias of each read. ATACorrect refines input data to the specific regions of interest, removes all other reads and adds theoretically unbiased reads not in the original data set to optimize footprinting algorithms. This is why the evaluation of both methods is so drastically different: ATACorrect was measured for its ability to correctly uncover footprints and improve footprint depth; seqOutATACBias was measured for its ability to return average signal to theoretical random cleavage. In our final analysis, we show that simulated ATACorrect reads are confined to the regions nearby the input `peaks` file.
+
+## ATACorrect simulated data is within 175 base pairs of the `peaks` file regions
+
+To determine what percent of simulated data produced by ATACorrect is within `peak` regions, we first expand the peak regions by 175 base pairs in both directions.
+
+```{R eval=TRUE}
+peaks = fread('ESR1_chr21.bed')
+peaks$V2 = peaks$V2 - 175
+peaks$V3 = peaks$V3 + 175
+write.table(peaks[,1:4],file= 'ESR1_chr21_175bp.bed',
+              sep = '\t', quote = FALSE, row.names = FALSE, col.names = FALSE)
+```
+
+Next, we use `bedtools intersect` to remove all uncorrected reads from the corrected reads file. Recall that 93% of uncorrected reads are also found in seqOutATACBias output as well. 
+
+```{bash eval=TRUE}
+bedtools intersect -v -a ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_corrected.bedgraph -b ATACorrect_ESR1_output/C1_gDNA_rep1_chr21_uncorrected.bedgraph > C1_gDNA_rep1_chr21_corrected_NO_UNCOR_READS.bedgraph
+```
+
+Now, we determine which of these simulated reads are within the bounds of the `peaks` file we generated.
+
+```{bash eval=TRUE}
+bedtools intersect -v -a C1_gDNA_rep1_chr21_corrected_NO_UNCOR_READS.bedgraph -b ESR1_chr21_175bp.bed > ATACorrect_175bp_simulated_peaks.bed
+ls -l ATACorrect_175bp_simulated_peaks.bed
+```
+
+As this file is empty, no ATACorrect simulated reads are farther than 175 base pairs from a region in the original `peaks` file. This result shows that ATACorrect simulated output is entirely based on the input peak regions, to the exclusion of all other data within the input `BAM` file.     
+     
+In summary, this analysis shows several factors which inhibit direct comparison between ATACorrect and seqOutATACBias. The first is that seqOutATACBias output is scaled to the read depth of the input, while ATACorrect frequently includes negative read depth or very low read depth. Second, ATACorrect requires a `peaks` `bed` file input so that output is confined to these regions and all other output is lost, whereas seqOutATACBias scales all individual reads in a data set and gives their scaled values as output. Third, seqOutATACBias only operates on input reads, while ATACorrect creates simulated reads, expanding the size of the input data set within the regions of interest. As such, seqOutATACBias and seqOutBias are the only two software packages known to scale all individual reads of an input data set, without changing read depth, adding new reads, or removing other reads, and which gives this output in a single file for implementation in subsequent, nonrestricted analysis.
