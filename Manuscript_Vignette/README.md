@@ -7,3 +7,5 @@ The folder labeled *Motifs* contains an archived set of motifs from the JASPAR s
 The folder labeled *Reference_Files* contains original reference files which helped conceive this project.
 
 The folder labeled *figs* contains original files for any images included in the vignette.
+
+The folder labeled *Output_Vignette* contains a vignette which compares seqOutATACBias and ATACorrect output.
