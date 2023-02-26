@@ -2,7 +2,7 @@ library(lattice)
 source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 ################################################################################
 load('Figure6B_Tn5_composites.Rdata')
-load('supplemental_Figure6B_Tn5_composites.Rdata')
+load('Supplemental_Figure6B_Tn5_composites.Rdata')
 #Plot composites
 plot.composites(Figure6B_list[[1]], legend = TRUE, 
                 pdf_name = 'Figure6B_Tn5_RuleEnsemble_seqOutBias_comparison',
