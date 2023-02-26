@@ -1,7 +1,7 @@
 library(grid)
 library(lattice)
 source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
-load('Figure6_Tn5_singlenuc_log2_comparison.Rdata')
+load('Figure6B_Tn5_singlenuc_log2_comparison.Rdata')
 load('Supplemental_Tn5_singlenuc_log2_comparison.Rdata')
 #Plot each TF (singlenuc)
 log2plot = bwplot(Difference ~ Treatment | Factor , data = singlenuc_log,
