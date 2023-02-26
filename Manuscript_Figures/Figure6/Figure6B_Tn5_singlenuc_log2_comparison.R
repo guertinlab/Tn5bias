@@ -1,6 +1,5 @@
 library(grid)
 library(lattice)
-library(ggplot2)
 source('https://raw.githubusercontent.com/guertinlab/Tn5bias/master/Manuscript_Vignette/Vignette_Scripts/Tn5_Bias_Functions.R')
 load('Figure6_Tn5_singlenuc_log2_comparison.Rdata')
 load('Supplemental_Tn5_singlenuc_log2_comparison.Rdata')
