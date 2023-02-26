@@ -31,7 +31,7 @@ log2plot = bwplot(Difference ~ Treatment | Factor , data = singlenuc_log,
                     panel.bwplot(..., pch = '|', do.out = FALSE)
                     
                   })
-pdf('Figure6B_Tn5_singlenuc_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
+pdf('Figure6C_Tn5_singlenuc_log2_comparison.pdf', useDingbats = FALSE, width=10.83, height=6)
 trellis.par.set(box.umbrella = list(lty = 1, col="#93939300", lwd=2),
                 box.rectangle = list(col = '#93939300', lwd=1.6),
                 plot.symbol = list(col='#93939300', lwd=1.6, pch ='.'))
