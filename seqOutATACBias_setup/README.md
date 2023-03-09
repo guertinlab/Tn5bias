@@ -5,6 +5,11 @@ seqOutATACBias is a CLI which corrects the sequence bias of Tn5 transposase in A
 seqOutATACBias uses the same input as seqOutBias: a reference genome and aligned read files in BAM format.   
 Output from seqOutATACBias is scaled read values in bigWig and bedGraph format.
 
+We recommend using the following command (requires you have svn on your machine) to download the seqOutATACBias software:
+```sh
+$ svn export https://github.com/guertinlab/Tn5bias/trunk/seqOutATACBias_setup
+```
+
 ## Current Software Version
 
 1.0
