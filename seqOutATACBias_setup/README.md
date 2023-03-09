@@ -7,7 +7,7 @@ Output from seqOutATACBias is scaled read values in bigWig and bedGraph format.
 
 We recommend using the following command (requires you have svn on your machine) to download the seqOutATACBias software:
 ```sh
-$ svn export https://github.com/guertinlab/Tn5bias/trunk/seqOutATACBias_setup
+svn export https://github.com/guertinlab/Tn5bias/trunk/seqOutATACBias_setup
 ```
 
 ## Current Software Version
@@ -41,26 +41,26 @@ GNU wget >= 1.21.3
 
 Once the required dependencies are installed and in PATH, the seqOutATACBias software can be downloaded from GitHub by entering:
 ```sh
-$ wget https://github.com/guertinlab/Tn5bias/archive/refs/heads/master.zip
+wget https://github.com/guertinlab/Tn5bias/archive/refs/heads/master.zip
 ```
 
 Upon downloading the software, you may install using either setuptools or PIP.
 To install via setuptools, navigate to the seqOutATACBias_setup folder and enter:
 ```sh
-$ python setup.py install
+python setup.py install
 ```
 
 To install with PIP, first navigate to the seqOutATACBias_setup folder, then enter:
 ```sh
-$ python setup.py sdist
-$ cd dist
-$ pip install seqOutATACBias-1.0.tar.gz
+python setup.py sdist
+cd dist
+pip install seqOutATACBias-1.0.tar.gz
 ```
 
 Either option will add the seqOutATACBias software to your PATH. To test that the software was correctly installed
 and added to your PATH variable, enter:
 ```sh
-$ seqOutATACBias
+seqOutATACBias
 ```
 
 Output from a successful installation should show all declared options (or their defaults) and ask for a valid command:
