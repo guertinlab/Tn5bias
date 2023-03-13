@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+POSITIONAL_ARGS=()
+set -a
+for i in "$@"; do
+  case $i in
+    -i=*|--input=*)
+      INPUT="${i#*=}"
+      shift # past argument=value
+      ;;
+    -g=*|--genome=*)
+      GENOME="${i#*=}"
+      shift # past argument=value
+      ;;
+    -p=*|--processors=*)
+      PROCESSORS="${i#*=}"
+      shift # past argument=value
+      ;;
+    -r=*|--readlength=*)
+      READLENGTH="${i#*=}"
+      shift # past argument=value
+      ;;
+    -c=*|--cleanup=*)
+      CLEANUP="${i#*=}"
+      shift # past argument=value
+      ;;
+    --DEVMODE=*)
+      DEVMODE="${i#*=}"
+      shift # past argument=value
+      ;;
+    -*|--*)
+      echo "Unknown option $i"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+if [ -z "$CLEANUP" ]; then
+  CLEANUP="TRUE"
+fi
+if [ -z "$READLENGTH" ]; then
+  READLENGTH=60
+fi
+echo "Cleanup (-c or --cleanup)= $CLEANUP"
+echo "Read Length (-r or --readlength)= ${READLENGTH}"
+echo "Input (-i or --input)= ${INPUT}"
+echo "Genome (-g or --genome)= ${GENOME}"
+echo "Processors (-p or --processors)= ${PROCESSORS}"
+echo "Command = $1"
+OUTFILE=$(echo $INPUT | awk -F"." '{print $1}')
+echo "Outfile = $OUTFILE"
+ARCHITECTURE="`uname -p`"
+if [[ $@ == '' ]]; then
+    echo Please enter a command
+    exit 1
+elif [ $1 == 'masks' ] || [ $1 == 'Masks' ]; then
+  if [ -z "$INPUT" ]; then
+    echo Please enter input data
+    exit 1
+  elif [ -z "$GENOME" ]; then
+    echo Please enter reference genome
+    exit 1
+  elif [ -z "$PROCESSORS" ]; then
+    echo Please enter number of processors
+    exit 1
+  else
+    echo Starting mask generation...
+    bash maskgeneration
+  fi
+elif [ $1 == 'scale' ] || [ $1 == 'Scale' ]; then
+  if [ -z "$INPUT" ]; then
+    echo Please enter input data
+    exit 1
+  elif [ -z "$GENOME" ]; then
+    echo Please enter reference genome
+    exit 1
+  else
+    echo Starting rule ensemble scaling...
+    if [[ $OSTYPE == "darwin"* ]]; then
+      RE_implementation.R
+    elif [[ $OSTYPE == "linux-gnu" ]]; then
+      Rscript RE_implementation.R
+    fi
+  fi
+elif [ $1 == 'depend' ] || [ $1 == 'Depend' ]; then
+  if ! command -v brew &> /dev/null
+  then
+      echo "brew could not be found, installing brew"
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      echo "brew installed"
+  fi
+
+  if ! command -v curl &> /dev/null
+  then
+      echo "curl could not be found, installing curl"
+      brew install curl
+      brew link curl
+      echo "curl installed"
+  fi
+
+  if ! command -v wget &> /dev/null
+  then
+      if [[ $OSTYPE == "darwin"* ]]; then
+        echo "wget could not be found, installing wget"
+        brew install wget
+        brew link wget
+        echo "wget installed"
+      fi
+  fi
+
+  if ! command -v faidx &> /dev/null
+  then
+      echo "faidx could not be found, installing faidx"
+      pip install pyfaidx
+      echo "faidx installed"
+  fi
+
+  if ! command -v parallel &> /dev/null
+  then
+      echo "GNU parallel could not be found, installing GNU parallel"
+      wget https://ftpmirror.gnu.org/parallel/parallel-latest.tar.bz2
+      tar -xvf parallel-latest.tar.bz2
+      cd parallel*/
+      ./configure && make
+      make install
+      echo "GNU parallel installed"
+  fi
+
+  if ! command -v bigWigToBedGraph &> /dev/null || ! command -v bedGraphToBigWig &> /dev/null
+  then
+    if [[ $OSTYPE == "darwin"* ]]; then
+      if [[ $ARCHITECTURE == *"86"* ]]; then
+        echo "bigWigToBedGraph or bedGraphToBigWig could not be found, installing for Mac x86 architecture"
+        wget http://hgdownload.soe.ucsc.edu/admin/exe/macOSX.x86_64/bigWigToBedGraph
+        wget http://hgdownload.soe.ucsc.edu/admin/exe/macOSX.x86_64/bedGraphToBigWig
+        cp bigWigToBedGraph /usr/local/bin
+        cp bedGraphToBigWig /usr/local/bin
+        export PATH=/usr/local/bin:$PATH
+        chmod +x /usr/local/bin/bedGraphToBigWig
+        chmod +x /usr/local/bin/bigWigToBedGraph
+        echo "bigWigToBedGraph and bedGraphToBigWig downloaded and added to PATH"
+      fi
+      if [[ $ARCHITECTURE == *"arm"* ]]; then
+        echo "bigWigToBedGraph or bedGraphToBigWig could not be found, installing for Mac ARM architecture"
+        wget http://hgdownload.soe.ucsc.edu/admin/exe/macOSX.arm64/bigWigToBedGraph
+        wget http://hgdownload.soe.ucsc.edu/admin/exe/macOSX.arm64/bedGraphToBigWig
+        cp bigWigToBedGraph /usr/local/bin
+        cp bedGraphToBigWig /usr/local/bin
+        export PATH=/usr/local/bin:$PATH
+        chmod +x /usr/local/bin/bigWigToBedGraph
+        chmod +x /usr/local/bin/bedGraphToBigWig
+        echo "bigWigToBedGraph and bedGraphToBigWig downloaded and added to PATH"
+      fi
+    fi
+    if [[ $OSTYPE == "linux-gnu" ]]; then
+        echo "bigWigToBedGraph or bedGraphToBigWig could not be found, installing for Linux"
+        wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph
+        wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/bedGraphToBigWig
+        cp bigWigToBedGraph /usr/local/bin
+        cp bedGraphToBigWig /usr/local/bin
+        export PATH=/usr/local/bin:$PATH
+        chmod +x /usr/local/bin/bigWigToBedGraph
+        chmod +x /usr/local/bin/bedGraphToBigWig
+        echo "bigWigToBedGraph and bedGraphToBigWig downloaded and added to PATH"
+    fi
+  fi
+
+  if ! command -v gt &> /dev/null
+  then
+      echo "Genome tools could not be found, installing genome tools"
+      brew install genometools
+      brew link genometools
+      echo "Genome tools installed"
+  fi
+
+  if ! command -v rustc &> /dev/null
+  then
+      echo "Rust could not be found, installing Rust"
+      curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh
+      echo "Rust installed"
+  fi
+
+  if [ -z "$DEVMODE" ]
+  then
+      echo "Installing seqOutBias"
+      wget -O seqOutBias.zip https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip
+      unzip seqOutBias.zip
+      cd seqOutBias-master
+      cargo build --release
+      cd target/release
+      cp seqOutBias /usr/local/bin
+      export PATH=/usr/local/bin:$PATH
+      echo "seqOutBias installed"
+  else
+      echo Checked dependencies installed
+      exit 1
+  fi
+
+else
+    echo Please enter a valid command
+fi
