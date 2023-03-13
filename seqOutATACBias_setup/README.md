@@ -39,11 +39,6 @@ brew >= 3.6.10
 curl >= 7.82.0    
 GNU wget >= 1.21.3    
 
-Once the required dependencies are installed and in PATH, the seqOutATACBias software can be downloaded from GitHub by entering:
-```sh
-wget https://github.com/guertinlab/Tn5bias/archive/refs/heads/master.zip
-```
-
 Upon downloading the software, you may install using either setuptools or PIP.
 To install via setuptools, navigate to the seqOutATACBias_setup folder and enter:
 ```sh
