@@ -69,9 +69,8 @@ Outfile =
 Please enter a command
 ```
 
-If you are using a Mac OS or Linux box, you may use the "depend" command with no options to check the brew, curl, wget, faidx, GNU parallel, 
-genometools, bigWigToBedGraph, bedGraphToBigWig, genome tools (gt), rust and seqOutBias dependencies.
-If any of these applications are not found in PATH, seqOutATACBias will attempt to install and add them to PATH:
+If you are using a Mac OS or Linux box, you may use the "depend" command with no options to check the brew, curl, wget, faidx, GNU parallel, bigWigToBedGraph, bedGraphToBigWig, genome tools (gt), and rust dependencies.
+If any of these applications are not found in PATH, seqOutATACBias will attempt to install and add them to PATH. seqOutATACBias will also install the newest version of seqOutBias regardless of whether or not the software is in PATH:
 ```sh
 seqOutATACBias depend
 ```
