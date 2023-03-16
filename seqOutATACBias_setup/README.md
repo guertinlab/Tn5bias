@@ -19,7 +19,7 @@ svn export https://github.com/guertinlab/Tn5bias/trunk/seqOutATACBias_setup
 seqOutATACBias uses several dependencies when installing and when processing data. Please ensure that the following
 software is installed on your machine and in the PATH variable:
 
-seqOutBias https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip       
+seqOutBias >= 1.4.0       
 Rust >= 1.32.0    
 genometools >= 1.6.1     
 python >= 3.9.12   
