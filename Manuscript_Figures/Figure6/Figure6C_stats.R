@@ -1,4 +1,5 @@
 library(gridExtra)
+library(grid)
 #Get figure 6C (and supp) data:
 system('wget https://github.com/guertinlab/Tn5Bias/raw/master/Manuscript_Figures/Figure6/Figure6C_Tn5_singlenuc_log2_comparison.Rdata')
 system('wget https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Figures/Figure6/Supplemental_Tn5_singlenuc_log2_comparison.Rdata')
@@ -78,6 +79,7 @@ summary_table[,7] = c('-', '-', '***')
 colnames(summary_table) = c('Treatment', 'Abs Mean', 'Abs Variance', 'Unscaled t-Test p-value',
                             'seqOutBias t-Test p-value', 'Unscaled F-test p-value', 'seqOutBias F-test p-value')
 
-pdf(file = "Figure6C_summary_stats.pdf", height = 2.0, width = 13)
-grid.table(summary_table, rows = rep('', nrow(summary_table)))
+pdf(file = "Figure6C_summary_stats.pdf", height = 2.0, width = 17)
+grid.table(summary_table, rows = rep('', nrow(summary_table)),theme=ttheme_default(base_size = 16))
+grid.text("Figure6C summary statistics", x = 0.15, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
 dev.off()
