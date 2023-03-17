@@ -1,4 +1,5 @@
 library(gridExtra)
+library(grid)
 #Get figure 5B (and supp) data:
 system('wget https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Figures/Figure5/Figure5B_log2_comparison.Rdata')
 load('Figure5B_log2_comparison.Rdata')
@@ -78,6 +79,7 @@ colnames(summary_table) = c('Treatment', 'Abs Mean', 'Abs Variance', 'Unscaled t
 
 
 
-pdf(file = "Figure5B_summary_stats.pdf", height = 2.0, width = 13)
-grid.table(summary_table, rows = rep('', nrow(summary_table)))
+pdf(file = "Figure5B_summary_stats.pdf", height = 2.0, width = 17)
+grid.table(summary_table, rows = rep('', nrow(summary_table)),theme=ttheme_default(base_size = 16))
+grid.text("Figure5B summary statistics", x = 0.15, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
 dev.off()
