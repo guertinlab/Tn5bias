@@ -2,7 +2,7 @@ library(gridExtra)
 library(grid)
 library(gtable)
 #Get figure 5B (and supp) data:
-#system('wget https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Figures/Figure5/Figure5B_log2_comparison.Rdata')
+system('wget https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Figures/Figure5/Figure5B_log2_comparison.Rdata')
 load('Figure5B_log2_comparison.Rdata')
 
 x$Difference = abs(x$Difference)
