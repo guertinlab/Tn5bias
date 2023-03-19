@@ -1,6 +1,6 @@
 library(gridExtra)
 library(grid)
-#Get figure 6C (and supp) data:
+#Get figure 7D (and supp) data:
 system('wget https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Figures/Figure7/Figure7D_Tn5_Violin_log2Baseline.Rdata')
 load('Figure7D_Tn5_Violin_log2Baseline.Rdata')
 
