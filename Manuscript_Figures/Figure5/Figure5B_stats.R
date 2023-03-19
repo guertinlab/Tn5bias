@@ -1,7 +1,8 @@
 library(gridExtra)
 library(grid)
+library(gtable)
 #Get figure 5B (and supp) data:
-system('wget https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Figures/Figure5/Figure5B_log2_comparison.Rdata')
+#system('wget https://github.com/guertinlab/Tn5bias/raw/master/Manuscript_Figures/Figure5/Figure5B_log2_comparison.Rdata')
 load('Figure5B_log2_comparison.Rdata')
 
 x$Difference = abs(x$Difference)
@@ -51,15 +52,30 @@ seqOutBias_var = var(x[which(x$Treatment == 'seqOutBias'),1])
 RuleEnsemble_var = var(x[which(x$Treatment == 'Rule Ensemble'),1])
 paste(format(unscaled_var, digits = 2), format(seqOutBias_var, digits = 2), format(RuleEnsemble_var, digits = 2))
 
+#QQ plot unscaled
+qqnorm(x[which(x$Treatment == 'Unscaled'),1], pch = 1, frame = FALSE)
+qqline(x[which(x$Treatment == 'Unscaled'),1], col = "red", lwd = 2)
+
+#QQ plot seqOutBias
+qqnorm(x[which(x$Treatment == 'seqOutBias'),1], pch = 1, frame = FALSE)
+qqline(x[which(x$Treatment == 'seqOutBias'),1], col = "red", lwd = 2)
+
+#QQ plot Rule Ensemble
+qqnorm(x[which(x$Treatment == 'Rule Ensemble'),1], pch = 1, frame = FALSE)
+qqline(x[which(x$Treatment == 'Rule Ensemble'),1], col = "red", lwd = 2)
 
 #All together data
 unscaled_data = x[which(x$Treatment == 'Unscaled'),]
 seqOutBias_data = x[which(x$Treatment == 'seqOutBias'),]
 RuleEnsemble_data = x[which(x$Treatment == 'Rule Ensemble'),]
 
-unscaled_seqOutBias_t = t.test(unscaled_data$Difference, seqOutBias_data$Difference, paired = TRUE)
-unscaled_RuleEnsemble_t = t.test(unscaled_data$Difference, RuleEnsemble_data$Difference, paired = TRUE)
-seqOutBias_RuleEnsemble_t = t.test(seqOutBias_data$Difference, RuleEnsemble_data$Difference, paired = TRUE)
+unscaled_seqOutBias_w = wilcox.test(unscaled_data$Difference, seqOutBias_data$Difference, paired = TRUE)
+unscaled_RuleEnsemble_w = wilcox.test(unscaled_data$Difference, RuleEnsemble_data$Difference, paired = TRUE)
+seqOutBias_RuleEnsemble_w = wilcox.test(seqOutBias_data$Difference, RuleEnsemble_data$Difference, paired = TRUE)
+
+unscaled_seqOutBias_w
+unscaled_RuleEnsemble_w
+seqOutBias_RuleEnsemble_w
 
 unscaled_seqOutBias_f = var.test(unscaled_data$Difference, seqOutBias_data$Difference)
 unscaled_RuleEnsemble_f = var.test(unscaled_data$Difference, RuleEnsemble_data$Difference)
@@ -73,13 +89,16 @@ summary_table[,5] = c('-', '-', '***')
 summary_table[,6] = c('-', '***', '***')
 summary_table[,7] = c('-', '-', '***')
 
-colnames(summary_table) = c('Treatment', 'Abs Mean', 'Abs Variance', 'Unscaled t-Test p-value',
-                            'seqOutBias t-Test p-value', 'Unscaled F-test p-value', 'seqOutBias F-test p-value')
+colnames(summary_table) = c('Treatment', 'Abs Mean', 'Abs Variance', 'Unscaled Mann-Whitney U test p-value',
+                            'seqOutBias Mann-Whitney U test p-value', 'Unscaled F-test p-value', 'seqOutBias F-test p-value')
 
-
-
-
-pdf(file = "Figure5B_summary_stats.pdf", height = 2.0, width = 17)
+pdf(file = "Figure5B_summary_stats.pdf", height = 2.0, width = 20)
 grid.table(summary_table, rows = rep('', nrow(summary_table)),theme=ttheme_default(base_size = 16))
-grid.text("Figure5B summary statistics", x = 0.15, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
+grid.text("Figure5B summary statistics", x = 0.122, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
+dev.off()
+
+
+png(file = "Figure5B_summary_stats.png", height = 150, width = 950)
+grid.table(summary_table, rows = rep('', nrow(summary_table)))
+grid.text("Figure5B summary statistics", x = 0.175, y = 0.85, gp = gpar(fontsize = 16, fontface = 'bold'))
 dev.off()
