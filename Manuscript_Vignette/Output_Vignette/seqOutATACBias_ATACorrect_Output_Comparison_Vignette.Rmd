@@ -24,9 +24,9 @@ vignette: >
   This vignette examines the differences between seqOutATACBias and ATACorrect (a TOBIAS tool) output from a test set of read data on chromosome 21. It requires that seqOutATACBias and its dependencies are in path. Because seqOutATACBias and TOBIAS are written in different python versions, a conda virtual environment (python 3.7, named 'TOBIAS_venv') is used to install and run TOBIAS, which must also be in path using this method. If you wish to reproduce this analysis, you __must__ have a conda virtual environment named 'TOBIAS_venv' with TOBIAS installed. This vignette is split into 3 sections: a check to make sure software dependencies are installed, running seqOutATACBias and ATACorrect on identical input reads and reference genome, and finally analysis of their output files. Results from this analysis reveal that while both tools operate on similar input, their output is drastically different, as is their intended use. 
 
 # Installations
-
+    
 In order to run this vignette, you must have the following installed and added to PATH:    
-seqOutBias (https://github.com/guertinlab/seqOutBias/archive/refs/heads/master.zip)     
+seqOutBias 1.4.0             
 Rust >= 1.32.0    
 genometools >= 1.6.1     
 pyfaidx >= 0.7.1   
