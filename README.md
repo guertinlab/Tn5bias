@@ -1,5 +1,5 @@
 # seqOutATACBias: Rule Ensemble Modeling of seqOutBias Scaling
-
+[![DOI](https://zenodo.org/badge/617080961.svg)](https://zenodo.org/badge/latestdoi/617080961)    
 This GitHub repo contains all of the code and information produced for the Guertinlab Tn5 bias correction project. It was made to accompany the paper "Correction of transposase sequence bias in ATAC-seq data with rule ensemble modeling" by providing the code and methods used to produce the figures and data. It is divided into 4 sections:
 
 
