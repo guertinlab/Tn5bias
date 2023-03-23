@@ -36,13 +36,13 @@ qqline(avg_baselines[which(avg_baselines$group == 'seqOutBias'),1], col = "red",
 qqnorm(avg_baselines[which(avg_baselines$group == 'Rule Ensemble'),1], pch = 1, frame = FALSE)
 qqline(avg_baselines[which(avg_baselines$group == 'Rule Ensemble'),1], col = "red", lwd = 2)
 
-unscaled_seqOutBias_w = wilcox.test(unscaled_data$baseline_log, seqOutBias_data$baseline_log, paired = TRUE)
-unscaled_RuleEnsemble_w = wilcox.test(unscaled_data$baseline_log, RuleEnsemble_data$baseline_log, paired = TRUE)
-seqOutBias_RuleEnsemble_w = wilcox.test(seqOutBias_data$baseline_log, RuleEnsemble_data$baseline_log, paired = TRUE)
+unscaled_seqOutBias_t = t.test(unscaled_data$baseline_log, seqOutBias_data$baseline_log, paired = TRUE)
+unscaled_RuleEnsemble_t = t.test(unscaled_data$baseline_log, RuleEnsemble_data$baseline_log, paired = TRUE)
+seqOutBias_RuleEnsemble_t = t.test(seqOutBias_data$baseline_log, RuleEnsemble_data$baseline_log, paired = TRUE)
 
-unscaled_seqOutBias_w
-unscaled_RuleEnsemble_w
-seqOutBias_RuleEnsemble_w
+unscaled_seqOutBias_t
+unscaled_RuleEnsemble_t
+seqOutBias_RuleEnsemble_t
 
 unscaled_seqOutBias_f = var.test(unscaled_data$baseline_log, seqOutBias_data$baseline_log)
 unscaled_RuleEnsemble_f = var.test(unscaled_data$baseline_log, RuleEnsemble_data$baseline_log)
@@ -56,15 +56,16 @@ summary_table[,5] = c('-', '-', '***')
 summary_table[,6] = c('-', format(unscaled_seqOutBias_f[[3]], digits = 2), '**')
 summary_table[,7] = c('-', '-', format(seqOutBias_RuleEnsemble_f[[3]], digits = 2))
 
-colnames(summary_table) = c('group', 'Abs Mean', 'Abs Variance', 'Unscaled Mann-Whitney U test p-value',
-                            'seqOutBias Mann-Whitney U test p-value', 'Unscaled F-test p-value', 'seqOutBias F-test p-value')
+colnames(summary_table) = c('group', 'Abs Mean', 'Abs Variance', 'Unscaled t-test p-value',
+                            'seqOutBias t-test p-value', 'Unscaled F-test p-value', 'seqOutBias F-test p-value')
 
-pdf(file = "Figure7D_summary_stats.pdf", height = 2.0, width = 20)
+pdf(file = "Figure7D_summary_stats.pdf", height = 2.0, width = 19)
 grid.table(summary_table, rows = rep('', nrow(summary_table)),theme=ttheme_default(base_size = 16))
-grid.text("Figure7D summary statistics", x = 0.122, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
+grid.text("Figure 7D summary statistics", x = 0.19, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
 dev.off()
 
 
 png(file = "Figure7D_summary_stats.png", height = 150, width = 950)
 grid.table(summary_table, rows = rep('', nrow(summary_table)))
+grid.text("Figure 7D summary statistics", x = 0.175, y = 0.85, gp = gpar(fontsize = 16, fontface = 'bold'))
 dev.off()
