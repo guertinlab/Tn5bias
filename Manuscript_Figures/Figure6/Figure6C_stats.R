@@ -100,6 +100,7 @@ grid.text("Figure 6C summary statistics", x = 0.122, y = 0.9, gp = gpar(fontsize
 dev.off()
 
 
-png(file = "Figure6C_summary_stats.png", height = 150, width = 950)
+png(file = "Figure6C_summary_stats.png", height = 150, width = 1150)
 grid.table(summary_table, rows = rep('', nrow(summary_table)))
+grid.text("Figure 6C summary statistics", x = 0.155, y = 0.85, gp = gpar(fontsize = 16, fontface = 'bold'))
 dev.off()
