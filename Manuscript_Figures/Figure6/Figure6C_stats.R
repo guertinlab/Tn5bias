@@ -96,7 +96,7 @@ colnames(summary_table) = c('Treatment', 'Abs Mean', 'Abs Variance', 'Unscaled M
 
 pdf(file = "Figure6C_summary_stats.pdf", height = 2.0, width = 20)
 grid.table(summary_table, rows = rep('', nrow(summary_table)),theme=ttheme_default(base_size = 16))
-grid.text("Figure6C summary statistics", x = 0.122, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
+grid.text("Figure 6C summary statistics", x = 0.122, y = 0.9, gp = gpar(fontsize = 20, fontface = 'bold'))
 dev.off()
 
 
